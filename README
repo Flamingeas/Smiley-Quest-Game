@@ -143,7 +143,7 @@ Chaque smiley possède :
    - Exécuter la classe principale `Main.java`
    - Le jeu s’ouvre dans une fenêtre Java 2D (`JFrame`)
 
-### 🖥️ Exécution depuis le terminal
+### Exécution depuis le terminal
    ```bash
    javac -d bin src/*.java
    java -cp bin Main
@@ -199,5 +199,5 @@ Grâce à son univers coloré, ses mécaniques accessibles et sa personnalisatio
 ## Auteur & Licence
 
 Projet développé en Java dans le cadre d’un apprentissage personnel.
-Licence: EPITECH*
+Licence: EPITECH
 Auteur : Samyra Mangan Mben, Vincent Naulleau, Johanna Angloma
