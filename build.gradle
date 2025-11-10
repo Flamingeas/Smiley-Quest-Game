@@ -55,8 +55,8 @@ configure(subprojects) {
 }
 
 subprojects {
-  version = "$projectVersion"
-  ext.appName = 'SmileyQuest'
+    ext.projectVersion = '1.0.0'
+    ext.appName = 'SmileyQuest'
   repositories {
     mavenCentral()
 //    maven { url 'https://s01.oss.sonatype.org' }
