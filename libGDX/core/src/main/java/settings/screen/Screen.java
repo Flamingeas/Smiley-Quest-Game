@@ -1,5 +1,7 @@
+package settings.screen;
 public interface Screen {
     public void show();
+    public void update(float delta);
     public  void render(float delta);
     public void resize(int width, int height);
     public void pause();
