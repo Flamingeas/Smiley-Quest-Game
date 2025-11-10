@@ -1,3 +1,7 @@
+package settings.screen;
+
+import settings.GameState;
+
 public class ScreenManager {
     private GameState state;
     private Screen currentScreen;
