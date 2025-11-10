@@ -1,3 +1,4 @@
+package settings;
 public enum GameState {
     MENU,
     PLAYING,

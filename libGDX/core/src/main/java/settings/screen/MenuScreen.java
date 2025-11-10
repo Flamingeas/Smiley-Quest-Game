@@ -1,3 +1,4 @@
+package settings.screen;
 public class MenuScreen extends Screen {
     private String title;
 
