@@ -27,7 +27,7 @@ public class GameWorld {
             currentLevel.load();
         }
     }
-    }
+
 
     public void nextLevel() {
         System.out.println("Chargement du niveau suivant...");

@@ -1,4 +1,4 @@
-/*
+git/*
  * Copyright 2020 damios
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
