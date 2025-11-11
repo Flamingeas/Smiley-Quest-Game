@@ -1,6 +1,7 @@
 package level;
 
 import entity.Enemy;
+import entity.Item;
 import utils.Coord;
 
 import java.util.List;
