@@ -4,36 +4,31 @@ import entity.Player;
 import level.Level;
 import system.GameTimer;
 import system.ScoreSystem;
-import events.GameEvent;
+import system.GameEvent;
 
 public class GameWorld {
-    private Level currentLevel;
-    private Player player;
+    private final Level currentLevel;
+    private final Player player;
     private GameState state;
-    private ScoreSystem scoreSystem;
-    private GameTimer timer;
+    private final ScoreSystem scoreSystem;
+    private final GameTimer timer;
 
     public GameWorld(Level level) {
         this.currentLevel = level;
-        this.player = new Player();
+        this.player = new Player(level.getPlayerSpawn().getX(), level.getPlayerSpawn().getY(), 3, 2.0f);
         this.state = GameState.PLAYING;
         this.scoreSystem = new ScoreSystem();
         this.timer = new GameTimer();
     }
-
-    public void update() {
+    public void update(float delta) {
         if (state == GameState.PLAYING) {
-            timer.update();
+            timer.tick(delta);
             currentLevel.load();
         }
     }
-
-
     public void nextLevel() {
         System.out.println("Chargement du niveau suivant...");
-        this.currentLevel = new Level(); // temporaire
     }
-
     public void restart() {
         System.out.println("Redémarrage du niveau...");
         this.player.reset();
@@ -41,7 +36,6 @@ public class GameWorld {
         this.scoreSystem.reset();
         this.state = GameState.PLAYING;
     }
-
     public void publish(GameEvent e) {
         System.out.println("Événement reçu : " + e.getType());
     }
