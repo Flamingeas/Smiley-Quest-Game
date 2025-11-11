@@ -3,6 +3,7 @@ package settings.screen;
 import java.util.ArrayList;
 import java.util.List;
 
+import entity.Item;
 import level.Level;
 import entity.Enemy;
 import settings.GameWorld;
@@ -15,7 +16,7 @@ public class GameScreen implements Screen {
 
     public GameScreen() {
         List<Enemy> enemies = new ArrayList<>();
-        List<Item> items = new ArrayList<>();
+        List<Item> items = new ArrayList<Item>();
         Coord playerSpawn = new Coord(0, 0);
         Map map = new Map();
 
