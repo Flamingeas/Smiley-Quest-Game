@@ -4,7 +4,7 @@ public class Weapon extends Item {
     private int damage;
 
     public Weapon(float x, float y, int damage) {
-        super(x, y);
+        super(x, y, 100, "Weapon");
         this.damage = damage;
     }
 

@@ -20,15 +20,19 @@ public class ScoreSystem {
         for (ScoringRule rule : rules) {
             if (rule.isApplicable(e)) {
                 int points = rule.calculatePoints(e);
-                currentScore += points;
-                System.out.println("Score +" + points + " (total : " + currentScore + ")");
+                addScore(points);
             }
         }
+    }
+    public void addScore(int points) {
+        currentScore += points;
+        System.out.println("Score +" + points + " (total : " + currentScore + ")");
     }
 
     public int getScore() {
         return currentScore;
     }
+
     public void reset() {
         currentScore = 0;
     }
