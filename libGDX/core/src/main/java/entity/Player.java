@@ -2,16 +2,22 @@ package entity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import system.Observable;
+import system.GameEvent;
+import system.Observer;
 
-public class Player extends Entity {
-    private int health;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Player extends Entity implements Observable {
     private float speed;
     private int score;
     private int lives;
     private Weapon currentWeapon;
+    private List<Observer> o = new ArrayList<>();
 
 
-    public Player(float x, float y, int health, float speed) {
+    public Player(float x, float y, int lives, float speed) {
         super(x,y);
         this.score = 0;
         this.lives = 3;
@@ -28,11 +34,18 @@ public class Player extends Entity {
 
     @Override
     public void interact(Entity e) {
+        if (e instanceof Item && e.isActive()) {
+            ((Item) e).interact(this);
+        }
     }
+
 
     public void collectItem(Item item) {
         score += item.getValue();
         System.out.println("Item collecté : +" + item.getValue() + " points !");
+
+        GameEvent event = item.createEvent();
+        notifyEvent(event);
     }
     public void loseLife() {
         lives--;
@@ -82,5 +95,20 @@ public class Player extends Entity {
     public void addScore(int points) {
         this.score += points;
         System.out.println("Score augmenté de " + points + ". Total : " + score);
+    }
+
+    @Override
+    public void addObserver(Observer o) {
+
+    }
+
+    @Override
+    public void removeObserver(Observer o) {
+
+    }
+
+    @Override
+    public void notifyObservers(GameEvent event) {
+
     }
 }
