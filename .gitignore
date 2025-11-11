@@ -1,0 +1,178 @@
+## ===============================
+## 🧱 GRADLE BUILD SYSTEM
+## ===============================
+.gradle/
+build/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+!gradlew
+!gradlew.bat
+
+# Gradle local cache & temporary files
+.gradle/
+**/.gradle/
+.gradle-cache/
+.gradle-test-kit/
+
+# Logs
+*.log
+logs/
+build/reports/
+
+## ===============================
+## 🎮 LIBGDX PROJECT STRUCTURE
+## ===============================
+# Ignore compiled output and binaries for all modules
+libGDX/**/build/
+libGDX/**/bin/
+libGDX/**/out/
+libGDX/**/dist/
+libGDX/**/tmp/
+
+# Assets auto-generated
+libGDX/**/assets/assets.txt
+
+# Native builds
+libGDX/**/native/
+libGDX/**/libs/*.so
+libGDX/**/libs/*.dll
+libGDX/**/libs/*.dylib
+
+## ===============================
+## ☕ JAVA / KOTLIN
+## ===============================
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+replay_pid*
+*.swp
+*.bak
+*.tmp
+
+# Annotation processors, kapt, kotlin
+.kotlin/
+kapt/
+kapt3/
+
+## ===============================
+## 💻 IDE SPECIFIC
+## ===============================
+# IntelliJ IDEA / Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+.idea_modules/
+.idea_modules/
+.idea_data/
+.idea_codeStyles/
+.idea_libraries/
+
+# VSCode
+.vscode/
+
+# Eclipse
+.classpath
+.project
+.settings/
+.loadpath
+.externalToolBuilders/
+
+## ===============================
+## 📱 ANDROID / iOS SPECIFIC
+## ===============================
+# Android build artifacts
+android/.gradle/
+android/.idea/
+android/local.properties
+android/out/
+android/build/
+android/gen/
+android/libs/
+android/bin/
+
+# iOS
+ios/.gradle/
+ios/build/
+ios/bin/
+ios/robovm-build/
+ios/xcode/*.xcodeproj/*
+!/ios/xcode/*.xcodeproj/xcshareddata
+!/ios/xcode/*.xcodeproj/project.pbxproj
+ios/xcode/native/
+ios/IOSLauncher.app
+ios/IOSLauncher.app.dSYM
+
+## ===============================
+## 🌐 WEB (HTML / GWT / TEAVM)
+## ===============================
+html/war/
+html/bin/
+html/gwt-unitCache/
+html/war/WEB-INF/deploy/
+html/war/WEB-INF/classes/
+.gwt/
+.gwt-tmp/
+gwt-unitCache/
+www-test/
+
+## ===============================
+## 🧰 NETBEANS (si jamais)
+## ===============================
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+
+## ===============================
+## 🖥️ OS-SPECIFIC FILES
+## ===============================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+## ===============================
+## ⚙️ MISCELLANEOUS
+## ===============================
+*#
+*.*#
+*#*#
+*.orig
+*.rej
+*.swo
+*.swp
+*.bak
+*.tmp
+
+# Resource configs (GraalVM Native Image)
+**/resource-config.json
+
+# JetBrains local tasks, shelf, etc.
+.shelf/
+.idea/shelf/
+
+# Gradle build scans
+.gradle/enterprise/
+
+# Temporary assets, tests, etc.
+temp/
+tmp/
+test-output/

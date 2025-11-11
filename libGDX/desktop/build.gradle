@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':core')
+    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:1.12.1"
+    runtimeOnly "com.badlogicgames.gdx:gdx-platform:1.12.1:natives-desktop"
+}
+
+application {
+    mainClass = 'com.sandy.smileyquest.desktop.DesktopLauncher'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
