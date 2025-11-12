@@ -8,6 +8,8 @@ repositories {
 }
 
 sourceSets.main.resources.srcDirs = [ "../assets" ]
+sourceSets.main.resources.srcDirs += [file("../core/assets")]
+
 
 dependencies {
     implementation project(':core')
