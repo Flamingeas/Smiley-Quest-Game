@@ -1,6 +1,8 @@
 package settings.screen;
 
 import settings.GameState;
+import com.badlogic.gdx.Screen;
+
 
 public class ScreenManager {
     private GameState state;
@@ -26,6 +28,8 @@ public class ScreenManager {
             case GAME_OVER:
                 setScreen(new GameOverScreen());
                 break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + newState);
         }
     }
         public void setScreen(Screen screen) {

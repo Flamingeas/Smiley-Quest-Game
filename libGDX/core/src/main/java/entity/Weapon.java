@@ -21,7 +21,7 @@ public class Weapon extends Item {
 
     public void equip(Player player) {
         System.out.println("Le joueur équipe l’arme.");
-        player.setCurrentWeapon(this); // utilisation correcte du paramètre
+        player.setCurrentWeapon(this);
         player.addScore(100);
     }
 

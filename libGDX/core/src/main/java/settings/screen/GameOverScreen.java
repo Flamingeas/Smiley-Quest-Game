@@ -1,5 +1,7 @@
 package settings.screen;
 
+import com.badlogic.gdx.Screen;
+
 public class GameOverScreen implements Screen {
 
     private int finalScore;
@@ -24,7 +26,7 @@ public class GameOverScreen implements Screen {
         showResults();
     }
 
-    @Override
+
     public void update(float delta) {
         handleInput();
     }

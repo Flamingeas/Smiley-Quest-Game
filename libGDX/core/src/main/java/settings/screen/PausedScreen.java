@@ -1,5 +1,7 @@
 package settings.screen;
 
+import com.badlogic.gdx.Screen;
+
 public class PausedScreen implements Screen {
 
     private boolean resumeRequested = false;
@@ -16,7 +18,6 @@ public class PausedScreen implements Screen {
         handleInput();
     }
 
-    @Override
     public void update(float delta) {
     }
 
