@@ -26,7 +26,7 @@ public class ScreenManager {
                 setScreen(new PausedScreen());
                 break;
             case SETTINGS:
-                setScreen(new SettingsScreen());
+                setScreen(new SettingsScreen(ScreenManager.this));
                 break;
             case GAME_OVER:
                 setScreen(new GameOverScreen());
