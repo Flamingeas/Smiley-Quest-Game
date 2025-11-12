@@ -17,13 +17,16 @@ public class ScreenManager {
 
         switch (newState) {
             case MENU:
-                setScreen(new MenuScreen());
+                setScreen(new MenuScreen(ScreenManager.this));
                 break;
             case PLAYING:
                 setScreen(new GameScreen());
                 break;
             case PAUSED:
                 setScreen(new PausedScreen());
+                break;
+            case SETTINGS:
+                setScreen(new SettingsScreen());
                 break;
             case GAME_OVER:
                 setScreen(new GameOverScreen());
