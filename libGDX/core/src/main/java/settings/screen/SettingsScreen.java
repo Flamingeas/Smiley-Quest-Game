@@ -1,5 +1,7 @@
 package settings.screen;
 
+import com.badlogic.gdx.Screen;
+
 public class SettingsScreen implements Screen {
 
     private float volume;
@@ -18,7 +20,6 @@ public class SettingsScreen implements Screen {
         System.out.println("Affichage du menu des paramètres");
     }
 
-    @Override
     public void update(float delta) {
     }
 
