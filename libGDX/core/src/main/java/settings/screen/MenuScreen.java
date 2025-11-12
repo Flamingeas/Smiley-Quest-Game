@@ -1,46 +1,76 @@
 package settings.screen;
 
-public class MenuScreen implements Screen {
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.utils.ScreenUtils;
 
-    private String title = "Smiley Quest";
+public class MenuScreen implements com.badlogic.gdx.Screen {
+
+    final private String title = "Smiley Quest";
+    private SpriteBatch batch;
+    private BitmapFont fontTitle;
+    private BitmapFont fontText;
 
     public MenuScreen() {}
 
     public void handleInput() {
-        System.out.println("Entrée dans le menu : gérer les inputs ici.");
+        if (Gdx.input.isTouched()) {
+            System.out.println("Clic détecté : transition vers l’écran de jeu.");
+        }
     }
 
     @Override
     public void show() {
-        System.out.println("Affichage du Menu principal : " + title);
+        batch = new SpriteBatch();
+        FreeTypeFontGenerator generator =
+                new FreeTypeFontGenerator(Gdx.files.internal("fonts/PressStart2P-Regular.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter paramTitle = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        paramTitle.size = 32;
+        paramTitle.color = Color.YELLOW;
+        fontTitle = generator.generateFont(paramTitle);
+
+        FreeTypeFontGenerator.FreeTypeFontParameter paramText = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        paramText.size = 16;
+        paramText.color = Color.WHITE;
+        fontText = generator.generateFont(paramText);
+
+        generator.dispose();
+        System.out.println("Menu principal affiché !");
     }
 
-    @Override
     public void update(float delta) {
         handleInput();
     }
 
     @Override
     public void render(float delta) {
-        System.out.println("Rendu du MenuScreen...");
+        ScreenUtils.clear(0, 0, 0.2f, 1);
+        handleInput();
+
+        batch.begin();
+        fontTitle.draw(batch, "Smiley Quest", 100, 360);
+        fontText.draw(batch, "START", 100, 300);
+        batch.end();
     }
 
-    @Override
-    public void resize(int width, int height) {}
-
-    @Override
-    public void pause() {}
-
-    @Override
-    public void resume() {}
+    @Override public void resize(int width, int height) {}
+    @Override public void pause() {}
+    @Override public void resume() {}
 
     @Override
     public void hide() {
-        System.out.println("Fermeture du menu principal.");
+        System.out.println("Close the MenuScreen.");
     }
 
     @Override
     public void dispose() {
-        System.out.println("Nettoyage du MenuScreen.");
+        batch.dispose();
+        fontTitle.dispose();
+        fontText.dispose();
+        System.out.println("Cleansing of MenuScreen.");
     }
 }
