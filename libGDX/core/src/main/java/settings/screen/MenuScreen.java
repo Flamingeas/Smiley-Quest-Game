@@ -131,7 +131,7 @@ public class MenuScreen implements Screen {
     @Override public void pause() {}
     @Override public void resume() {}
     @Override public void hide() {
-        System.out.println("Close of MenuScreen");
+        System.out.println("Closed menu screen");
     }
 
     @Override
