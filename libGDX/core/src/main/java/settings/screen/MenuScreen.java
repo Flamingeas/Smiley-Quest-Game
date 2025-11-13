@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.utils.ScreenUtils;
 import settings.GameState;
 
+
 public class MenuScreen implements Screen {
 
     private final ScreenManager screenManager;
@@ -25,7 +26,6 @@ public class MenuScreen implements Screen {
     private final String[] menuItems = {"START", "SETTINGS", "EXIT"};
     private final String title = "Smiley Quest";
 
-    // Center
     private final float pointerX = 800;
     private final float menuX = 850;
     private final int menuStartY = 400;
@@ -48,7 +48,7 @@ public class MenuScreen implements Screen {
 
         pointer = new Texture(Gdx.files.internal("images/hand_cursor0000.png"));
 
-        // Pac-man font
+
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/PressStart2P-Regular.ttf"));
 
         FreeTypeFontGenerator.FreeTypeFontParameter titleParam = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -91,7 +91,6 @@ public class MenuScreen implements Screen {
 
         batch.begin();
 
-        // Background animated
         TextureRegion currentFrame = backgroundAnimation.getKeyFrame(stateTime, true);
         batch.draw(currentFrame, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
@@ -99,7 +98,7 @@ public class MenuScreen implements Screen {
         float titleX = (Gdx.graphics.getWidth() - layoutTitle.width) / 2;
         fontTitle.draw(batch, title, titleX, Gdx.graphics.getHeight() - 100);
 
-        // Menu
+
         float totalWidth = 0;
         GlyphLayout[] layouts = new GlyphLayout[menuItems.length];
         for (int i = 0; i < menuItems.length; i++) {
@@ -116,7 +115,6 @@ public class MenuScreen implements Screen {
             x += layouts[i].width + spacing;
         }
 
-        // Cursor
         float pointerY = posY - pointer.getHeight() / 2;
         float pointerXSelected = startX;
         for (int i = 0; i < selectedIndex; i++) {
