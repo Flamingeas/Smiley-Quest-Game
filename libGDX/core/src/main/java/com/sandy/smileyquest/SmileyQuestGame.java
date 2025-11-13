@@ -12,12 +12,14 @@ public class SmileyQuestGame extends Game {
     @Override
     public void create() {
         screenManager = new ScreenManager();
-
-        screenManager.setState(GameState.MENU);
+        screenManager.setState(GameState.SPLASH);
+        setScreen(screenManager.getCurrentScreen());
     }
 
     @Override
     public void render() {
+        super.render();
+
         if (screenManager.getCurrentScreen() != null) {
             screenManager.getCurrentScreen().render(Gdx.graphics.getDeltaTime());
         }

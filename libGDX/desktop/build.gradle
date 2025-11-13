@@ -7,20 +7,24 @@ repositories {
     mavenCentral()
 }
 
-sourceSets.main.resources.srcDirs = [ "../assets" ]
-sourceSets.main.resources.srcDirs += [file("../core/assets")]
+sourceSets {
+    main {
+        resources.srcDirs += ["../core/assets"]
+    }
+}
 
 
 dependencies {
     implementation project(':core')
     implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:1.12.1"
     runtimeOnly "com.badlogicgames.gdx:gdx-platform:1.12.1:natives-desktop"
-    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:1.12.1"
     implementation "com.badlogicgames.gdx:gdx-freetype-platform:1.12.1:natives-desktop"
+    implementation "com.badlogicgames.gdx:gdx-tools:1.12.1"
+    implementation files("libs/gdx-video-lwjgl3.jar")
 }
 
 application {
-    mainClass = 'com.sandy.smileyquest.desktop.DesktopLauncher'
+    mainClass = "com.sandy.smileyquest.desktop.DesktopLauncher"
 }
 
 java {

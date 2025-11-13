@@ -10,12 +10,12 @@ public class DesktopLauncher {
 
         config.setTitle("Smiley Quest");
 
-        config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
+        config.setWindowedMode(1280, 720);
+
+        config.setDecorated(true);
 
         config.useVsync(true);
         config.setForegroundFPS(60);
-        config.setResizable(false);
-        config.setDecorated(false);
 
         new Lwjgl3Application(new SmileyQuestGame(), config);
     }

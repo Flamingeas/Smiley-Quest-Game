@@ -8,8 +8,10 @@ repositories {
 
 dependencies {
     implementation "com.badlogicgames.gdx:gdx:1.12.1"
-    implementation "com.badlogicgames.gdx:gdx:1.12.1"
     implementation "com.badlogicgames.gdx:gdx-freetype:1.12.1"
+
+    // Import local JAR because the library is no longer hosted online
+    implementation files("libs/gdx-video-core.jar")
 }
 
 java {
