@@ -2,8 +2,13 @@ plugins {
     id 'java'
 }
 
-repositories {
-    mavenCentral()
+allprojects {
+    repositories {
+        mavenCentral()
+        google()
+        mavenLocal()
+        maven { url 'https://jitpack.io' }
+    }
 }
 
 dependencies {
