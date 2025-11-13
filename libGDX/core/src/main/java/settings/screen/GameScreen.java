@@ -21,6 +21,7 @@ public class GameScreen implements Screen {
     private TiledMap tiledMap;
     private OrthogonalTiledMapRenderer mapRenderer;
     private Texture playerTexture;
+
     private float playerX, playerY;
     private float speed = 200f;
     private GameWorld gameWorld;
@@ -38,8 +39,8 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
 
-        tiledMap = new TmxMapLoader().load("maps/mapdebutant.tmx");
-        mapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 1f);
+        tiledMap = new TmxMapLoader().load("maps/sampleMap.tmx");
+        mapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 2f);
 
 
         camera = new OrthographicCamera();
