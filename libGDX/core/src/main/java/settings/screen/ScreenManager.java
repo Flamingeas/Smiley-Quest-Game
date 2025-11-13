@@ -1,6 +1,8 @@
 package settings.screen;
 
 import settings.GameState;
+import com.badlogic.gdx.Screen;
+
 
 public class ScreenManager {
     private GameState state;
@@ -15,7 +17,7 @@ public class ScreenManager {
 
         switch (newState) {
             case MENU:
-                setScreen(new MenuScreen());
+                setScreen(new MenuScreen(ScreenManager.this));
                 break;
             case PLAYING:
                 setScreen(new GameScreen());
@@ -23,9 +25,14 @@ public class ScreenManager {
             case PAUSED:
                 setScreen(new PausedScreen());
                 break;
+            case SETTINGS:
+                setScreen(new SettingsScreen(ScreenManager.this));
+                break;
             case GAME_OVER:
                 setScreen(new GameOverScreen());
                 break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + newState);
         }
     }
         public void setScreen(Screen screen) {
