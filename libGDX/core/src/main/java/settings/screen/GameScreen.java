@@ -13,6 +13,8 @@ import settings.GameWorld;
 import level.Level;
 import utils.Coord;
 
+import com.badlogic.gdx.math.Matrix4;
+
 import java.util.Collections;
 
 public class GameScreen implements Screen {
@@ -25,6 +27,9 @@ public class GameScreen implements Screen {
     private float playerX, playerY;
     private float speed = 200f;
     private GameWorld gameWorld;
+
+    private float mapOffsetX;
+    private float mapOffsetY;
 
     public GameScreen() {
         Level level = new Level(
@@ -54,7 +59,18 @@ public class GameScreen implements Screen {
 
         playerTexture = new Texture(Gdx.files.internal("images/player.png"));
 
+        //pour centrer la map
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        float mapWidth = tiledMap.getProperties().get("width", Integer.class) * 16 * 2f;
+        float mapHeight = tiledMap.getProperties().get("height", Integer.class) * 16 * 2f;
+
+        mapOffsetX = (screenWidth * 0.75f - mapWidth) / 2f;
+        mapOffsetY = (screenHeight - mapHeight) / 2f;
+
         System.out.println("GameScreen show() : map chargée, player initialisé.");
+        System.out.println("GameScreen show() : map centrée gauche (" + mapOffsetX + ", " + mapOffsetY + ")");
     }
 
     private void handleInput(float delta) {
@@ -79,7 +95,15 @@ public class GameScreen implements Screen {
 
         camera.update();
         mapRenderer.setView(camera);
+
+        Matrix4 originalMatrix = new Matrix4(mapRenderer.getBatch().getTransformMatrix());
+        Matrix4 offsetMatrix = new Matrix4(originalMatrix);
+        offsetMatrix.translate(mapOffsetX, mapOffsetY, 0);
+        mapRenderer.getBatch().setTransformMatrix(offsetMatrix);
+
         mapRenderer.render();
+
+        mapRenderer.getBatch().setTransformMatrix(originalMatrix);
 
         mapRenderer.getBatch().begin();
         mapRenderer.getBatch().draw(playerTexture, playerX, playerY, 32, 32);
