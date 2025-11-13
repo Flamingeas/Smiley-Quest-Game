@@ -9,6 +9,8 @@ import settings.GameWorld;
 import utils.Coord;
 import level.Level;
 import level.Map;
+import com.badlogic.gdx.Screen;
+
 
 public class GameScreen implements Screen {
 
@@ -29,7 +31,6 @@ public class GameScreen implements Screen {
         System.out.println("Affichage de l’écran de jeu");
     }
 
-    @Override
     public void update(float delta) {
         world.update(delta);
     }
