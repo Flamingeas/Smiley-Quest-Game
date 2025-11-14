@@ -1,3 +1,4 @@
+
 plugins {
     id 'java'
 }
@@ -9,13 +10,32 @@ repositories {
 dependencies {
     implementation "com.badlogicgames.gdx:gdx:1.12.1"
     implementation "com.badlogicgames.gdx:gdx-freetype:1.12.1"
+    implementation "com.badlogicgames.gdx:gdx-tools:1.12.1"
 
-    // Import local JAR because the library is no longer hosted online
     implementation files("libs/gdx-video-core.jar")
 }
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+/**
+ * TexturePacker must run on Java 8 or Java 11.
+ * So we force the task to run on Java 11 explicitly.
+ */
+tasks.register("texturePacker") {
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+
+    doLast {
+        TexturePacker.process(
+                "src/main/resources/intro",     // dossier d'entrée
+                "src/main/resources/intro",     // sortie
+                "intro"                         // intro.atlas + intro.png
+        )
+        println "Atlas généré ✔"
     }
 }

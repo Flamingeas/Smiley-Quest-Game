@@ -48,7 +48,6 @@ public class MenuScreen implements Screen {
 
         pointer = new Texture(Gdx.files.internal("images/hand_cursor0000.png"));
 
-        // Pac-man font
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/PressStart2P-Regular.ttf"));
 
         FreeTypeFontGenerator.FreeTypeFontParameter titleParam = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -91,7 +90,6 @@ public class MenuScreen implements Screen {
 
         batch.begin();
 
-        // Background animated
         TextureRegion currentFrame = backgroundAnimation.getKeyFrame(stateTime, true);
         batch.draw(currentFrame, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
