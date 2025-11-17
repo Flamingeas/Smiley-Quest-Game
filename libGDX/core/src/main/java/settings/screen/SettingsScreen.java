@@ -9,10 +9,15 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.utils.ScreenUtils;
 import settings.GameState;
+import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.InputAdapter;
+
 
 public class SettingsScreen implements Screen {
 
-    private float volume = 0.5f;
+    private float volume;
     private final ScreenManager screenManager;
     private SpriteBatch batch;
     private BitmapFont fontTitle;
@@ -20,12 +25,14 @@ public class SettingsScreen implements Screen {
     private Texture pointer;
     private int selectedIndex = 0;
     private final String title = "Settings";
-    private final String[] menuItems = {"Volume", "Back"};
+    private final String[] menuItems = {"Volume", "Fullscreen", "Sound", "Back"};
 
     private final float pointerX = 400;
     private final float menuX = 500;
     private final int menuStartY = 400;
     private final int menuSpacing = 100;
+    private Preferences preferences;
+
 
     public SettingsScreen(ScreenManager screenManager) {
         this.screenManager = screenManager;
@@ -37,26 +44,33 @@ public class SettingsScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN))
             selectedIndex = Math.min(selectedIndex + 1, menuItems.length - 1);
 
-        if (selectedIndex == 0 &&
-                (Gdx.input.isKeyJustPressed(Input.Keys.MINUS) ||
-                        Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_SUBTRACT))) {
-            adjustVolume(volume - 0.1f);
-        }
+        Gdx.input.setInputProcessor(new InputAdapter() {
+            @Override
+            public boolean scrolled(float amountX, float amountY) {
+                adjustVolume(volume - amountY * 0.05f);
+                return true;
+            }
+        });
 
-        if (selectedIndex == 0 &&
-                (Gdx.input.isKeyJustPressed(Input.Keys.EQUALS) ||
-                        Gdx.input.isKeyJustPressed(Input.Keys.PLUS) ||
-                        Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_ADD))) {
-            adjustVolume(volume + 0.1f);
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-            if (selectedIndex == 1) {
-                screenManager.setState(GameState.MENU);
+        if (selectedIndex == 0) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.VOLUME_DOWN)) {
+                setVolume(volume - 0.05f);
+            }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.VOLUME_UP)) {
+                setVolume(volume + 0.05f);
             }
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+        if (selectedIndex == 1 && (Gdx.input.isKeyJustPressed(Input.Keys.LEFT) ||
+                Gdx.input.isKeyJustPressed(Input.Keys.RIGHT))) {
+            setFullscreen(!isFullscreen());
+        }
+        if (selectedIndex == 2 && (Gdx.input.isKeyJustPressed(Input.Keys.LEFT) ||
+                Gdx.input.isKeyJustPressed(Input.Keys.RIGHT))) {
+            setSoundEnabled(!isSoundEnabled());
+        }
+        if ((selectedIndex == 3 && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) ||
+                Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             screenManager.setState(GameState.MENU);
         }
     }
@@ -64,6 +78,11 @@ public class SettingsScreen implements Screen {
     public void adjustVolume(float value) {
         float old = volume;
         this.volume = Math.max(0f, Math.min(1f, value));
+
+        if (preferences != null) {
+            preferences.putFloat("volume", volume);
+            preferences.flush();
+        }
         if (Math.abs(old - volume) > 1e-6) {
             System.out.println("Volume adjusted to " + (int) (volume * 100) + "%");
         }
@@ -88,6 +107,23 @@ public class SettingsScreen implements Screen {
         fontText = generator.generateFont(textParam);
 
         generator.dispose();
+
+        preferences = Gdx.app.getPreferences("SmileyQuestSettings");
+        if (!preferences.contains("volume")) preferences.putFloat("volume", 0.5f);
+        if (!preferences.contains("fullscreen")) preferences.putBoolean("fullscreen", false);
+        if (!preferences.contains("sound")) preferences.putBoolean("sound", true);
+        preferences.flush();
+
+        Gdx.input.setInputProcessor(new InputAdapter() {
+            @Override
+            public boolean scrolled(float amountX, float amountY) {
+                setVolume(volume - amountY * 0.05f);
+                return true;
+            }
+        });
+
+        volume = preferences.getFloat("volume");
+
         System.out.println("Settings screen visible! volume=" + (int)(volume*100) + "%");
     }
 
@@ -116,6 +152,33 @@ public class SettingsScreen implements Screen {
         batch.draw(pointer, pointerX, menuStartY - selectedIndex * menuSpacing - pointer.getHeight() / 2);
 
         batch.end();
+    }
+
+    private void setVolume(float value) {
+        volume = Math.max(0f, Math.min(1f, value));
+        preferences.putFloat("volume", volume);
+        preferences.flush();
+        System.out.println("Volume set to " + (int)(volume*100) + "%");
+    }
+
+    private boolean isFullscreen() {
+        return preferences.getBoolean("fullscreen");
+    }
+
+    private void setFullscreen(boolean value) {
+        preferences.putBoolean("fullscreen", value);
+        preferences.flush();
+        System.out.println("Fullscreen: " + (value ? "ON" : "OFF"));
+    }
+
+    private boolean isSoundEnabled() {
+        return preferences.getBoolean("sound");
+    }
+
+    private void setSoundEnabled(boolean value) {
+        preferences.putBoolean("sound", value);
+        preferences.flush();
+        System.out.println("Sound: " + (value ? "ON" : "OFF"));
     }
 
     @Override public void resize(int width, int height) {}
