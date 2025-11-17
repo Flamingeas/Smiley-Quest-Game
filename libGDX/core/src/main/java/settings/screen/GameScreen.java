@@ -38,8 +38,9 @@ public class GameScreen implements Screen {
     private float mapOffsetY;
 
     private Set<Integer> walkableTiles;
-    private float tileSize = 16f * 2f;
+    private float tileSize;
     private TiledMapTileLayer dungeonLayer;
+    private float scale;
 
     public GameScreen() {
         Level level = new Level(
@@ -67,9 +68,13 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
-
         tiledMap = new TmxMapLoader().load(gameWorld.getCurrentLevel().getMapFile());
-        mapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 2f);
+
+        int tileWidth = tiledMap.getProperties().get("tilewidth", Integer.class);
+        scale = (tileWidth <= 16) ? 2.0f : 1.0f;
+        tileSize = tileWidth * scale;
+
+        mapRenderer = new OrthogonalTiledMapRenderer(tiledMap, scale);
 
         dungeonLayer = (TiledMapTileLayer) tiledMap.getLayers().get("Dungeon");
 
@@ -82,21 +87,23 @@ public class GameScreen implements Screen {
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
 
-        float mapWidth = tiledMap.getProperties().get("width", Integer.class) * 16 * 2f;
-        float mapHeight = tiledMap.getProperties().get("height", Integer.class) * 16 * 2f;
+        float mapWidth = tiledMap.getProperties().get("width", Integer.class) * tileSize;
+        float mapHeight = tiledMap.getProperties().get("height", Integer.class) * tileSize;
 
         mapOffsetX = (screenWidth * 0.75f - mapWidth) / 2f;
         mapOffsetY = (screenHeight - mapHeight) / 2f;
 
-        int startTileX = 0;
-        int startTileY = 22;
-        playerX = mapOffsetX + startTileX * tileSize;
-        playerY = mapOffsetY + startTileY * tileSize;
+
+        Level currentLevel = gameWorld.getCurrentLevel();
+        Coord spawn = currentLevel.getPlayerSpawn();
+        playerX = mapOffsetX + spawn.getX() * tileSize;
+        playerY = mapOffsetY + spawn.getY() * tileSize;
 
         player.setX(playerX);
         player.setY(playerY);
 
         System.out.println("GameScreen show() : map chargée, player initialisé.");
+        System.out.println("TileSize: " + tileSize + " (scale: " + scale + ")");
         System.out.println("GameScreen show() : map centrée gauche (" + mapOffsetX + ", " + mapOffsetY + ")");
     }
 
@@ -180,8 +187,6 @@ public class GameScreen implements Screen {
         handleInput(delta);
         gameWorld.update(delta);
 
-        // player.update();
-
         ScreenUtils.clear(0, 0, 0, 1);
 
         camera.update();
@@ -202,18 +207,15 @@ public class GameScreen implements Screen {
 
         Level currentLevel = gameWorld.getCurrentLevel();
         if (currentLevel.isCleared(playerX - mapOffsetX, playerY - mapOffsetY, tileSize)) {
-
             if (gameWorld.nextLevel()) {
                 System.out.println("Niveau suivant !");
                 dispose();
-
                 show();
                 return;
             } else {
                 System.out.println("🎉 Tous les niveaux terminés !");
             }
         }
-
     }
 
     public Player getPlayer() {
@@ -224,10 +226,11 @@ public class GameScreen implements Screen {
     @Override public void pause() {}
     @Override public void resume() {}
     @Override public void hide() {}
+
     @Override
     public void dispose() {
-        tiledMap.dispose();
-        mapRenderer.dispose();
-        playerTexture.dispose();
+        if (tiledMap != null) tiledMap.dispose();
+        if (mapRenderer != null) mapRenderer.dispose();
+        if (playerTexture != null) playerTexture.dispose();
     }
 }

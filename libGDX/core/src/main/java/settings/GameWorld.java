@@ -20,9 +20,9 @@ public class GameWorld {
     public GameWorld(Level firstLevel) {
 
         this.levels = new Level[] {
-                new Level("maps/sampleMap.tmx", new Coord(2, 2), new Coord(27, 4)),
-                new Level("maps/mapdebutant.tmx", new Coord(2, 2), new Coord(28, 1))
-
+                new Level("maps/sampleMap.tmx", new Coord(0, 22), new Coord(27, 4)),
+                new Level("maps/mapdebutant.tmx", new Coord(1, 28), new Coord(28, 1)),
+                new Level("maps/map2.tmx", new Coord(6, 16), new Coord(28, 1))
         };
 
         this.state = GameState.PLAYING;
@@ -46,8 +46,8 @@ public class GameWorld {
             System.out.println("Chargement du niveau suivant...");
 
             Level lvl = levels[currentLevelIndex];
-            player.setX(lvl.getPlayerSpawn().getX());
-            player.setY(lvl.getPlayerSpawn().getY());
+            player.setX(lvl.getPlayerSpawn().getX()*32f);
+            player.setY(lvl.getPlayerSpawn().getY()*32f);
 
             return true;
         }
