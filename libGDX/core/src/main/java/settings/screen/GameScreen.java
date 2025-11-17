@@ -1,59 +1,218 @@
 package settings.screen;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import entity.Item;
-import entity.Enemy;
-import settings.GameWorld;
-import utils.Coord;
-import level.Level;
-import level.Map;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.utils.ScreenUtils;
+import settings.GameWorld;
+import level.Level;
+import utils.Coord;
+import entity.Player;
 
+import com.badlogic.gdx.math.Matrix4;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class GameScreen implements Screen {
 
-    private final GameWorld world;
+    private OrthographicCamera camera;
+    private TiledMap tiledMap;
+    private OrthogonalTiledMapRenderer mapRenderer;
+    private Texture playerTexture;
+
+    private float playerX, playerY;
+    private float speed = 200f;
+    private GameWorld gameWorld;
+
+    private Player player;
+
+    private float mapOffsetX;
+    private float mapOffsetY;
+
+    private Set<Integer> walkableTiles;
+    private float tileSize = 16f * 2f;
+    private TiledMapTileLayer dungeonLayer;
 
     public GameScreen() {
-        List<Enemy> enemies = new ArrayList<>();
-        List<Item> items = new ArrayList<>();
-        Coord playerSpawn = new Coord(0, 0);
-        Map map = new Map();
+        Level level = new Level(
+                Collections.emptyList(),
+                Collections.emptyList(),
+                new Coord(2, 2),
+                null
+        );
+        this.gameWorld = new GameWorld(level);
 
-        Level level1 = new Level(enemies, items, playerSpawn, map);
-        this.world = new GameWorld(level1);
+        this.player = new Player(0, 0, 3, speed);
+
+        walkableTiles = new HashSet<>();
+        walkableTiles.add(31);
+        walkableTiles.add(37);
+        walkableTiles.add(38);
+        walkableTiles.add(39);
+        walkableTiles.add(49);
+        walkableTiles.add(50);
+        walkableTiles.add(51);
+        walkableTiles.add(52);
+        walkableTiles.add(53);
+        walkableTiles.add(54);
     }
 
     @Override
     public void show() {
-        System.out.println("Affichage de l’écran de jeu");
+
+        tiledMap = new TmxMapLoader().load("maps/sampleMap.tmx");
+        mapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 2f);
+
+        dungeonLayer = (TiledMapTileLayer) tiledMap.getLayers().get("Dungeon");
+
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        camera.update();
+
+        playerTexture = new Texture(Gdx.files.internal("images/smiley/playerboss.png"));
+
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+
+        float mapWidth = tiledMap.getProperties().get("width", Integer.class) * 16 * 2f;
+        float mapHeight = tiledMap.getProperties().get("height", Integer.class) * 16 * 2f;
+
+        mapOffsetX = (screenWidth * 0.75f - mapWidth) / 2f;
+        mapOffsetY = (screenHeight - mapHeight) / 2f;
+
+        int startTileX = 0;
+        int startTileY = 22;
+        playerX = mapOffsetX + startTileX * tileSize;
+        playerY = mapOffsetY + startTileY * tileSize;
+
+        player.setX(playerX);
+        player.setY(playerY);
+
+        System.out.println("GameScreen show() : map chargée, player initialisé.");
+        System.out.println("GameScreen show() : map centrée gauche (" + mapOffsetX + ", " + mapOffsetY + ")");
     }
 
-    public void update(float delta) {
-        world.update(delta);
+    private boolean canMoveTo(float newX, float newY) {
+        float relativeX = newX - mapOffsetX;
+        float relativeY = newY - mapOffsetY;
+
+        int[][] corners = {
+                {4, 4},
+                {28, 4},
+                {4, 28},
+                {28, 28}
+        };
+
+        for (int[] corner : corners) {
+            int tileX = (int) ((relativeX + corner[0]) / tileSize);
+            int tileY = (int) ((relativeY + corner[1]) / tileSize);
+
+            if (tileX < 0 || tileY < 0 ||
+                    tileX >= tiledMap.getProperties().get("width", Integer.class) ||
+                    tileY >= tiledMap.getProperties().get("height", Integer.class)) {
+                return false;
+            }
+
+            if (!isTileWalkable(tileX, tileY)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean isTileWalkable(int tileX, int tileY) {
+        if (dungeonLayer == null) {
+            return true;
+        }
+
+        TiledMapTileLayer.Cell cell = dungeonLayer.getCell(tileX, tileY);
+
+        if (cell == null || cell.getTile() == null) {
+            return false;
+        }
+
+        int tileId = cell.getTile().getId();
+
+        if (tileId > 2000) {
+            tileId = tileId & 0x1FFFFFFF;
+        }
+
+        return walkableTiles.contains(tileId);
+    }
+
+    private void handleInput(float delta) {
+        float move = speed * delta;
+        float newX = playerX;
+        float newY = playerY;
+
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT))  newX -= move;
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) newX += move;
+        if (Gdx.input.isKeyPressed(Input.Keys.UP))    newY += move;
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN))  newY -= move;
+
+        if (Gdx.input.isKeyPressed(Input.Keys.Q))  newX -= move;
+        if (Gdx.input.isKeyPressed(Input.Keys.D))  newX += move;
+        if (Gdx.input.isKeyPressed(Input.Keys.Z))  newY += move;
+        if (Gdx.input.isKeyPressed(Input.Keys.S))  newY -= move;
+
+        if (canMoveTo(newX, playerY)) {
+            playerX = newX;
+        }
+        if (canMoveTo(playerX, newY)) {
+            playerY = newY;
+        }
+
+        player.setX(playerX);
+        player.setY(playerY);
     }
 
     @Override
     public void render(float delta) {
-        world.update(delta);
+        handleInput(delta);
+        gameWorld.update(delta);
+
+        // player.update();
+
+        ScreenUtils.clear(0, 0, 0, 1);
+
+        camera.update();
+        mapRenderer.setView(camera);
+
+        Matrix4 originalMatrix = new Matrix4(mapRenderer.getBatch().getTransformMatrix());
+        Matrix4 offsetMatrix = new Matrix4(originalMatrix);
+        offsetMatrix.translate(mapOffsetX, mapOffsetY, 0);
+        mapRenderer.getBatch().setTransformMatrix(offsetMatrix);
+
+        mapRenderer.render();
+
+        mapRenderer.getBatch().setTransformMatrix(originalMatrix);
+
+        mapRenderer.getBatch().begin();
+        mapRenderer.getBatch().draw(playerTexture, playerX, playerY, 32, 32);
+        mapRenderer.getBatch().end();
     }
 
-    @Override
-    public void resize(int width, int height) {}
+    public Player getPlayer() {
+        return player;
+    }
 
-    @Override
-    public void pause() {}
-
-    @Override
-    public void resume() {}
-
-    @Override
-    public void hide() {}
-
+    @Override public void resize(int width, int height) {}
+    @Override public void pause() {}
+    @Override public void resume() {}
+    @Override public void hide() {}
     @Override
     public void dispose() {
-        System.out.println("Nettoyage du GameScreen");
+        tiledMap.dispose();
+        mapRenderer.dispose();
+        playerTexture.dispose();
     }
 }
