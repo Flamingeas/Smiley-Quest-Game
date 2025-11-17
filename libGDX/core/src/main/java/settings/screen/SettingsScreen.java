@@ -20,7 +20,7 @@ public class SettingsScreen implements Screen {
     private Texture pointer;
     private int selectedIndex = 0;
     private final String title = "Settings";
-    private final String[] menuItems = {"Volume", "Graphics", "Back"};
+    private final String[] menuItems = {"Volume", "Back"};
 
     private final float pointerX = 400;
     private final float menuX = 500;
@@ -33,24 +33,40 @@ public class SettingsScreen implements Screen {
 
     private void handleInput() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.UP))
-            selectedIndex = Math.min(selectedIndex + 1, menuItems.length - 1);
-        if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN))
             selectedIndex = Math.max(selectedIndex - 1, 0);
-        if (Gdx.input.isKeyJustPressed(Input.Keys.MINUS) && selectedIndex == 0) {
-            adjustVolume(-0.1f);
+        if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN))
+            selectedIndex = Math.min(selectedIndex + 1, menuItems.length - 1);
+
+        if (selectedIndex == 0 &&
+                (Gdx.input.isKeyJustPressed(Input.Keys.MINUS) ||
+                        Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_SUBTRACT))) {
+            adjustVolume(volume - 0.1f);
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.PLUS) && selectedIndex == 0) {
-            adjustVolume(+0.1f);
+
+        if (selectedIndex == 0 &&
+                (Gdx.input.isKeyJustPressed(Input.Keys.EQUALS) ||
+                        Gdx.input.isKeyJustPressed(Input.Keys.PLUS) ||
+                        Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_ADD))) {
+            adjustVolume(volume + 0.1f);
         }
+
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-            if (selectedIndex == 2) {
+            if (selectedIndex == 1) {
                 screenManager.setState(GameState.MENU);
             }
         }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            screenManager.setState(GameState.MENU);
+        }
     }
+
     public void adjustVolume(float value) {
+        float old = volume;
         this.volume = Math.max(0f, Math.min(1f, value));
-        System.out.println("Volume adjusted to " + (volume * 100) + "%");
+        if (Math.abs(old - volume) > 1e-6) {
+            System.out.println("Volume adjusted to " + (int) (volume * 100) + "%");
+        }
     }
 
     @Override
@@ -59,7 +75,6 @@ public class SettingsScreen implements Screen {
 
         pointer = new Texture(Gdx.files.internal("images/hand_cursor0000.png"));
 
-        // Font
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/PressStart2P-Regular.ttf"));
 
         FreeTypeFontGenerator.FreeTypeFontParameter titleParam = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -73,33 +88,34 @@ public class SettingsScreen implements Screen {
         fontText = generator.generateFont(textParam);
 
         generator.dispose();
-        System.out.println("Settings screen visible!");
-    }
-
-    public void update(float delta) {
+        System.out.println("Settings screen visible! volume=" + (int)(volume*100) + "%");
     }
 
     @Override
     public void render(float delta) {
         handleInput();
-        ScreenUtils.clear(0.1f, 0.1f, 0.3f, 1);
+        ScreenUtils.clear(1f, 0.92f, 0.23f, 1);
 
         batch.begin();
 
-        // Title
         GlyphLayout layoutTitle = new GlyphLayout(fontTitle, title);
         float titleX = (Gdx.graphics.getWidth() - layoutTitle.width) / 2;
         fontTitle.draw(batch, title, titleX, Gdx.graphics.getHeight() - 100);
 
-        // Menu
         for (int i = 0; i < menuItems.length; i++) {
             String text = menuItems[i];
-            if (i == 0) text += " : " + (int)(volume * 100) + "%";
+            if (i == 0) text += " : " + (int) (volume * 100) + "%";
+
+//            if (i == selectedIndex) fontText.setColor(Color.WHITE);
+//            else fontText.setColor(Color.BLACK);
+
             fontText.draw(batch, text, menuX, menuStartY - i * menuSpacing);
         }
+//        fontText.setColor(Color.BLACK);
 
         batch.draw(pointer, pointerX, menuStartY - selectedIndex * menuSpacing - pointer.getHeight() / 2);
-        System.out.println("SettingsScreen");
+
+        batch.end();
     }
 
     @Override public void resize(int width, int height) {}
@@ -113,12 +129,13 @@ public class SettingsScreen implements Screen {
 
     @Override
     public void dispose() {
-        fontTitle.dispose();
-        fontText.dispose();
-        pointer.dispose();
-        batch.dispose();
+        if (fontTitle != null) fontTitle.dispose();
+        if (fontText != null) fontText.dispose();
+        if (pointer != null) pointer.dispose();
+        if (batch != null) batch.dispose();
         System.out.println("Cleansing of SettingsScreen.");
     }
+
     public float getVolume() {
         return volume;
     }
