@@ -180,3 +180,4 @@ Desktop.ini
 temp/
 tmp/
 test-output/
+/libGDX/core/build/
