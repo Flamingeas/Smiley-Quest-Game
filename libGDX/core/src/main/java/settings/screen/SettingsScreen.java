@@ -13,6 +13,7 @@ import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.InputAdapter;
+import system.GameEvent;
 
 
 public class SettingsScreen implements Screen {
@@ -128,6 +129,9 @@ public class SettingsScreen implements Screen {
 
         System.out.println("Settings screen visible! volume=" + (int)(volume*100) + "%");
     }
+
+    notifyObservers(new GameEvent(GameEvent.Type.VOLUME_CHANGED, volume));
+    notifyObservers(new GameEvent(GameEvent.Type.SOUND_TOGGLED, isSoundEnabled()));
 
     @Override
     public void render(float delta) {
