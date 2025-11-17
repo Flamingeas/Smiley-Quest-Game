@@ -82,7 +82,7 @@ public class GameScreen implements Screen {
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.update();
 
-        playerTexture = new Texture(Gdx.files.internal("images/smiley/playerboss.png"));
+        playerTexture = new Texture(Gdx.files.internal("images/smiley/player.png"));
 
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
@@ -108,8 +108,17 @@ public class GameScreen implements Screen {
     }
 
     private boolean canMoveTo(float newX, float newY) {
+
         float relativeX = newX - mapOffsetX;
         float relativeY = newY - mapOffsetY;
+
+        float mapWidth = tiledMap.getProperties().get("width", Integer.class) * tileSize;
+        float mapHeight = tiledMap.getProperties().get("height", Integer.class) * tileSize;
+
+        if (relativeX < 0 || relativeY < 0 ||
+                relativeX + 32 > mapWidth || relativeY + 32 > mapHeight) {
+            return false;
+        }
 
         int[][] corners = {
                 {4, 4},
@@ -213,7 +222,7 @@ public class GameScreen implements Screen {
                 show();
                 return;
             } else {
-                System.out.println("🎉 Tous les niveaux terminés !");
+                System.out.println("Tous les niveaux sont terminés !");
             }
         }
     }
