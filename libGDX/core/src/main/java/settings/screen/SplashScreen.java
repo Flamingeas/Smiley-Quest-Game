@@ -8,7 +8,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+import com.badlogic.gdx.utils.Array;
 import settings.GameState;
+
+import java.util.Comparator;
 
 public class SplashScreen implements Screen {
 
@@ -25,17 +28,32 @@ public class SplashScreen implements Screen {
     public void show() {
         batch = new SpriteBatch();
 
-        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("intro.atlas"));
+        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("intro/intro.atlas"));
 
-        animation = new Animation<>(1f / 30f, atlas.findRegions("frame"));
+        Array<TextureAtlas.AtlasRegion> all = atlas.getRegions();
+
+        Array<TextureAtlas.AtlasRegion> frames = new Array<>();
+
+        for (TextureAtlas.AtlasRegion r : all) {
+            if (r.name.startsWith("intro_")) {
+                frames.add(r);
+            }
+        }
+
+        frames.sort(Comparator.comparing(a -> a.name));
+
+        System.out.println("Frames count = " + frames.size);
+
+        animation = new Animation<>(1f / 60f, frames);
         animation.setPlayMode(Animation.PlayMode.NORMAL);
-
-        System.out.println("Loaded atlas frames: " + animation.getKeyFrames().length);
     }
+
+
 
     @Override
     public void render(float delta) {
-        time += delta;
+
+        time += delta * 0.30f;
 
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -53,6 +71,7 @@ public class SplashScreen implements Screen {
             screenManager.setState(GameState.MENU);
         }
     }
+
 
     @Override public void resize(int width, int height) {}
     @Override public void pause() {}

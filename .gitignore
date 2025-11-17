@@ -7,6 +7,10 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !gradlew
 !gradlew.bat
+core/build/
+core/build/**
+
+libGDX/**/bin/
 
 # Gradle local cache & temporary files
 .gradle/
@@ -176,3 +180,4 @@ Desktop.ini
 temp/
 tmp/
 test-output/
+/libGDX/core/build/
