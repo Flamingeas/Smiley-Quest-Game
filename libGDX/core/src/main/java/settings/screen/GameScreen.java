@@ -68,7 +68,7 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
 
-        tiledMap = new TmxMapLoader().load("maps/sampleMap.tmx");
+        tiledMap = new TmxMapLoader().load(gameWorld.getCurrentLevel().getMapFile());
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 2f);
 
         dungeonLayer = (TiledMapTileLayer) tiledMap.getLayers().get("Dungeon");
@@ -199,6 +199,21 @@ public class GameScreen implements Screen {
         mapRenderer.getBatch().begin();
         mapRenderer.getBatch().draw(playerTexture, playerX, playerY, 32, 32);
         mapRenderer.getBatch().end();
+
+        Level currentLevel = gameWorld.getCurrentLevel();
+        if (currentLevel.isCleared(playerX - mapOffsetX, playerY - mapOffsetY, tileSize)) {
+
+            if (gameWorld.nextLevel()) {
+                System.out.println("Niveau suivant !");
+                dispose();
+
+                show();
+                return;
+            } else {
+                System.out.println("🎉 Tous les niveaux terminés !");
+            }
+        }
+
     }
 
     public Player getPlayer() {
