@@ -11,7 +11,7 @@ public class SmileyQuestGame extends Game {
     @Override
     public void create() {
         screenManager = new ScreenManager();
-        screenManager.setState(GameState.SPLASH);
+        screenManager.setState(GameState.MENU);
         setScreen(screenManager.getCurrentScreen());
     }
 
