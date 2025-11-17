@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import settings.GameWorld;
 import level.Level;
 import utils.Coord;
+import entity.Player;
 
 import com.badlogic.gdx.math.Matrix4;
 
@@ -31,6 +32,8 @@ public class GameScreen implements Screen {
     private float speed = 200f;
     private GameWorld gameWorld;
 
+    private Player player;
+
     private float mapOffsetX;
     private float mapOffsetY;
 
@@ -46,6 +49,8 @@ public class GameScreen implements Screen {
                 null
         );
         this.gameWorld = new GameWorld(level);
+
+        this.player = new Player(0, 0, 3, speed);
 
         walkableTiles = new HashSet<>();
         walkableTiles.add(31);
@@ -72,7 +77,7 @@ public class GameScreen implements Screen {
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.update();
 
-        playerTexture = new Texture(Gdx.files.internal("images/player.png"));
+        playerTexture = new Texture(Gdx.files.internal("images/smiley/playerboss.png"));
 
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
@@ -87,6 +92,9 @@ public class GameScreen implements Screen {
         int startTileY = 22;
         playerX = mapOffsetX + startTileX * tileSize;
         playerY = mapOffsetY + startTileY * tileSize;
+
+        player.setX(playerX);
+        player.setY(playerY);
 
         System.out.println("GameScreen show() : map chargée, player initialisé.");
         System.out.println("GameScreen show() : map centrée gauche (" + mapOffsetX + ", " + mapOffsetY + ")");
@@ -162,12 +170,17 @@ public class GameScreen implements Screen {
         if (canMoveTo(playerX, newY)) {
             playerY = newY;
         }
+
+        player.setX(playerX);
+        player.setY(playerY);
     }
 
     @Override
     public void render(float delta) {
         handleInput(delta);
         gameWorld.update(delta);
+
+        // player.update();
 
         ScreenUtils.clear(0, 0, 0, 1);
 
@@ -186,6 +199,10 @@ public class GameScreen implements Screen {
         mapRenderer.getBatch().begin();
         mapRenderer.getBatch().draw(playerTexture, playerX, playerY, 32, 32);
         mapRenderer.getBatch().end();
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 
     @Override public void resize(int width, int height) {}
