@@ -30,6 +30,7 @@ public class Player extends Entity implements Observable {
         this.speed = 2.0f;
         this.score = 0;
     }
+
     @Override
     public void update() {
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) x -= speed;
@@ -49,6 +50,7 @@ public class Player extends Entity implements Observable {
             ((Item) e).interact(this);
         }
     }
+
     public void collectItem(Item item) {
         score += item.getValue();
         System.out.println("Item collecté : +" + item.getValue() + " points !");
@@ -56,11 +58,13 @@ public class Player extends Entity implements Observable {
         GameEvent event = item.createEvent();
         notifyEvent(event);
     }
+
     public void addScore(int points) {
         this.score += points;
         System.out.println("Score augmenté de " + points + ". Total : " + score);
         notifyEvent(new GameEvent("SCORE_UPDATED", score));
     }
+
     public void loseLife() {
         lives--;
         System.out.println("Vie perdue ! Vies restantes : " + lives);
@@ -70,11 +74,13 @@ public class Player extends Entity implements Observable {
             notifyEvent(new GameEvent("PLAYER_DEAD", null));
         }
     }
+
     public void gainLife() {
         lives++;
         System.out.println("Vie gagnée ! Total : " + lives);
         notifyEvent(new GameEvent("LIFE_GAINED", lives));
     }
+
     public void reset() {
         this.score = 0;
         this.lives = 3;
@@ -82,47 +88,76 @@ public class Player extends Entity implements Observable {
         System.out.println("Joueur réinitialisé.");
         notifyEvent(new GameEvent("PLAYER_RESET", null));
     }
+
     @Override
     public void addObserver(Observer o) {
         observers.add(o);
     }
+
     @Override
     public void removeObserver(Observer o) {
         observers.remove(o);
     }
+
     @Override
     public void notifyObservers(GameEvent event) {
         for (Observer obs : observers) {
             obs.onNotify(event);
         }
     }
+
     public void notifyEvent(GameEvent event) {
         notifyObservers(event);
     }
+
     public Weapon getCurrentWeapon() {
         return currentWeapon;
     }
+
     public void setCurrentWeapon(Weapon currentWeapon) {
         this.currentWeapon = currentWeapon;
     }
+
     public int getScore() {
         return score;
     }
+
     public void setScore(int score) {
         this.score = score;
     }
+
     public int getLives() {
         return lives;
     }
+
     public void setLives(int lives) {
         this.lives = lives;
     }
+
     public float getSpeed() {
         return speed;
     }
+
     public void setSpeed(float speed) {
         this.speed = speed;
     }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
     public void takeDamage(int damage) {
         System.out.println("Le joueur subit " + damage + " points de dégâts !");
         lives -= damage;
