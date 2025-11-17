@@ -170,15 +170,21 @@ public class GameScreen implements Screen {
         float newX = playerX;
         float newY = playerY;
 
+        //Mode fleches
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT))  newX -= move;
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) newX += move;
         if (Gdx.input.isKeyPressed(Input.Keys.UP))    newY += move;
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN))  newY -= move;
 
-        if (Gdx.input.isKeyPressed(Input.Keys.Q))  newX -= move;
+        //Mode AZERTY
+        if (Gdx.input.isKeyPressed(Input.Keys.A))  newX -= move;
         if (Gdx.input.isKeyPressed(Input.Keys.D))  newX += move;
-        if (Gdx.input.isKeyPressed(Input.Keys.Z))  newY += move;
+        if (Gdx.input.isKeyPressed(Input.Keys.W))  newY += move;
         if (Gdx.input.isKeyPressed(Input.Keys.S))  newY -= move;
+
+        //Mode QWERTY
+        if (Gdx.input.isKeyPressed(Input.Keys.Q))  newX -= move;
+        if (Gdx.input.isKeyPressed(Input.Keys.Z))  newY += move;
 
         if (canMoveTo(newX, playerY)) {
             playerX = newX;
