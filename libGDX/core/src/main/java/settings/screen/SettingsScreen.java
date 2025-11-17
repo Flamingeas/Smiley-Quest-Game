@@ -53,20 +53,22 @@ public class SettingsScreen implements Screen {
         });
 
         if (selectedIndex == 0) {
-            if (Gdx.input.isKeyJustPressed(Input.Keys.VOLUME_DOWN)) {
-                setVolume(volume - 0.05f);
+            if (Gdx.input.isKeyJustPressed(Input.Keys.MINUS) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_SUBTRACT)) {
+                setVolume(volume - 0.1f);
             }
-            if (Gdx.input.isKeyJustPressed(Input.Keys.VOLUME_UP)) {
-                setVolume(volume + 0.05f);
+            if (Gdx.input.isKeyJustPressed(Input.Keys.EQUALS) || Gdx.input.isKeyJustPressed(Input.Keys.PLUS) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_ADD)) {
+                setVolume(volume + 0.1f);
             }
         }
 
         if (selectedIndex == 1 && (Gdx.input.isKeyJustPressed(Input.Keys.LEFT) ||
-                Gdx.input.isKeyJustPressed(Input.Keys.RIGHT))) {
+                Gdx.input.isKeyJustPressed(Input.Keys.RIGHT) ||
+                Gdx.input.isButtonJustPressed(Input.Buttons.LEFT))) {
             setFullscreen(!isFullscreen());
         }
         if (selectedIndex == 2 && (Gdx.input.isKeyJustPressed(Input.Keys.LEFT) ||
-                Gdx.input.isKeyJustPressed(Input.Keys.RIGHT))) {
+                Gdx.input.isKeyJustPressed(Input.Keys.RIGHT) ||
+                Gdx.input.isButtonJustPressed(Input.Buttons.LEFT))) {
             setSoundEnabled(!isSoundEnabled());
         }
         if ((selectedIndex == 3 && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) ||
@@ -141,14 +143,11 @@ public class SettingsScreen implements Screen {
         for (int i = 0; i < menuItems.length; i++) {
             String text = menuItems[i];
             if (i == 0) text += " : " + (int) (volume * 100) + "%";
-
-//            if (i == selectedIndex) fontText.setColor(Color.WHITE);
-//            else fontText.setColor(Color.BLACK);
+            if (i == 1) text += " : " + (isFullscreen() ? "ON" : "OFF") ;
+            if (i == 2) text += " : " + (isSoundEnabled() ? "ON" : "OFF") ;
 
             fontText.draw(batch, text, menuX, menuStartY - i * menuSpacing);
         }
-//        fontText.setColor(Color.BLACK);
-
         batch.draw(pointer, pointerX, menuStartY - selectedIndex * menuSpacing - pointer.getHeight() / 2);
 
         batch.end();
