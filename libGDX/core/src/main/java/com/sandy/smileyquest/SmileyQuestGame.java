@@ -1,7 +1,6 @@
 package com.sandy.smileyquest;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
 import settings.screen.ScreenManager;
 import settings.GameState;
 
@@ -12,15 +11,13 @@ public class SmileyQuestGame extends Game {
     @Override
     public void create() {
         screenManager = new ScreenManager();
-
-        screenManager.setState(GameState.MENU);
+        screenManager.setState(GameState.SPLASH);
+        setScreen(screenManager.getCurrentScreen());
     }
 
     @Override
     public void render() {
-        if (screenManager.getCurrentScreen() != null) {
-            screenManager.getCurrentScreen().render(Gdx.graphics.getDeltaTime());
-        }
+        super.render();
     }
 
     @Override

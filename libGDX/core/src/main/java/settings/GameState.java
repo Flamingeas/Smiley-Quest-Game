@@ -1,6 +1,7 @@
 package settings;
 
 public enum GameState {
+    SPLASH,
     MENU,
     PLAYING,
     PAUSED,
