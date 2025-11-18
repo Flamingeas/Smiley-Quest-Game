@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import settings.GameState;
 import com.badlogic.gdx.Preferences;
 import system.AudioManager;
+import com.badlogic.gdx.Graphics.DisplayMode;
 
 
 public class SettingsScreen implements Screen {
@@ -26,8 +27,8 @@ public class SettingsScreen implements Screen {
     private final String[] menuItems = {"Fullscreen", "Sound", "Back"};
 
     private final float pointerX = 400;
-    private final float menuX = 500;
-    private final int menuStartY = 400;
+    private final float menuX = 650;
+    private final int menuStartY = 600;
     private final int menuSpacing = 100;
     private Preferences preferences;
 
@@ -84,11 +85,12 @@ public class SettingsScreen implements Screen {
     }
 
     private boolean isFullscreen() { return preferences.getBoolean("fullscreen"); }
+
     private void setFullscreen(boolean value) {
         preferences.putBoolean("fullscreen", value);
         preferences.flush();
+        applyDisplayMode();
     }
-
     private boolean isSoundEnabled() { return preferences.getBoolean("sound"); }
     private void setSoundEnabled(boolean value) {
         preferences.putBoolean("sound", value);
@@ -151,5 +153,16 @@ public class SettingsScreen implements Screen {
         if (fontText != null) fontText.dispose();
         if (pointer != null) pointer.dispose();
         if (batch != null) batch.dispose();
+    }
+
+    private void applyDisplayMode() {
+        if (isFullscreen()) {
+            DisplayMode displayMode = Gdx.graphics.getDisplayMode();
+            Gdx.graphics.setFullscreenMode(displayMode);
+        } else {
+            int windowWidth = 1600;
+            int windowHeight = 900;
+            Gdx.graphics.setWindowedMode(windowWidth, windowHeight);
+        }
     }
 }
