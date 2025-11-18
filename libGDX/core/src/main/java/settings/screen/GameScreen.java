@@ -54,16 +54,16 @@ public class GameScreen implements Screen {
         this.player = new Player(0, 0, 3, speed);
 
         walkableTiles = new HashSet<>();
-        walkableTiles.add(31);
-        walkableTiles.add(37);
-        walkableTiles.add(38);
-        walkableTiles.add(39);
-        walkableTiles.add(49);
-        walkableTiles.add(50);
-        walkableTiles.add(51);
-        walkableTiles.add(52);
-        walkableTiles.add(53);
-        walkableTiles.add(54);
+//        walkableTiles.add(31);
+//        walkableTiles.add(37);
+//        walkableTiles.add(38);
+//        walkableTiles.add(39);
+//        walkableTiles.add(49);
+//        walkableTiles.add(50);
+//        walkableTiles.add(51);
+//        walkableTiles.add(52);
+//        walkableTiles.add(53);
+//        walkableTiles.add(54);
     }
 
     @Override
@@ -77,6 +77,12 @@ public class GameScreen implements Screen {
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap, scale);
 
         dungeonLayer = (TiledMapTileLayer) tiledMap.getLayers().get("Dungeon");
+
+        if (dungeonLayer == null && tiledMap.getLayers().getCount() > 0) {
+            dungeonLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
+        }
+
+        configureWalkableTiles();
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -105,6 +111,34 @@ public class GameScreen implements Screen {
         System.out.println("GameScreen show() : map chargée, player initialisé.");
         System.out.println("TileSize: " + tileSize + " (scale: " + scale + ")");
         System.out.println("GameScreen show() : map centrée gauche (" + mapOffsetX + ", " + mapOffsetY + ")");
+    }
+
+    private void configureWalkableTiles() {
+        walkableTiles.clear();
+
+        String mapFile = gameWorld.getCurrentLevel().getMapFile();
+
+        if (mapFile.contains("sampleMap")) {
+            walkableTiles.add(31);
+            walkableTiles.add(37);
+            walkableTiles.add(38);
+            walkableTiles.add(39);
+            walkableTiles.add(49);
+            walkableTiles.add(50);
+            walkableTiles.add(51);
+            walkableTiles.add(52);
+            walkableTiles.add(53);
+            walkableTiles.add(54);
+            System.out.println("Configuration : Map complexe (sampleMap)");
+
+        } else if (mapFile.contains("mapdebutant") || mapFile.contains("map2") || mapFile.contains("laby")) {
+            walkableTiles.add(1);
+            System.out.println("Configuration : Map simple (tileset 2 tuiles)");
+
+        } else {
+            System.out.println("Map inconnue, configuration par défaut");
+            walkableTiles.add(1);
+        }
     }
 
     private boolean canMoveTo(float newX, float newY) {
