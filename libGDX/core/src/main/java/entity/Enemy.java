@@ -1,75 +1,39 @@
 package entity;
 
-public class Enemy extends Entity {
-    private int health;
-    private float speed;
-    private boolean isAggressive;
-    private float attackRange;
-    private Player target;
+import level.Level;
 
-    public Enemy(float x, float y, int health, float speed, boolean isAggressive, float attackRange,  Player target) {
+public abstract class Enemy extends Entity {
+    protected int health;
+    protected float speed;
+    protected int attackDamage;
+
+    protected int genHealth;
+    protected float genSpeed;
+    protected int genDamage;
+
+    public Enemy(float x, float y, int genHealth, float genSpeed, int genDamage, Level levelManager) {
         super(x, y);
-        this.health = health;
-        this.speed = speed;
-        this.isAggressive = isAggressive;
-        this.attackRange = attackRange;
-        this.target = target;
-    }
-    @Override
-    public void update() {
-        if (isActive) {
-            if (isAggressive && target != null) {
-                float dx = target.getX() - x;
-                float dy = target.getY() - y;
-                float length = (float) Math.sqrt(dx*dx + dy*dy);
-                if (length > 0) {
-                    x += speed * dx / length * 0.1f;
-                    y += speed * dy / length * 0.1f;
-                }
-            } else {
-                x += speed * 0.1f;
-            }
-        }
+        this.genHealth = genHealth;
+        this.genSpeed = genSpeed;
+        this.genDamage = genDamage;
+        scaleStats(levelManager.getCurrentLevel());
     }
 
-    @Override
-    public void interact(Entity e) {
-        if (e instanceof Player player) {
-            float distance = (float) Math.sqrt(Math.pow(player.getX()-x, 2) + Math.pow(player.getY()-y, 2));
-            if (distance <= attackRange) {
-                attack(player);
-            }
-        }
+    protected void scaleStats(int level) {
+        health = (int)(genHealth * (1 + 0.2f * (level - 1)));
+        speed = genSpeed * (1 + 0.1f * (level - 1));
+        attackDamage = (int)(genDamage * (1 + 0.15f * (level - 1)));
     }
-    public void attack(Player player) {
-        System.out.println("The enemy is attacking !");
-        player.takeDamage(10);
-    }
+
+    public abstract void updateAI();
+    public abstract void attack(Player player);
 
     public void takeDamage(int damage) {
         health -= damage;
-        System.out.println("Enemy hit ! Remaining PV : " + health);
-        if (health <= 0) {
-            isActive = false;
-            System.out.println("The enemy is dead !");
-        }
+        if (health <= 0) isActive = false;
     }
-    public int getHealth() {
-        return health;
-    }
-    public void setHealth(int health) {
-        this.health = health;
-    }
-    public float getSpeed() {
-        return speed;
-    }
-    public void setSpeed(float speed) {
-        this.speed = speed;
-    }
-    public boolean isAggressive() {
-        return isAggressive;
-    }
-    public void setAggressive(boolean aggressive) {
-        isAggressive = aggressive;
-    }
+
+    public int getHealth() { return health; }
+    public float getSpeed() { return speed; }
+    public int getAttackDamage() { return attackDamage; }
 }

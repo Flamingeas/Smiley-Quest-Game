@@ -3,6 +3,7 @@ package settings.screen;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import level.Level;
 import settings.GameState;
 
 public class ScreenManager {
@@ -25,7 +26,7 @@ public class ScreenManager {
                 break;
 
             case PLAYING:
-                setScreen(new GameScreen());
+                setScreen(new GameScreen();
                 break;
 
             case PAUSED:
