@@ -14,9 +14,9 @@ public class Map {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 if (x == 0 || y == 0 || x == width - 1 || y == height - 1) {
-                    tiles[x][y] = 1; // mur
+                    tiles[x][y] = 1;
                 } else {
-                    tiles[x][y] = 0; // vide
+                    tiles[x][y] = 0;
                 }
             }
         }
