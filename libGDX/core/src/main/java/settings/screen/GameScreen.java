@@ -131,10 +131,16 @@ public class GameScreen implements Screen {
             walkableTiles.add(54);
             System.out.println("Configuration : Map complexe (sampleMap)");
 
-        } else if (mapFile.contains("mapdebutant") || mapFile.contains("map2") || mapFile.contains("laby")) {
+        } else if (mapFile.contains("laby")) {
             walkableTiles.add(1);
-            System.out.println("Configuration : Map simple (tileset 2 tuiles)");
-
+            System.out.println("Configuration : Map simple");
+        } else if (mapFile.contains("mapdebutant")) {
+            walkableTiles.add(961);
+            walkableTiles.add(963);
+            walkableTiles.add(964);
+            walkableTiles.add(967);
+        } else if (mapFile.contains("map2") ){
+            walkableTiles.add(323);
         } else {
             System.out.println("Map inconnue, configuration par défaut");
             walkableTiles.add(1);
