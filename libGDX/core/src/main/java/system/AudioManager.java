@@ -32,10 +32,10 @@ public class AudioManager {
         return instance;
     }
 
-    public void addSoundEffect(String key, String path) {
-        Sound s = Gdx.audio.newSound(Gdx.files.internal(path));
-        soundEffects.put(key, s);
-    }
+//    public void addSoundEffect(String key, String path) {
+//        Sound s = Gdx.audio.newSound(Gdx.files.internal(path));
+//        soundEffects.put(key, s);
+//    }
 
     public void setVolume(float volume) {
         volume = Math.max(0f, Math.min(1f, volume));

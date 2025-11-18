@@ -39,15 +39,6 @@ public class SettingsScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) selectedIndex = Math.max(selectedIndex - 1, 0);
         if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) selectedIndex = Math.min(selectedIndex + 1, menuItems.length - 1);
 
-//        if (selectedIndex == 0) {
-//            if (Gdx.input.isKeyJustPressed(Input.Keys.MINUS) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_SUBTRACT)) {
-//                adjustVolume(volume - 0.1f);
-//            }
-//            if (Gdx.input.isKeyJustPressed(Input.Keys.PLUS) || Gdx.input.isKeyJustPressed(Input.Keys.EQUALS) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_ADD)) {
-//                adjustVolume(volume + 0.1f);
-//            }
-//        }
-
         if (selectedIndex == 0 && (Gdx.input.isKeyJustPressed(Input.Keys.LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.RIGHT))) {
             setFullscreen(!isFullscreen());
         }
@@ -64,7 +55,6 @@ public class SettingsScreen implements Screen {
 
             for (int i = 0; i < menuItems.length; i++) {
                 String text = menuItems[i];
-//                if (i == 0) text += " : " + (int) (volume * 100) + "%";
                 if (i == 0) text += " : " + (isFullscreen() ? "ON" : "OFF");
                 if (i == 1) text += " : " + (isSoundEnabled() ? "ON" : "OFF");
 
@@ -82,18 +72,16 @@ public class SettingsScreen implements Screen {
                         case 2 -> screenManager.setState(GameState.MENU);
                     }
                 }
-
-
             }
         }
     }
 
-//    private void adjustVolume(float value) {
-//        volume = Math.max(0f, Math.min(1f, value));
-//        preferences.putFloat("volume", volume);
-//        preferences.flush();
-//        AudioManager.getInstance().setVolume(volume);
-//    }
+    private void adjustVolume(float value) {
+        volume = Math.max(0f, Math.min(1f, value));
+        preferences.putFloat("volume", volume);
+        preferences.flush();
+        AudioManager.getInstance().setVolume(volume);
+    }
 
     private boolean isFullscreen() { return preferences.getBoolean("fullscreen"); }
     private void setFullscreen(boolean value) {
@@ -115,23 +103,21 @@ public class SettingsScreen implements Screen {
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/PressStart2P-Regular.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter titleParam = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        titleParam.size = 70; titleParam.color = Color.BLACK;
+        titleParam.size = 70;
+        titleParam.color = Color.BLACK;
         fontTitle = generator.generateFont(titleParam);
 
         FreeTypeFontGenerator.FreeTypeFontParameter textParam = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        textParam.size = 40; textParam.color = Color.BLACK;
+        textParam.size = 40;
+        textParam.color = Color.BLACK;
         fontText = generator.generateFont(textParam);
 
         generator.dispose();
 
         preferences = Gdx.app.getPreferences("SmileyQuestSettings");
-//        if (!preferences.contains("volume")) preferences.putFloat("volume", 0.5f);
         if (!preferences.contains("fullscreen")) preferences.putBoolean("fullscreen", false);
         if (!preferences.contains("sound")) preferences.putBoolean("sound", true);
         preferences.flush();
-//
-//        volume = preferences.getFloat("volume");
-//        System.out.println("Settings screen visible! volume=" + (int)(volume*100) + "%");
     }
 
     @Override
@@ -146,15 +132,11 @@ public class SettingsScreen implements Screen {
 
         for (int i = 0; i < menuItems.length; i++) {
             String text = menuItems[i];
-//            if (i == 0) text += " : " + (int)(volume*100) + "%";
             if (i == 0) text += " : " + (isFullscreen() ? "ON" : "OFF");
             if (i == 1) text += " : " + (isSoundEnabled() ? "ON" : "OFF");
 
-            fontText.setColor(i == selectedIndex ? Color.WHITE : Color.BLACK);
             fontText.draw(batch, text, menuX, menuStartY - i*menuSpacing);
         }
-
-        fontText.setColor(Color.BLACK);
         batch.draw(pointer, pointerX, menuStartY - selectedIndex*menuSpacing - pointer.getHeight()/2);
 
         batch.end();
