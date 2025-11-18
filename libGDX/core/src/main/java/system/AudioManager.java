@@ -7,7 +7,7 @@ import com.badlogic.gdx.Preferences;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AudioManager implements Observer {
+public class AudioManager {
 
     private static AudioManager instance;
 
@@ -28,9 +28,7 @@ public class AudioManager implements Observer {
     }
 
     public static AudioManager getInstance() {
-        if (instance == null) {
-            instance = new AudioManager();
-        }
+        if (instance == null) instance = new AudioManager();
         return instance;
     }
 
@@ -39,20 +37,27 @@ public class AudioManager implements Observer {
         soundEffects.put(key, s);
     }
 
-    @Override
-    public void onNotify(GameEvent event) {
-        String VOLUME_CHANGED = "";
-        String SOUND_TOGGLED = "";
-        switch (event.getType()) {
-            case VOLUME_CHANGED -> backgroundMusic.setVolume(event.getVolume());
-            case SOUND_TOGGLED -> setSoundEnabled(event.isSoundEnabled());
+    public void setVolume(float volume) {
+        volume = Math.max(0f, Math.min(1f, volume));
+        if (backgroundMusic != null) backgroundMusic.setVolume(volume);
+        preferences.putFloat("volume", volume);
+        preferences.flush();
+        System.out.println("Volume set to " + (int)(volume*100) + "%");
+    }
+
+    public void setSoundEnabled(boolean enabled) {
+        preferences.putBoolean("sound", enabled);
+        preferences.flush();
+        if (enabled) {
+            if (!backgroundMusic.isPlaying()) backgroundMusic.play();
+        } else {
+            if (backgroundMusic.isPlaying()) backgroundMusic.pause();
         }
+        System.out.println("Sound " + (enabled ? "ON" : "OFF"));
     }
 
     public void dispose() {
         if (backgroundMusic != null) backgroundMusic.dispose();
-        for (Sound s : soundEffects.values()) {
-            s.dispose();
-        }
+        for (Sound s : soundEffects.values()) s.dispose();
     }
 }
