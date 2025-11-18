@@ -54,16 +54,6 @@ public class GameScreen implements Screen {
         this.player = new Player(0, 0, 3, speed);
 
         walkableTiles = new HashSet<>();
-//        walkableTiles.add(31);
-//        walkableTiles.add(37);
-//        walkableTiles.add(38);
-//        walkableTiles.add(39);
-//        walkableTiles.add(49);
-//        walkableTiles.add(50);
-//        walkableTiles.add(51);
-//        walkableTiles.add(52);
-//        walkableTiles.add(53);
-//        walkableTiles.add(54);
     }
 
     @Override
@@ -141,6 +131,9 @@ public class GameScreen implements Screen {
             walkableTiles.add(967);
         } else if (mapFile.contains("map2") ){
             walkableTiles.add(323);
+            walkableTiles.add(810);
+            walkableTiles.add(405);
+            walkableTiles.add(385);
         } else {
             System.out.println("Map inconnue, configuration par défaut");
             walkableTiles.add(1);
@@ -222,9 +215,6 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyPressed(Input.Keys.W))  newY += move;
         if (Gdx.input.isKeyPressed(Input.Keys.S))  newY -= move;
 
-        //Mode QWERTY
-        if (Gdx.input.isKeyPressed(Input.Keys.Q))  newX -= move;
-        if (Gdx.input.isKeyPressed(Input.Keys.Z))  newY += move;
 
         if (canMoveTo(newX, playerY)) {
             playerX = newX;
