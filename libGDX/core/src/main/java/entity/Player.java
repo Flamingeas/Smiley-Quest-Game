@@ -22,6 +22,7 @@ public class Player extends Entity implements Observable {
         this.score = 0;
         this.lives = lives;
         this.speed = speed;
+        this.currentWeapon = null;
     }
 
     public Player() {
@@ -29,6 +30,7 @@ public class Player extends Entity implements Observable {
         this.lives = 3;
         this.speed = 2.0f;
         this.score = 0;
+        this.currentWeapon = null;
     }
 
     @Override
@@ -85,6 +87,7 @@ public class Player extends Entity implements Observable {
         this.score = 0;
         this.lives = 3;
         this.isActive = true;
+        this.currentWeapon = null; // Réinitialiser l'arme équipée
         System.out.println("Joueur réinitialisé.");
         notifyEvent(new GameEvent("PLAYER_RESET", null));
     }
@@ -116,6 +119,11 @@ public class Player extends Entity implements Observable {
 
     public void setCurrentWeapon(Weapon currentWeapon) {
         this.currentWeapon = currentWeapon;
+        if (currentWeapon != null) {
+            System.out.println("Arme équipée : " + currentWeapon.getName() +
+                    " (Dégâts: " + currentWeapon.getDamage() + ")");
+            notifyEvent(new GameEvent("WEAPON_EQUIPPED", currentWeapon));
+        }
     }
 
     public int getScore() {
@@ -171,5 +179,23 @@ public class Player extends Entity implements Observable {
             System.out.println("💀 Le joueur est mort !");
             notifyEvent(new GameEvent("PLAYER_DEAD", null));
         }
+    }
+
+    /**
+     * Affiche les informations du joueur (pour debug)
+     */
+    public void displayInfo() {
+        System.out.println("=== INFO JOUEUR ===");
+        System.out.println("Position : (" + x + ", " + y + ")");
+        System.out.println("Vies : " + lives);
+        System.out.println("Score : " + score);
+        System.out.println("Vitesse : " + speed);
+        if (currentWeapon != null) {
+            System.out.println("Arme équipée : " + currentWeapon.getName() +
+                    " (Dégâts: " + currentWeapon.getDamage() + ")");
+        } else {
+            System.out.println("Arme équipée : Aucune");
+        }
+        System.out.println("==================");
     }
 }
