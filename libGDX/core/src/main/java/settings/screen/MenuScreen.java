@@ -27,7 +27,6 @@ public class MenuScreen implements Screen {
     private float spacing = 70f;
     private float posY = 150f;
     private GlyphLayout[] layouts;
-    private final float pointerOffset = 20f;
 
 
     public MenuScreen(ScreenManager screenManager) {
@@ -83,9 +82,8 @@ public class MenuScreen implements Screen {
         float totalWidth = 0f;
         for (GlyphLayout layout : layouts) totalWidth += layout.width;
         totalWidth += spacing * (menuItems.length - 1);
-        float startX = (Gdx.graphics.getWidth() - totalWidth) / 2;
 
-        float x = startX;
+        float x = (Gdx.graphics.getWidth() - totalWidth) / 2;
         for (int i = 0; i < menuItems.length; i++) {
             GlyphLayout layout = layouts[i];
             float itemX = x;
