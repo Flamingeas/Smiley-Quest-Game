@@ -1,19 +1,21 @@
-package entity;
+package entity.enemies;
 
+import entity.Entity;
+import entity.Player;
 import level.Level;
 
 /**
  * Représente un ennemi du jeu avec des stats qui évoluent selon le niveau.
  */
-public class Enemy extends Entity {
+public abstract class Enemy extends Entity {
 
-    private int health;
-    private float speed;
-    private int attackDamage;
+    protected int health;
+    protected float speed;
+    protected int attackDamage;
 
-    private int genHealth;
-    private float genSpeed;
-    private int genDamage;
+    protected int genHealth;
+    protected float genSpeed;
+    protected int genDamage;
 
     private Level levelManager;
 
@@ -87,6 +89,8 @@ public class Enemy extends Entity {
         health -= damage;
         if (health <= 0) isActive = false;
     }
+
+    public abstract void move(Player player, float delta);
 
     public int getHealth() { return health; }
     public float getSpeed() { return speed; }

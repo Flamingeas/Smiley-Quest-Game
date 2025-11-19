@@ -1,6 +1,6 @@
 package level;
 
-import entity.Enemy;
+import entity.enemies.Enemy;
 import entity.Item;
 import utils.Coord;
 

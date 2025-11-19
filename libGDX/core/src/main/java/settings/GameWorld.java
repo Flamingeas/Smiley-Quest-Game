@@ -6,7 +6,7 @@ import system.GameTimer;
 import system.ScoreSystem;
 import system.GameEvent;
 import utils.Coord;
-import entity.Enemy;
+import entity.enemies.Enemy;
 import java.util.ArrayList;
 import java.util.List;
 
