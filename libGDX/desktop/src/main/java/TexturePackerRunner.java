@@ -5,7 +5,7 @@ public class TexturePackerRunner {
 
         TexturePacker.Settings settings = new TexturePacker.Settings();
 
-        settings.maxWidth = 4096;   // ← accepte les grandes images
+        settings.maxWidth = 4096;
         settings.maxHeight = 4096;
         settings.paddingX = 2;
         settings.paddingY = 2;
@@ -16,9 +16,9 @@ public class TexturePackerRunner {
 
         TexturePacker.process(
                 settings,
-                "../core/src/main/resources/intro",   // input
-                "../core/src/main/resources/intro",   // output
-                "intro"                                // nom
+                "../core/src/main/resources/intro",
+                "../core/src/main/resources/intro",
+                "intro"
         );
 
         System.out.println("✔ Atlas généré !");

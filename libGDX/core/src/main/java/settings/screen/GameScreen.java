@@ -37,12 +37,9 @@ import utils.Coord;
  * - maps dynamiques + niveaux + armes (version collègue)
  */
 public class GameScreen implements Screen {
-
-    // --- Cameras ---
     private OrthographicCamera camera;
     private OrthographicCamera uiCamera;
 
-    // --- Map & rendering ---
     private TiledMap tiledMap;
     private OrthogonalTiledMapRenderer mapRenderer;
     private TiledMapTileLayer dungeonLayer;
@@ -53,19 +50,15 @@ public class GameScreen implements Screen {
     private float tileSize;
     private float scale = 1f;
 
-    // --- Player ---
     private Texture playerTexture;
     private Player player;
     private float playerX, playerY;
     private float speed = 200f;
 
-    // --- Weapons ---
     private List<WeaponSpawner.WeaponData> weaponDataList;
 
-    // --- Collisions (walkable tiles) ---
     private Set<Integer> walkableTiles;
 
-    // --- HUD / UI ---
     private final ScreenManager screenManager;
     private final GameWorld gameWorld;
 
@@ -100,10 +93,8 @@ public class GameScreen implements Screen {
         if (!initialized) {
             batch = new SpriteBatch();
             shapeRenderer = new ShapeRenderer();
-
             camera = new OrthographicCamera();
             camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
             uiCamera = new OrthographicCamera();
             uiCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
@@ -139,39 +130,32 @@ public class GameScreen implements Screen {
             leftPanelWidth = screenW * 0.20f;
             rightPanelWidth = screenW * 0.25f;
 
+            loadLevel(gameWorld.getCurrentLevel());
+
             initialized = true;
         }
-
-        // Charge le niveau actuel (ou recharge si on revient sur cet écran)
-        loadLevel(gameWorld.getCurrentLevel());
     }
-
     /**
      * Charge une map Tiled + configure la map, les offsets, le spawn, les armes, etc.
      */
     private void loadLevel(Level lvl) {
-        // Dispose ancienne map si besoin
         if (tiledMap != null) {
             tiledMap.dispose();
         }
 
         tiledMap = new TmxMapLoader().load(lvl.getMapFile());
 
-        // Récupère la taille de tile depuis Tiled
         int tileWidth = tiledMap.getProperties().get("tilewidth", Integer.class);
-        // Scale dynamique (comme ta collègue)
         scale = (tileWidth <= 16) ? 2.0f : 1.0f;
         tileSize = tileWidth * scale;
 
         mapRenderer = new OrthogonalTiledMapRenderer(tiledMap, scale);
 
-        // Dungeon layer
         dungeonLayer = (TiledMapTileLayer) tiledMap.getLayers().get("Dungeon");
         if (dungeonLayer == null && tiledMap.getLayers().getCount() > 0) {
             dungeonLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
         }
 
-        // Weapons layer
         weaponsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("Weapons");
         if (weaponsLayer == null) {
             int mapWidthTiles = tiledMap.getProperties().get("width", Integer.class);
@@ -180,10 +164,8 @@ public class GameScreen implements Screen {
             tiledMap.getLayers().add(weaponsLayer);
         }
 
-        // Config des tiles marchables selon la map
         configureWalkableTiles();
 
-        // Centrage de la map entre les panneaux HUD
         float screenW = Gdx.graphics.getWidth();
         float screenH = Gdx.graphics.getHeight();
         int mapWidthTiles = tiledMap.getProperties().get("width", Integer.class);
@@ -195,7 +177,6 @@ public class GameScreen implements Screen {
         mapOffsetX = leftPanelWidth + (mapZoneW - mapWidth) / 2f;
         mapOffsetY = (screenH - mapHeight) / 2f;
 
-        // Spawn du joueur
         Coord spawn = lvl.getPlayerSpawn();
         playerX = mapOffsetX + spawn.getX() * tileSize;
         playerY = mapOffsetY + spawn.getY() * tileSize;
@@ -203,20 +184,16 @@ public class GameScreen implements Screen {
         player.setX(playerX);
         player.setY(playerY);
 
-        // Icône du coffre (tile id 90 par défaut)
         TiledMapTile tile = tiledMap.getTileSets().getTile(90);
         if (tile != null) {
             chestIcon = tile.getTextureRegion();
         }
-
-        // Spawn des armes
         WeaponSpawner spawner = new WeaponSpawner();
         weaponDataList = spawner.spawnWeapons(tiledMap, 8);
         placeWeaponsOnMap();
 
         System.out.println("➡ Niveau chargé : " + lvl.getMapFile());
     }
-
     /**
      * Place les armes générées sur la couche Weapons.
      */
@@ -238,7 +215,6 @@ public class GameScreen implements Screen {
         String mapFile = gameWorld.getCurrentLevel().getMapFile();
 
         if (mapFile.contains("sampleMap")) {
-            // Tes valeurs existantes
             walkableTiles.add(31);
             walkableTiles.add(37);
             walkableTiles.add(38);
@@ -262,7 +238,6 @@ public class GameScreen implements Screen {
             walkableTiles.add(405);
             walkableTiles.add(385);
         } else {
-            // fallback
             walkableTiles.add(1);
         }
     }
@@ -279,18 +254,15 @@ public class GameScreen implements Screen {
         float mapWidth = mapWidthTiles * tileSize;
         float mapHeight = mapHeightTiles * tileSize;
 
-        // Bornes globales
         if (relativeX < 0 || relativeY < 0 ||
                 relativeX + 32 > mapWidth || relativeY + 32 > mapHeight)
             return false;
-
         int[][] corners = {
                 {4, 4},
                 {28, 4},
                 {4, 28},
                 {28, 28}
         };
-
         for (int[] c : corners) {
             int tx = (int) ((relativeX + c[0]) / tileSize);
             int ty = (int) ((relativeY + c[1]) / tileSize);
@@ -298,7 +270,6 @@ public class GameScreen implements Screen {
         }
         return true;
     }
-
     /**
      * Retourne si une tile est marchable (en fonction du dungeonLayer + walkableTiles).
      */
@@ -310,7 +281,6 @@ public class GameScreen implements Screen {
         if (id > 2000) id &= 0x1FFFFFFF;
         return walkableTiles.contains(id);
     }
-
     /**
      * Gère les inputs (mouvements + pause).
      */
@@ -319,10 +289,10 @@ public class GameScreen implements Screen {
         float newX = playerX;
         float newY = playerY;
 
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) newX -= move;
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) newX += move;
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) newY += move;
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) newY -= move;
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) newX -= move;
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) newX += move;
+        if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W)) newY += move;
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)) newY -= move;
 
         if (canMoveTo(newX, playerY)) playerX = newX;
         if (canMoveTo(playerX, newY)) playerY = newY;
@@ -332,7 +302,6 @@ public class GameScreen implements Screen {
         player.setX(playerX);
         player.setY(playerY);
     }
-
     /**
      * Vérifie si le joueur ramasse une arme.
      */
@@ -366,8 +335,6 @@ public class GameScreen implements Screen {
         ScreenUtils.clear(0, 0, 0, 1);
 
         camera.update();
-
-        // Rendu de la map avec offset
         mapRenderer.getBatch().setTransformMatrix(
                 mapRenderer.getBatch().getTransformMatrix().idt().translate(mapOffsetX, mapOffsetY, 0)
         );
@@ -376,28 +343,19 @@ public class GameScreen implements Screen {
         mapRenderer.getBatch().setTransformMatrix(
                 mapRenderer.getBatch().getTransformMatrix().idt()
         );
-
-        // Rendu du joueur (dans le monde)
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         batch.draw(playerTexture, playerX, playerY, 32, 32);
         batch.end();
-
-        // HUD
         drawHUD();
-
-        // Changement de niveau si endPoint atteint
         Level currentLevel = gameWorld.getCurrentLevel();
         if (currentLevel.isCleared(playerX - mapOffsetX, playerY - mapOffsetY, tileSize)) {
             if (gameWorld.nextLevel()) {
                 loadLevel(gameWorld.getCurrentLevel());
             } else {
-                // plus de niveaux → fin de jeu
                 screenManager.setState(GameState.GAME_OVER);
             }
         }
-
-        // Pause
         if (pendingPause) {
             pendingPause = false;
             screenManager.setState(GameState.PAUSED);
@@ -468,8 +426,14 @@ public class GameScreen implements Screen {
         batch.begin();
 
         fontTitle.draw(batch, "STATUT", leftX + 20, statutY + blockHeightStatut - 25);
-        // TODO: brancher ScoreSystem
-        font.draw(batch, "Score  : 15", leftX + 25, statutY + blockHeightStatut - 130);
+
+        font.draw(batch,
+                "Niveau : " + gameWorld.getCurrentLevelNumber() + "/" + gameWorld.getTotalLevels(),
+                leftX + 25, statutY + blockHeightStatut - 80);
+        font.draw(batch,
+                "Score  : " + gameWorld.getScoreSystem().getScore(),
+                leftX + 25, statutY + blockHeightStatut - 130);
+
 
         fontTitle.draw(batch, "Commandes", leftX + 20, cmdY + blockHeightCmd - 25);
 
@@ -491,7 +455,6 @@ public class GameScreen implements Screen {
         float rightXtxt = rightX + 20;
 
         fontTitle.draw(batch, "INVENTAIRE", rightXtxt, invY + blockHeightInv - 25);
-        // TODO: ici tu peux afficher l'arme actuelle du player
         font.draw(batch, "Aucune arme", rightXtxt, invY + blockHeightInv - 80);
 
         fontTitle.draw(batch, "LEGENDE", rightXtxt, legendY + blockHeightLegend - 25);

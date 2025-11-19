@@ -53,7 +53,7 @@ public class PausedScreen implements Screen {
             screenManager.setState(GameState.MENU);
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-            screenManager.setState(GameState.PLAYING);
+            screenManager.resumeGame();
         }
     }
 

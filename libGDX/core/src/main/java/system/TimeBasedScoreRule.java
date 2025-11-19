@@ -2,7 +2,7 @@ package system;
 
 public class TimeBasedScoreRule implements ScoringRule {
 
-    private float interval; // en secondes
+    private float interval;
     private int points;
     private float lastTriggerTime;
     private ScoreSystem scoreSystem;

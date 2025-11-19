@@ -16,13 +16,10 @@ public class Level {
     private String mapFile;
     private Coord endPoint;
 
-    public Level(int number, List<Enemy> enemies, List<Item> items, Coord playerSpawn, Map map, String mapPath) {
-        this.enemies = enemies;
-        this.items = items;
+    public Level(int number, String mapPath, Coord playerSpawn) {
         this.number = number;
         this.mapPath = mapPath;
         this.playerSpawn = playerSpawn;
-        this.map = map;
     }
     public Level(String mapFile, Coord playerSpawn, Coord endPoint) {
         this.mapFile = mapFile;
