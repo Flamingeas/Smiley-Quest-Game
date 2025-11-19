@@ -33,11 +33,6 @@ public class Player extends Entity implements Observable {
 
     @Override
     public void update() {
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) x -= speed;
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) x += speed;
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) y += speed;
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) y -= speed;
-
         if (Gdx.input.isKeyPressed(Input.Keys.Q)) x -= speed;
         if (Gdx.input.isKeyPressed(Input.Keys.D)) x += speed;
         if (Gdx.input.isKeyPressed(Input.Keys.Z)) y += speed;
