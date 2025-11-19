@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.utils.ScreenUtils;
 import settings.GameState;
 
-
 public class MenuScreen implements Screen {
 
     private final ScreenManager screenManager;
@@ -25,6 +24,10 @@ public class MenuScreen implements Screen {
     private int selectedIndex = 0;
     private final String[] menuItems = {"START", "SETTINGS", "EXIT"};
     private final String title = "Smiley Quest";
+
+    private float spacing = 70f;
+    private float posY = 150f;
+    private GlyphLayout[] layouts;
 
     private final float pointerX = 800;
     private final float menuX = 850;
@@ -48,7 +51,6 @@ public class MenuScreen implements Screen {
 
         pointer = new Texture(Gdx.files.internal("images/hand_cursor0000.png"));
 
-
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/PressStart2P-Regular.ttf"));
 
         FreeTypeFontGenerator.FreeTypeFontParameter titleParam = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -62,8 +64,10 @@ public class MenuScreen implements Screen {
         fontText = generator.generateFont(textParam);
 
         generator.dispose();
-
-        System.out.println("Menu visible!");
+        layouts = new GlyphLayout[menuItems.length];
+        for (int i = 0; i < menuItems.length; i++) {
+            layouts[i] = new GlyphLayout(fontText, menuItems[i]);
+        }
     }
 
     private void handleInput() {
@@ -74,11 +78,37 @@ public class MenuScreen implements Screen {
             selectedIndex = Math.max(selectedIndex - 1, 0);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-            switch (selectedIndex) {
-                case 0 -> screenManager.setState(GameState.PLAYING);
-                case 1 -> screenManager.setState(GameState.SETTINGS);
-                case 2 -> Gdx.app.exit();
+            activateMenuItem(selectedIndex);
+        }
+
+        float mouseX = Gdx.input.getX();
+        float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
+
+        float totalWidth = 0f;
+        for (GlyphLayout layout : layouts) totalWidth += layout.width;
+        totalWidth += spacing * (menuItems.length - 1);
+
+        float x = (Gdx.graphics.getWidth() - totalWidth) / 2;
+        for (int i = 0; i < menuItems.length; i++) {
+            GlyphLayout layout = layouts[i];
+            float itemX = x;
+            float itemY = posY;
+            if (mouseX >= itemX && mouseX <= itemX + layout.width &&
+                    mouseY >= itemY - layout.height && mouseY <= itemY) {
+                selectedIndex = i;
+                if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+                    activateMenuItem(i);
+                }
             }
+            x += layout.width + spacing;
+        }
+    }
+
+    private void activateMenuItem(int index) {
+        switch (index) {
+            case 0 -> screenManager.setState(GameState.PLAYING);
+            case 1 -> screenManager.setState(GameState.SETTINGS);
+            case 2 -> Gdx.app.exit();
         }
     }
 
@@ -98,14 +128,8 @@ public class MenuScreen implements Screen {
         float titleX = (Gdx.graphics.getWidth() - layoutTitle.width) / 2;
         fontTitle.draw(batch, title, titleX, Gdx.graphics.getHeight() - 100);
 
-
-        float totalWidth = 0;
-        GlyphLayout[] layouts = new GlyphLayout[menuItems.length];
-        for (int i = 0; i < menuItems.length; i++) {
-            layouts[i] = new GlyphLayout(fontText, menuItems[i]);
-            totalWidth += layouts[i].width;
-        }
-        float spacing = 70;
+        float totalWidth = 0f;
+        for (GlyphLayout layout : layouts) totalWidth += layout.width;
         totalWidth += spacing * (menuItems.length - 1);
         float startX = (Gdx.graphics.getWidth() - totalWidth) / 2;
         float posY = 100;
@@ -115,12 +139,10 @@ public class MenuScreen implements Screen {
             x += layouts[i].width + spacing;
         }
 
+        float pointerXPos = startX;
+        for (int i = 0; i < selectedIndex; i++) pointerXPos += layouts[i].width + spacing;
         float pointerY = posY - pointer.getHeight() / 2;
-        float pointerXSelected = startX;
-        for (int i = 0; i < selectedIndex; i++) {
-            pointerXSelected += layouts[i].width + spacing;
-        }
-        batch.draw(pointer, pointerXSelected - pointer.getWidth() - 10, pointerY);
+        batch.draw(pointer, pointerXPos - pointer.getWidth() - 10, pointerY);
 
         batch.end();
     }
@@ -128,10 +150,7 @@ public class MenuScreen implements Screen {
     @Override public void resize(int width, int height) {}
     @Override public void pause() {}
     @Override public void resume() {}
-    @Override public void hide() {
-        System.out.println("Closed menu screen");
-    }
-
+    @Override public void hide() {}
     @Override
     public void dispose() {
         batch.dispose();

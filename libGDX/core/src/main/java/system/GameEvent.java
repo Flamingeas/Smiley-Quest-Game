@@ -24,4 +24,8 @@ public class GameEvent {
                 ", data=" + data +
                 '}';
     }
+
+    public Object getVolume() {
+        return  data;
+    }
 }

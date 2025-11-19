@@ -3,6 +3,7 @@ package settings.screen;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import level.Level;
 import settings.GameState;
 import settings.GameWorld;
 import level.Level;

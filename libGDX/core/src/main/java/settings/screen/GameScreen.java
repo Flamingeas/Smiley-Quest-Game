@@ -4,86 +4,102 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.maps.tiled.*;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import settings.GameWorld;
-import entity.Player;
-import settings.GameState;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import entity.Player;
+import entity.Weapon;
+import level.Level;
+import level.WeaponSpawner;
+import settings.GameState;
+import settings.GameWorld;
+import utils.Coord;
+
+/**
+ * GameScreen fusionné :
+ * - HUD + menu pause (ta version)
+ * - maps dynamiques + niveaux + armes (version collègue)
+ */
 public class GameScreen implements Screen {
 
-    private final ScreenManager screenManager;
-    private final GameWorld gameWorld;
-
-    private SpriteBatch batch;
+    // --- Cameras ---
     private OrthographicCamera camera;
     private OrthographicCamera uiCamera;
 
+    // --- Map & rendering ---
     private TiledMap tiledMap;
     private OrthogonalTiledMapRenderer mapRenderer;
     private TiledMapTileLayer dungeonLayer;
+    private TiledMapTileLayer weaponsLayer;
 
     private float mapOffsetX;
     private float mapOffsetY;
-    private final float tileSize = 32f;
+    private float tileSize;
+    private float scale = 1f;
 
+    // --- Player ---
     private Texture playerTexture;
     private Player player;
     private float playerX, playerY;
     private float speed = 200f;
 
+    // --- Weapons ---
+    private List<WeaponSpawner.WeaponData> weaponDataList;
+
+    // --- Collisions (walkable tiles) ---
+    private Set<Integer> walkableTiles;
+
+    // --- HUD / UI ---
+    private final ScreenManager screenManager;
+    private final GameWorld gameWorld;
+
+    private SpriteBatch batch;
     private Texture arrowUp;
     private Texture arrowDown;
     private Texture arrowLeft;
     private Texture arrowRight;
     private Texture keyEsc;
     private Texture keySpace;
-
-    private Set<Integer> walkableTiles = new HashSet<>();
-
     private BitmapFont font;
     private BitmapFont fontTitle;
     private ShapeRenderer shapeRenderer;
-
     private float leftPanelWidth;
     private float rightPanelWidth;
+    private TextureRegion chestIcon;
 
     private boolean pendingPause = false;
     private boolean initialized = false;
-
-    private TextureRegion chestIcon;
 
     public GameScreen(ScreenManager screenManager, GameWorld gameWorld) {
         this.screenManager = screenManager;
         this.gameWorld = gameWorld;
 
-        Collections.addAll(walkableTiles,
-                31, 37, 38, 39, 49, 50, 51, 52, 53, 54
-        );
-
-        this.player = new Player(0, 0, 3, speed);
+        this.player = gameWorld.getPlayer();
+        this.walkableTiles = new HashSet<>();
+        this.weaponDataList = new ArrayList<>();
     }
 
     @Override
     public void show() {
         if (!initialized) {
-
             batch = new SpriteBatch();
             shapeRenderer = new ShapeRenderer();
-
-            tiledMap = new TmxMapLoader().load("maps/sampleMap.tmx");
-            mapRenderer = new OrthogonalTiledMapRenderer(tiledMap, 2f);
-            dungeonLayer = (TiledMapTileLayer) tiledMap.getLayers().get("Dungeon");
 
             camera = new OrthographicCamera();
             camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -99,9 +115,6 @@ public class GameScreen implements Screen {
             arrowRight = new Texture("images/ui/arrow_right.png");
             keyEsc = new Texture("images/ui/echap.png");
             keySpace = new Texture("images/ui/attack.png");
-
-            TiledMapTile tile = tiledMap.getTileSets().getTile(90);
-            chestIcon = tile.getTextureRegion();
 
             FreeTypeFontGenerator gen =
                     new FreeTypeFontGenerator(Gdx.files.internal("fonts/PressStart2P-Regular.ttf"));
@@ -123,29 +136,184 @@ public class GameScreen implements Screen {
             gen.dispose();
 
             float screenW = Gdx.graphics.getWidth();
-            float screenH = Gdx.graphics.getHeight();
-
             leftPanelWidth = screenW * 0.20f;
             rightPanelWidth = screenW * 0.25f;
 
-            float mapWidth = 1024f;
-            float mapHeight = 1024f;
-
-            float mapZoneW = screenW - leftPanelWidth - rightPanelWidth;
-
-            mapOffsetX = leftPanelWidth + (mapZoneW - mapWidth) / 2f;
-            mapOffsetY = (screenH - mapHeight) / 2f;
-
-            int spawnTileX = 0;
-            int spawnTileY = 22;
-
-            playerX = mapOffsetX + spawnTileX * tileSize;
-            playerY = mapOffsetY + spawnTileY * tileSize;
-
             initialized = true;
+        }
+
+        // Charge le niveau actuel (ou recharge si on revient sur cet écran)
+        loadLevel(gameWorld.getCurrentLevel());
+    }
+
+    /**
+     * Charge une map Tiled + configure la map, les offsets, le spawn, les armes, etc.
+     */
+    private void loadLevel(Level lvl) {
+        // Dispose ancienne map si besoin
+        if (tiledMap != null) {
+            tiledMap.dispose();
+        }
+
+        tiledMap = new TmxMapLoader().load(lvl.getMapFile());
+
+        // Récupère la taille de tile depuis Tiled
+        int tileWidth = tiledMap.getProperties().get("tilewidth", Integer.class);
+        // Scale dynamique (comme ta collègue)
+        scale = (tileWidth <= 16) ? 2.0f : 1.0f;
+        tileSize = tileWidth * scale;
+
+        mapRenderer = new OrthogonalTiledMapRenderer(tiledMap, scale);
+
+        // Dungeon layer
+        dungeonLayer = (TiledMapTileLayer) tiledMap.getLayers().get("Dungeon");
+        if (dungeonLayer == null && tiledMap.getLayers().getCount() > 0) {
+            dungeonLayer = (TiledMapTileLayer) tiledMap.getLayers().get(0);
+        }
+
+        // Weapons layer
+        weaponsLayer = (TiledMapTileLayer) tiledMap.getLayers().get("Weapons");
+        if (weaponsLayer == null) {
+            int mapWidthTiles = tiledMap.getProperties().get("width", Integer.class);
+            int mapHeightTiles = tiledMap.getProperties().get("height", Integer.class);
+            weaponsLayer = new TiledMapTileLayer(mapWidthTiles, mapHeightTiles, tileWidth, tileWidth);
+            tiledMap.getLayers().add(weaponsLayer);
+        }
+
+        // Config des tiles marchables selon la map
+        configureWalkableTiles();
+
+        // Centrage de la map entre les panneaux HUD
+        float screenW = Gdx.graphics.getWidth();
+        float screenH = Gdx.graphics.getHeight();
+        int mapWidthTiles = tiledMap.getProperties().get("width", Integer.class);
+        int mapHeightTiles = tiledMap.getProperties().get("height", Integer.class);
+        float mapWidth = mapWidthTiles * tileSize;
+        float mapHeight = mapHeightTiles * tileSize;
+
+        float mapZoneW = screenW - leftPanelWidth - rightPanelWidth;
+        mapOffsetX = leftPanelWidth + (mapZoneW - mapWidth) / 2f;
+        mapOffsetY = (screenH - mapHeight) / 2f;
+
+        // Spawn du joueur
+        Coord spawn = lvl.getPlayerSpawn();
+        playerX = mapOffsetX + spawn.getX() * tileSize;
+        playerY = mapOffsetY + spawn.getY() * tileSize;
+
+        player.setX(playerX);
+        player.setY(playerY);
+
+        // Icône du coffre (tile id 90 par défaut)
+        TiledMapTile tile = tiledMap.getTileSets().getTile(90);
+        if (tile != null) {
+            chestIcon = tile.getTextureRegion();
+        }
+
+        // Spawn des armes
+        WeaponSpawner spawner = new WeaponSpawner();
+        weaponDataList = spawner.spawnWeapons(tiledMap, 8);
+        placeWeaponsOnMap();
+
+        System.out.println("➡ Niveau chargé : " + lvl.getMapFile());
+    }
+
+    /**
+     * Place les armes générées sur la couche Weapons.
+     */
+    private void placeWeaponsOnMap() {
+        for (WeaponSpawner.WeaponData weaponData : weaponDataList) {
+            Coord pos = weaponData.getTilePosition();
+            int tileId = weaponData.getTileId();
+            TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
+            cell.setTile(tiledMap.getTileSets().getTile(tileId));
+            weaponsLayer.setCell((int) pos.getX(), (int) pos.getY(), cell);
         }
     }
 
+    /**
+     * Configure les tiles marchables selon la map.
+     */
+    private void configureWalkableTiles() {
+        walkableTiles.clear();
+        String mapFile = gameWorld.getCurrentLevel().getMapFile();
+
+        if (mapFile.contains("sampleMap")) {
+            // Tes valeurs existantes
+            walkableTiles.add(31);
+            walkableTiles.add(37);
+            walkableTiles.add(38);
+            walkableTiles.add(39);
+            walkableTiles.add(49);
+            walkableTiles.add(50);
+            walkableTiles.add(51);
+            walkableTiles.add(52);
+            walkableTiles.add(53);
+            walkableTiles.add(54);
+        } else if (mapFile.contains("laby")) {
+            walkableTiles.add(1);
+        } else if (mapFile.contains("mapdebutant")) {
+            walkableTiles.add(961);
+            walkableTiles.add(963);
+            walkableTiles.add(964);
+            walkableTiles.add(967);
+        } else if (mapFile.contains("map2")) {
+            walkableTiles.add(323);
+            walkableTiles.add(810);
+            walkableTiles.add(405);
+            walkableTiles.add(385);
+        } else {
+            // fallback
+            walkableTiles.add(1);
+        }
+    }
+
+    /**
+     * Vérifie si le joueur peut se déplacer à une nouvelle position.
+     */
+    private boolean canMoveTo(float newX, float newY) {
+        float relativeX = newX - mapOffsetX;
+        float relativeY = newY - mapOffsetY;
+
+        int mapWidthTiles = tiledMap.getProperties().get("width", Integer.class);
+        int mapHeightTiles = tiledMap.getProperties().get("height", Integer.class);
+        float mapWidth = mapWidthTiles * tileSize;
+        float mapHeight = mapHeightTiles * tileSize;
+
+        // Bornes globales
+        if (relativeX < 0 || relativeY < 0 ||
+                relativeX + 32 > mapWidth || relativeY + 32 > mapHeight)
+            return false;
+
+        int[][] corners = {
+                {4, 4},
+                {28, 4},
+                {4, 28},
+                {28, 28}
+        };
+
+        for (int[] c : corners) {
+            int tx = (int) ((relativeX + c[0]) / tileSize);
+            int ty = (int) ((relativeY + c[1]) / tileSize);
+            if (!isTileWalkable(tx, ty)) return false;
+        }
+        return true;
+    }
+
+    /**
+     * Retourne si une tile est marchable (en fonction du dungeonLayer + walkableTiles).
+     */
+    private boolean isTileWalkable(int tileX, int tileY) {
+        if (dungeonLayer == null) return true;
+        TiledMapTileLayer.Cell cell = dungeonLayer.getCell(tileX, tileY);
+        if (cell == null || cell.getTile() == null) return false;
+        int id = cell.getTile().getId();
+        if (id > 2000) id &= 0x1FFFFFFF;
+        return walkableTiles.contains(id);
+    }
+
+    /**
+     * Gère les inputs (mouvements + pause).
+     */
     private void handleInput(float delta) {
         float move = speed * delta;
         float newX = playerX;
@@ -165,54 +333,41 @@ public class GameScreen implements Screen {
         player.setY(playerY);
     }
 
-    private boolean canMoveTo(float newX, float newY) {
+    /**
+     * Vérifie si le joueur ramasse une arme.
+     */
+    private void checkWeaponCollisions() {
+        if (weaponDataList == null || weaponDataList.isEmpty()) return;
 
-        if (newX < mapOffsetX) return false;
-        if (newY < mapOffsetY) return false;
-        if (newX + 32 > mapOffsetX + 1024) return false;
-        if (newY + 32 > mapOffsetY + 1024) return false;
+        float relativeX = playerX - mapOffsetX;
+        float relativeY = playerY - mapOffsetY;
+        int playerTileX = (int) (relativeX / tileSize);
+        int playerTileY = (int) (relativeY / tileSize);
 
-        float relX = newX - mapOffsetX;
-        float relY = newY - mapOffsetY;
+        for (int i = weaponDataList.size() - 1; i >= 0; i--) {
+            WeaponSpawner.WeaponData weaponData = weaponDataList.get(i);
+            Weapon weapon = weaponData.getWeapon();
+            if (!weapon.isActive()) continue;
 
-        int[][] corners = {
-                {4, 4},
-                {28, 4},
-                {4, 28},
-                {28, 28}
-        };
-
-        for (int[] c : corners) {
-            int tx = (int) ((relX + c[0]) / tileSize);
-            int ty = (int) ((relY + c[1]) / tileSize);
-
-            if (!walkableTiles.contains(getTileId(tx, ty))) return false;
+            Coord weaponPos = weaponData.getTilePosition();
+            if (playerTileX == (int) weaponPos.getX() && playerTileY == (int) weaponPos.getY()) {
+                weapon.collectItem(player);
+                weaponsLayer.setCell((int) weaponPos.getX(), (int) weaponPos.getY(), null);
+            }
         }
-        return true;
-    }
-
-    private int getTileId(int tx, int ty) {
-        if (tx < 0 || ty < 0 ||
-                tx >= dungeonLayer.getWidth() || ty >= dungeonLayer.getHeight())
-            return -1;
-
-        TiledMapTileLayer.Cell cell = dungeonLayer.getCell(tx, ty);
-        if (cell == null || cell.getTile() == null) return -1;
-
-        int id = cell.getTile().getId();
-        if (id > 2000) id &= 0x1FFFFFFF;
-
-        return id;
     }
 
     @Override
     public void render(float delta) {
-
         handleInput(delta);
+        gameWorld.update(delta);
+        checkWeaponCollisions();
+
         ScreenUtils.clear(0, 0, 0, 1);
 
         camera.update();
 
+        // Rendu de la map avec offset
         mapRenderer.getBatch().setTransformMatrix(
                 mapRenderer.getBatch().getTransformMatrix().idt().translate(mapOffsetX, mapOffsetY, 0)
         );
@@ -222,13 +377,27 @@ public class GameScreen implements Screen {
                 mapRenderer.getBatch().getTransformMatrix().idt()
         );
 
+        // Rendu du joueur (dans le monde)
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         batch.draw(playerTexture, playerX, playerY, 32, 32);
         batch.end();
 
+        // HUD
         drawHUD();
 
+        // Changement de niveau si endPoint atteint
+        Level currentLevel = gameWorld.getCurrentLevel();
+        if (currentLevel.isCleared(playerX - mapOffsetX, playerY - mapOffsetY, tileSize)) {
+            if (gameWorld.nextLevel()) {
+                loadLevel(gameWorld.getCurrentLevel());
+            } else {
+                // plus de niveaux → fin de jeu
+                screenManager.setState(GameState.GAME_OVER);
+            }
+        }
+
+        // Pause
         if (pendingPause) {
             pendingPause = false;
             screenManager.setState(GameState.PAUSED);
@@ -299,7 +468,7 @@ public class GameScreen implements Screen {
         batch.begin();
 
         fontTitle.draw(batch, "STATUT", leftX + 20, statutY + blockHeightStatut - 25);
-        font.draw(batch, "Niveau : " + gameWorld.getCurrentLevelNumber(), leftX + 25, statutY + blockHeightStatut - 80);
+        // TODO: brancher ScoreSystem
         font.draw(batch, "Score  : 15", leftX + 25, statutY + blockHeightStatut - 130);
 
         fontTitle.draw(batch, "Commandes", leftX + 20, cmdY + blockHeightCmd - 25);
@@ -322,6 +491,7 @@ public class GameScreen implements Screen {
         float rightXtxt = rightX + 20;
 
         fontTitle.draw(batch, "INVENTAIRE", rightXtxt, invY + blockHeightInv - 25);
+        // TODO: ici tu peux afficher l'arme actuelle du player
         font.draw(batch, "Aucune arme", rightXtxt, invY + blockHeightInv - 80);
 
         fontTitle.draw(batch, "LEGENDE", rightXtxt, legendY + blockHeightLegend - 25);
@@ -332,11 +502,12 @@ public class GameScreen implements Screen {
 
         legendContentY -= 100;
         font.draw(batch, "Objectif:", rightXtxt, legendContentY);
-        batch.draw(chestIcon, rightXtxt + 230, legendContentY - 35, 60, 60);
+        if (chestIcon != null) {
+            batch.draw(chestIcon, rightXtxt + 230, legendContentY - 35, 60, 60);
+        }
 
         batch.end();
     }
-
 
     @Override
     public void resize(int width, int height) {
@@ -350,17 +521,18 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-        batch.dispose();
-        shapeRenderer.dispose();
-        tiledMap.dispose();
-        mapRenderer.dispose();
-        playerTexture.dispose();
-        font.dispose();
-        fontTitle.dispose();
-        arrowUp.dispose();
-        arrowDown.dispose();
-        arrowLeft.dispose();
-        arrowRight.dispose();
-        keyEsc.dispose();
+        if (batch != null) batch.dispose();
+        if (shapeRenderer != null) shapeRenderer.dispose();
+        if (tiledMap != null) tiledMap.dispose();
+        if (mapRenderer != null) mapRenderer.dispose();
+        if (playerTexture != null) playerTexture.dispose();
+        if (font != null) font.dispose();
+        if (fontTitle != null) fontTitle.dispose();
+        if (arrowUp != null) arrowUp.dispose();
+        if (arrowDown != null) arrowDown.dispose();
+        if (arrowLeft != null) arrowLeft.dispose();
+        if (arrowRight != null) arrowRight.dispose();
+        if (keyEsc != null) keyEsc.dispose();
+        if (keySpace != null) keySpace.dispose();
     }
 }
