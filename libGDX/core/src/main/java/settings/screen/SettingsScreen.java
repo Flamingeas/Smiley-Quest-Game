@@ -81,13 +81,13 @@ public class SettingsScreen implements Screen {
     private void setSoundEnabled(boolean value) {
         preferences.putBoolean("sound", value);
         preferences.flush();
-        AudioManager.getInstance().setSoundEnabled(value);
     }
 
     @Override
     public void show() {
         batch = new SpriteBatch();
         pointer = new Texture(Gdx.files.internal("images/hand_cursor0000.png"));
+        AudioManager.getInstance().setSoundEnabled(true);
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/PressStart2P-Regular.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter titleParam = new FreeTypeFontGenerator.FreeTypeFontParameter();
