@@ -23,7 +23,7 @@ libGDX/**/bin/
 logs/
 build/reports/
 
-## ===============================
+## ==   =============================
 ## 🎮 LIBGDX PROJECT STRUCTURE
 ## ===============================
 # Ignore compiled output and binaries for all modules

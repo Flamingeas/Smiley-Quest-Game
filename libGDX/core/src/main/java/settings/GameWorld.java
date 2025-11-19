@@ -29,7 +29,6 @@ public class GameWorld {
                 new Level("maps/laby.tmx", new Coord(0, 31), new Coord(28, 0)),
                 new Level("maps/mapdebutant.tmx", new Coord(1, 28), new Coord(28, 1)),
                 new Level("maps/map2.tmx", new Coord(6, 20), new Coord(15, 15))
-
         };
 
         this.state = GameState.PLAYING;
@@ -132,4 +131,13 @@ public class GameWorld {
     public GameTimer getTimer() {
         return timer;
     }
+
+    public int getCurrentLevelNumber() {
+        return currentLevelIndex + 1;
+    }
+
+    public int getTotalLevels() {
+        return levels.length;
+    }
+
 }

@@ -5,7 +5,6 @@ import settings.screen.ScreenManager;
 import settings.GameState;
 
 public class SmileyQuestGame extends Game {
-
     private ScreenManager screenManager;
 
     @Override

@@ -30,6 +30,10 @@ public class MenuScreen implements Screen {
     private float posY = 150f;
     private GlyphLayout[] layouts;
 
+    private final float pointerX = 800;
+    private final float menuX = 850;
+    private final int menuStartY = 400;
+    private final int menuSpacing = 100;
 
     public MenuScreen(ScreenManager screenManager) {
         this.screenManager = screenManager;
@@ -130,7 +134,7 @@ public class MenuScreen implements Screen {
         for (GlyphLayout layout : layouts) totalWidth += layout.width;
         totalWidth += spacing * (menuItems.length - 1);
         float startX = (Gdx.graphics.getWidth() - totalWidth) / 2;
-
+        float posY = 100;
         float x = startX;
         for (int i = 0; i < menuItems.length; i++) {
             fontText.draw(batch, menuItems[i], x, posY);
@@ -158,5 +162,7 @@ public class MenuScreen implements Screen {
         for (TextureRegion region : backgroundAnimation.getKeyFrames()) {
             region.getTexture().dispose();
         }
+
+        System.out.println("Cleansing of the MenuScreen.");
     }
 }

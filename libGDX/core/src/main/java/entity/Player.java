@@ -87,7 +87,7 @@ public class Player extends Entity implements Observable {
         this.score = 0;
         this.lives = 3;
         this.isActive = true;
-        this.currentWeapon = null; // Réinitialiser l'arme équipée
+        this.currentWeapon = null;
         System.out.println("Joueur réinitialisé.");
         notifyEvent(new GameEvent("PLAYER_RESET", null));
     }

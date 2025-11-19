@@ -27,6 +27,7 @@ public class Level {
         this.playerSpawn = playerSpawn;
         this.endPoint = endPoint;
     }
+
     public String getMapFile() { return mapFile; }
     public Coord getEndPoint() { return endPoint; }
 
@@ -63,5 +64,4 @@ public class Level {
     public void setMap(Map map) {
         this.map = map;
     }
-
 }
