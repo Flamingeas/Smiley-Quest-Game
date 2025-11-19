@@ -5,13 +5,12 @@ import settings.screen.ScreenManager;
 import settings.GameState;
 
 public class SmileyQuestGame extends Game {
-
     private ScreenManager screenManager;
 
     @Override
     public void create() {
         screenManager = new ScreenManager();
-        screenManager.setState(GameState.SPLASH);
+        screenManager.setState(GameState.MENU);
         setScreen(screenManager.getCurrentScreen());
     }
 

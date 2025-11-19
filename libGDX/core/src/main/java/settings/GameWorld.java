@@ -12,6 +12,7 @@ public class GameWorld {
     private GameState state;
     private final ScoreSystem scoreSystem;
     private final GameTimer timer;
+    private int currentLevelNumber = 1;
 
     public GameWorld(Level level) {
         this.currentLevel = level;
@@ -23,11 +24,7 @@ public class GameWorld {
     public void update(float delta) {
         if (state == GameState.PLAYING) {
             timer.tick(delta);
-            currentLevel.load();
         }
-    }
-    public void nextLevel() {
-        System.out.println("Chargement du niveau suivant...");
     }
     public void restart() {
         System.out.println("Redémarrage du niveau...");
@@ -60,5 +57,12 @@ public class GameWorld {
     }
     public GameTimer getTimer() {
         return timer;
+    }
+    public int getCurrentLevelNumber() {
+        return currentLevelNumber;
+    }
+    public void nextLevel() {
+        currentLevelNumber++;
+        System.out.println("Passage au niveau " + currentLevelNumber);
     }
 }
