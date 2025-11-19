@@ -16,8 +16,7 @@ public abstract class Enemy extends Entity {
     protected int genHealth;
     protected float genSpeed;
     protected int genDamage;
-
-    private Level levelManager;
+    protected Player targetPlayer;
 
     /**
      * Crée un ennemi à une position donnée avec des stats de base.
@@ -27,16 +26,15 @@ public abstract class Enemy extends Entity {
      * @param genHealth Santé de base
      * @param genSpeed Vitesse de base
      * @param genDamage Dégâts de base
-     * @param levelManager Référence au niveau actuel
      */
-    public Enemy(float x, float y, int genHealth, float genSpeed, int genDamage, Level levelManager) {
+    public Enemy(float x, float y, int genHealth, float genSpeed, int genDamage, Player player) {
         super(x, y);
         this.genHealth = genHealth;
         this.genSpeed = genSpeed;
         this.genDamage = genDamage;
-        this.levelManager = levelManager;
         scaleStats(1);
         isActive = true;
+        this.targetPlayer = player;
     }
 
     /**
