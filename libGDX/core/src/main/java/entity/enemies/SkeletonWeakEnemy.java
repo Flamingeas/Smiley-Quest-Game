@@ -21,7 +21,7 @@ public class SkeletonWeakEnemy extends Enemy {
      * @param genDamage dégâts génériques
      * @param player joueur ciblé
      */
-    public SkeletonWeakEnemy(float x, float y, int genHealth, float genSpeed, int genDamage, Player player, Random rng) {
+    public SkeletonWeakEnemy(float x, float y, int genHealth, float genSpeed, int genDamage, Player player) {
         super(x, y, genHealth, genSpeed, genDamage, null);
         this.targetPlayer = player;
         this.rng = new Random();

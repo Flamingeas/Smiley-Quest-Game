@@ -46,7 +46,7 @@ public class ScreenManager {
 
             case SETTINGS -> setScreen(settingsScreen);
 
-            case GAME_OVER -> setScreen(new GameOverScreen());
+            case GAME_OVER -> setScreen((Screen) new GameOverScreen());
 
             case SPLASH -> setScreen(new SplashScreen(this));
         }

@@ -86,7 +86,7 @@ public class SettingsScreen implements Screen {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        pointer = new Texture(Gdx.files.internal("images/hand_cursor0000.png"));
+        pointer = new Texture(Gdx.files.internal("images/ui/hand_cursor0000.png"));
         AudioManager.getInstance().setSoundEnabled(true);
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/PressStart2P-Regular.ttf"));
