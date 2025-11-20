@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.utils.ScreenUtils;
 import settings.GameState;
+import system.AudioManager;
 
 public class MenuScreen implements Screen {
 
@@ -41,6 +42,7 @@ public class MenuScreen implements Screen {
     @Override
     public void show() {
         batch = new SpriteBatch();
+        AudioManager.getInstance().setSoundEnabled(true);
 
         TextureRegion[] frames = new TextureRegion[18];
         for (int i = 0; i < 18; i++) {

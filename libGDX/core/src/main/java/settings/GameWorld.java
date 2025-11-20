@@ -6,6 +6,9 @@ import system.GameTimer;
 import system.ScoreSystem;
 import system.GameEvent;
 import utils.Coord;
+import entity.enemies.Enemy;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameWorld {
 
@@ -16,6 +19,8 @@ public class GameWorld {
     private GameState state;
     private final ScoreSystem scoreSystem;
     private final GameTimer timer;
+    private List<Enemy> enemies;
+
 
     public GameWorld(Level firstLevel) {
 
@@ -32,12 +37,41 @@ public class GameWorld {
 
         Level lvl = levels[currentLevelIndex];
         this.player = new Player(lvl.getPlayerSpawn().getX(), lvl.getPlayerSpawn().getY(), 3, 2.0f);
+        this.enemies = new ArrayList<>();
+        spawnEnemiesForLevel(currentLevelIndex);
+    }
+
+    private void spawnEnemiesForLevel(int level) {
+        enemies = new ArrayList<>();
+
+
+        int enemyCount = 3 + (level * 2);
+        float genSpeed = 0.8f + (level * 0.2f);
+        int genHealth = 30 + (level * 10);
+        int genDamage = 10 + (level * 5);
+
+//        for (int i = 0; i < enemyCount; i++) {
+//            enemies.add(new AggressiveEnemy(
+//                    randomX(),
+//                    randomY(),
+//                    genHealth,
+//                    genSpeed,
+//                    genDamage,
+//                    player
+//            ));
+//        }
     }
 
     public void update(float delta) {
         if (state == GameState.PLAYING) {
             timer.tick(delta);
             getCurrentLevel().load();
+        }
+        player.update();
+
+        for (Enemy enemy : enemies) {
+            enemy.update();
+            enemy.interact(player);
         }
     }
 

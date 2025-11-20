@@ -1,10 +1,17 @@
 package settings.screen;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.ScreenUtils;
+import settings.GameState;
 
 public class GameOverScreen implements Screen {
 
     private int finalScore;
+    private SpriteBatch batch;
 
     public GameOverScreen() {}
 
@@ -18,17 +25,21 @@ public class GameOverScreen implements Screen {
         System.out.println("Appuyez sur [R] pour rejouer ou [M] pour revenir au menu.");
     }
 
-    public void handleInput() {
-    }
-
     @Override
     public void show() {
+        batch = new SpriteBatch();
+        ScreenUtils.clear(1f, 0.92f, 0.23f, 1);
+
+        TextureRegion[] frames = new TextureRegion[18];
+        for (int i = 0; i < 18; i++) {
+            String filename = String.format("images/menuBackground-split/frame_%02d.png", i);
+            frames[i] = new TextureRegion(new Texture(Gdx.files.internal(filename)));
+        }
         showResults();
     }
 
 
-    public void update(float delta) {
-        handleInput();
+    public void update(float delta) {;
     }
 
     @Override

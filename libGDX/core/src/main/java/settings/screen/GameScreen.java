@@ -25,10 +25,12 @@ import java.util.Set;
 
 import entity.Player;
 import entity.Weapon;
+import entity.enemies.Enemy;
 import level.Level;
 import level.WeaponSpawner;
 import settings.GameState;
 import settings.GameWorld;
+import system.EnemyRenderer;
 import utils.Coord;
 
 /**
@@ -78,6 +80,8 @@ public class GameScreen implements Screen {
 
     private boolean pendingPause = false;
     private boolean initialized = false;
+    private EnemyRenderer enemyRenderer;
+
 
     public GameScreen(ScreenManager screenManager, GameWorld gameWorld) {
         this.screenManager = screenManager;
@@ -86,6 +90,7 @@ public class GameScreen implements Screen {
         this.player = gameWorld.getPlayer();
         this.walkableTiles = new HashSet<>();
         this.weaponDataList = new ArrayList<>();
+        enemyRenderer = new EnemyRenderer();
     }
 
     @Override
@@ -359,6 +364,10 @@ public class GameScreen implements Screen {
         if (pendingPause) {
             pendingPause = false;
             screenManager.setState(GameState.PAUSED);
+        }
+
+        for (Enemy enemy : gameWorld.getCurrentLevel().getEnemies()) {
+            enemyRenderer.render(batch, enemy);
         }
     }
 

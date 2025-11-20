@@ -11,8 +11,6 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import settings.GameState;
 import com.badlogic.gdx.Preferences;
 import system.AudioManager;
-import com.badlogic.gdx.Graphics.DisplayMode;
-
 
 public class SettingsScreen implements Screen {
 
@@ -24,7 +22,7 @@ public class SettingsScreen implements Screen {
     private Texture pointer;
     private int selectedIndex = 0;
     private final String title = "Settings";
-    private final String[] menuItems = {"Fullscreen", "Sound", "Back"};
+    private final String[] menuItems = {"Sound", "Back"};
 
     private final float pointerX = 400;
     private final float menuX = 650;
@@ -41,12 +39,9 @@ public class SettingsScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) selectedIndex = Math.min(selectedIndex + 1, menuItems.length - 1);
 
         if (selectedIndex == 0 && (Gdx.input.isKeyJustPressed(Input.Keys.LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.RIGHT))) {
-            setFullscreen(!isFullscreen());
-        }
-        if (selectedIndex == 1 && (Gdx.input.isKeyJustPressed(Input.Keys.LEFT) || Gdx.input.isKeyJustPressed(Input.Keys.RIGHT))) {
             setSoundEnabled(!isSoundEnabled());
         }
-        if ((selectedIndex == 2 && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) || Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+        if ((selectedIndex == 1 && Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) || Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             screenManager.setState(GameState.MENU);
         }
 
@@ -56,8 +51,7 @@ public class SettingsScreen implements Screen {
 
             for (int i = 0; i < menuItems.length; i++) {
                 String text = menuItems[i];
-                if (i == 0) text += " : " + (isFullscreen() ? "ON" : "OFF");
-                if (i == 1) text += " : " + (isSoundEnabled() ? "ON" : "OFF");
+                if (i == 0) text += " : " + (isSoundEnabled() ? "ON" : "OFF");
 
                 GlyphLayout layout = new GlyphLayout(fontText, text);
                 float itemY = menuStartY - i * menuSpacing;
@@ -68,9 +62,8 @@ public class SettingsScreen implements Screen {
                         mouseY >= itemY - itemHeight && mouseY <= itemY) {
                     selectedIndex = i;
                     switch (i) {
-                        case 0 -> setFullscreen(!isFullscreen());
-                        case 1 -> setSoundEnabled(!isSoundEnabled());
-                        case 2 -> screenManager.setState(GameState.MENU);
+                        case 0 -> setSoundEnabled(!isSoundEnabled());
+                        case 1 -> screenManager.setState(GameState.MENU);
                     }
                 }
             }
@@ -84,24 +77,17 @@ public class SettingsScreen implements Screen {
         AudioManager.getInstance().setVolume(volume);
     }
 
-    private boolean isFullscreen() { return preferences.getBoolean("fullscreen"); }
-
-    private void setFullscreen(boolean value) {
-        preferences.putBoolean("fullscreen", value);
-        preferences.flush();
-        applyDisplayMode();
-    }
     private boolean isSoundEnabled() { return preferences.getBoolean("sound"); }
     private void setSoundEnabled(boolean value) {
         preferences.putBoolean("sound", value);
         preferences.flush();
-        AudioManager.getInstance().setSoundEnabled(value);
     }
 
     @Override
     public void show() {
         batch = new SpriteBatch();
         pointer = new Texture(Gdx.files.internal("images/hand_cursor0000.png"));
+        AudioManager.getInstance().setSoundEnabled(true);
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/PressStart2P-Regular.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter titleParam = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -117,7 +103,6 @@ public class SettingsScreen implements Screen {
         generator.dispose();
 
         preferences = Gdx.app.getPreferences("SmileyQuestSettings");
-        if (!preferences.contains("fullscreen")) preferences.putBoolean("fullscreen", false);
         if (!preferences.contains("sound")) preferences.putBoolean("sound", true);
         preferences.flush();
     }
@@ -134,8 +119,7 @@ public class SettingsScreen implements Screen {
 
         for (int i = 0; i < menuItems.length; i++) {
             String text = menuItems[i];
-            if (i == 0) text += " : " + (isFullscreen() ? "ON" : "OFF");
-            if (i == 1) text += " : " + (isSoundEnabled() ? "ON" : "OFF");
+            if (i == 0) text += " : " + (isSoundEnabled() ? "ON" : "OFF");
 
             fontText.draw(batch, text, menuX, menuStartY - i*menuSpacing);
         }
@@ -153,16 +137,5 @@ public class SettingsScreen implements Screen {
         if (fontText != null) fontText.dispose();
         if (pointer != null) pointer.dispose();
         if (batch != null) batch.dispose();
-    }
-
-    private void applyDisplayMode() {
-        if (isFullscreen()) {
-            DisplayMode displayMode = Gdx.graphics.getDisplayMode();
-            Gdx.graphics.setFullscreenMode(displayMode);
-        } else {
-            int windowWidth = 1600;
-            int windowHeight = 900;
-            Gdx.graphics.setWindowedMode(windowWidth, windowHeight);
-        }
     }
 }
