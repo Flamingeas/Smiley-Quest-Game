@@ -1,7 +1,10 @@
 package settings;
 
 import entity.Player;
+import entity.enemies.FinalBossEnemy;
+import entity.enemies.SkeletonWeakEnemy;
 import level.Level;
+import level.Map;
 import system.GameTimer;
 import system.ScoreSystem;
 import system.GameEvent;
@@ -9,6 +12,10 @@ import utils.Coord;
 import entity.enemies.Enemy;
 import java.util.ArrayList;
 import java.util.List;
+import entity.enemies.DragonEnemy;
+import entity.enemies.GhostEnemy;
+import entity.enemies.LarvaEnemy;
+import entity.enemies.SkeletonStrongEnemy;
 
 public class GameWorld {
 
@@ -20,6 +27,7 @@ public class GameWorld {
     private final ScoreSystem scoreSystem;
     private final GameTimer timer;
     private List<Enemy> enemies;
+    private boolean enemiesSpawned = false;
 
 
     public GameWorld(Level firstLevel) {
@@ -36,11 +44,25 @@ public class GameWorld {
         this.timer = new GameTimer();
 
         Level lvl = levels[currentLevelIndex];
+        lvl.load();
         this.player = new Player(lvl.getPlayerSpawn().getX(), lvl.getPlayerSpawn().getY(), 3, 2.0f);
         this.enemies = new ArrayList<>();
-        spawnEnemiesForLevel(currentLevelIndex);
     }
 
+
+    private float randomX() {
+        String map = getCurrentLevel().getMapFile();
+        int w = getCurrentLevel().getMap().getWidth();
+        if (map == null) throw new IllegalStateException("Map non chargée !");
+        return (float)(Math.random() * w * 32f);
+    }
+
+    private float randomY() {
+        String map = getCurrentLevel().getMapFile();
+        int h = getCurrentLevel().getMap().getHeight();
+        if (map == null) throw new IllegalStateException("Map non chargée !");
+        return (float)(Math.random() * h * 32f);
+    }
     private void spawnEnemiesForLevel(int level) {
         enemies = new ArrayList<>();
 
@@ -50,22 +72,34 @@ public class GameWorld {
         int genHealth = 30 + (level * 10);
         int genDamage = 10 + (level * 5);
 
-//        for (int i = 0; i < enemyCount; i++) {
-//            enemies.add(new AggressiveEnemy(
-//                    randomX(),
-//                    randomY(),
-//                    genHealth,
-//                    genSpeed,
-//                    genDamage,
-//                    player
-//            ));
-//        }
+        for (int i = 0; i < enemyCount; i++) {
+            enemies.add(new GhostEnemy(randomX(), randomY(), genHealth, genSpeed, genDamage, player));
+            enemies.add(new LarvaEnemy(randomX(), randomY(), genHealth, genSpeed, genDamage, player));
+        }
+
+        for (int i = 0; i < enemyCount; i++) {
+            enemies.add(new SkeletonWeakEnemy(randomX(), randomY(), genHealth, genSpeed, genDamage, player));
+        }
+
+        if (level >= 2) {
+            for (int i = 0; i < enemyCount / 2; i++) {
+                enemies.add(new SkeletonStrongEnemy(randomX(), randomY(), genHealth + 20, genSpeed + 0.2f, genDamage + 5, player));
+                enemies.add(new DragonEnemy(randomX(), randomY(), genHealth + 40, genSpeed + 0.3f, genDamage + 10, player));
+            }
+        }
+        if (level == 4) {
+            enemies.add(new FinalBossEnemy(500, 300, 300, 1.0f, 30, player));
+        }
     }
 
     public void update(float delta) {
         if (state == GameState.PLAYING) {
             timer.tick(delta);
             getCurrentLevel().load();
+            if (!enemiesSpawned) {
+                spawnEnemiesForLevel(currentLevelIndex);
+                enemiesSpawned = true;
+            }
         }
         player.update();
 
@@ -78,6 +112,9 @@ public class GameWorld {
     public boolean nextLevel() {
         if (currentLevelIndex < levels.length - 1) {
             currentLevelIndex++;
+            enemiesSpawned = false;
+            enemies.clear();
+
             System.out.println("Chargement du niveau suivant...");
 
             Level lvl = levels[currentLevelIndex];
