@@ -106,7 +106,7 @@ public class MenuScreen implements Screen {
 
     private void activateMenuItem(int index) {
         switch (index) {
-            case 0 -> screenManager.setState(GameState.PLAYING);
+            case 0 -> screenManager.setState(GameState.CHARACTER_SELECT);
             case 1 -> screenManager.setState(GameState.SETTINGS);
             case 2 -> Gdx.app.exit();
         }

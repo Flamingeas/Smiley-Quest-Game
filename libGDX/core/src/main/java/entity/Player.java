@@ -2,6 +2,7 @@ package entity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Texture;
 import system.Observable;
 import system.GameEvent;
 import system.Observer;
@@ -16,13 +17,15 @@ public class Player extends Entity implements Observable {
     private int lives;
     private Weapon currentWeapon;
     private final List<Observer> observers = new ArrayList<>();
+    private Texture texture;
 
-    public Player(float x, float y, int lives, float speed) {
+    public Player(float x, float y, int lives, float speed, int smileyIndex) {
         super(x, y);
         this.score = 0;
         this.lives = lives;
         this.speed = speed;
         this.currentWeapon = null;
+        this.texture = new Texture("images/smiley/smiley_" + smileyIndex + ".png");
     }
 
     public Player() {

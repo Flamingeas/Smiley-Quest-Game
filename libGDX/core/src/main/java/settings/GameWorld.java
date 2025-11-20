@@ -16,9 +16,11 @@ public class GameWorld {
     private GameState state;
     private final ScoreSystem scoreSystem;
     private final GameTimer timer;
+    private int selectedSmileyIndex;
 
-    public GameWorld(Level firstLevel) {
+    public GameWorld(int selectedSmileyIndex) {
 
+        this.selectedSmileyIndex = selectedSmileyIndex;
         this.levels = new Level[] {
                 new Level("maps/sampleMap.tmx", new Coord(0, 22), new Coord(27, 4)),
                 new Level("maps/laby.tmx", new Coord(0, 31), new Coord(28, 0)),
@@ -31,7 +33,7 @@ public class GameWorld {
         this.timer = new GameTimer();
 
         Level lvl = levels[currentLevelIndex];
-        this.player = new Player(lvl.getPlayerSpawn().getX(), lvl.getPlayerSpawn().getY(), 3, 2.0f);
+        this.player = new Player(lvl.getPlayerSpawn().getX(), lvl.getPlayerSpawn().getY(), 3, 2.0f, selectedSmileyIndex);
     }
 
     public void update(float delta) {
