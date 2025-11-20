@@ -103,7 +103,8 @@ public class GameScreen implements Screen {
             uiCamera = new OrthographicCamera();
             uiCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-            playerTexture = new Texture("images/smiley/playerboss.png");
+            int smiley = screenManager.getSelectedSmiley();
+            playerTexture = new Texture("images/smiley/smiley_" + smiley + ".png");
 
             arrowUp = new Texture("images/ui/arrow_up.png");
             arrowDown = new Texture("images/ui/arrow_down.png");

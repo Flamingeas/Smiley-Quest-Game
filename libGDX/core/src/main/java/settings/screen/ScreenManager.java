@@ -19,6 +19,8 @@ public class ScreenManager {
 
     private GameWorld gameWorld;
 
+    private int selectedSmileyIndex = 0;
+
     public ScreenManager() {
         pausedScreen = new PausedScreen(this);
         menuScreen = new MenuScreen(this);
@@ -32,9 +34,12 @@ public class ScreenManager {
 
             case MENU -> setScreen(menuScreen);
 
+            case CHARACTER_SELECT ->
+                    setScreen(new CharacterSelectScreen(this));
+
             case PLAYING -> {
                 if (gameWorld == null) {
-                    gameWorld = new GameWorld(null);
+                    gameWorld = new GameWorld(null,selectedSmileyIndex);
                 }
                 if (gameScreen == null) {
                     gameScreen = new GameScreen(this, gameWorld);
@@ -66,4 +71,10 @@ public class ScreenManager {
     }
     public Screen getCurrentScreen() { return currentScreen; }
     public GameState getState() { return state; }
+    public void setSelectedSmiley(int index) {
+        this.selectedSmileyIndex = index;
+    }
+    public int getSelectedSmiley() {
+        return selectedSmileyIndex;
+    }
 }
