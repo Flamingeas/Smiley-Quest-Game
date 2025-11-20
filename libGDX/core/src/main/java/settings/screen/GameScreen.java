@@ -195,7 +195,7 @@ public class GameScreen implements Screen {
             chestIcon = tile.getTextureRegion();
         }
         WeaponSpawner spawner = new WeaponSpawner();
-        weaponDataList = spawner.spawnWeapons(tiledMap, 8);
+        weaponDataList = spawner.spawnWeapons(tiledMap, 4);
         placeWeaponsOnMap();
 
         System.out.println("➡ Niveau chargé : " + lvl.getMapFile());
