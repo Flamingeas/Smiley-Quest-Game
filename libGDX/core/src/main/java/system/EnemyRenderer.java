@@ -17,12 +17,12 @@ public class EnemyRenderer {
     public EnemyRenderer() {
         textures = new HashMap<>();
 
-        textures.put(GhostEnemy.class, new Texture("images/enemies/phantom.png"));
-        textures.put(LarvaEnemy.class, new Texture("images/enemies/larve.png"));
-        textures.put(SkeletonWeakEnemy.class, new Texture("images/enemies/squelet.png"));
-        textures.put(SkeletonStrongEnemy.class, new Texture("images/enemies/squelet1.png"));
-        textures.put(DragonEnemy.class, new Texture("images/enemies/dragon.png"));
-        textures.put(FinalBossEnemy.class, new Texture("images/enemies/dragon.png"));
+        textures.put(GhostEnemy.class, new Texture("enemies/GhostEnemy.png"));
+        textures.put(LarvaEnemy.class, new Texture("enemies/LarvaEnemy.png"));
+        textures.put(SkeletonWeakEnemy.class, new Texture("enemies/SkeletonWeakEnemy.png"));
+        textures.put(SkeletonStrongEnemy.class, new Texture("enemies/SkeletonStrongEnemy.png"));
+        textures.put(DragonEnemy.class, new Texture("enemies/DragonEnemy.png"));
+        textures.put(FinalBossEnemy.class, new Texture("enemies/FinalBossEnemy.png"));
     }
 
     public void render(SpriteBatch batch, Enemy e) {
