@@ -231,7 +231,8 @@ public class GameScreen implements Screen {
             walkableTiles.add(53);
             walkableTiles.add(54);
         } else if (mapFile.contains("laby")) {
-            walkableTiles.add(1);
+            walkableTiles.add(68);
+            walkableTiles.add(38);
         } else if (mapFile.contains("mapdebutant")) {
             walkableTiles.add(961);
             walkableTiles.add(963);
@@ -242,6 +243,13 @@ public class GameScreen implements Screen {
             walkableTiles.add(810);
             walkableTiles.add(405);
             walkableTiles.add(385);
+        } else if (mapFile.contains("map4")){
+            walkableTiles.add(1);
+            walkableTiles.add(40);
+            walkableTiles.add(70);
+        } else if (mapFile.contains("final-map")){
+            walkableTiles.add(7);
+            walkableTiles.add(68);
         } else {
             walkableTiles.add(1);
         }
