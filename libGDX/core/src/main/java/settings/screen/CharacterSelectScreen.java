@@ -56,6 +56,7 @@ public class CharacterSelectScreen implements Screen {
                 new Texture("images/smiley/smiley_5.png"),
                 new Texture("images/smiley/smiley_6.png")
         };
+
         FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("fonts/PressStart2P-Regular.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter p = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
@@ -75,26 +76,25 @@ public class CharacterSelectScreen implements Screen {
 
         handleInput();
         batch.begin();
-        fontTitle.draw(batch, "SELECT YOUR SMILEY",
-                centerX - 330, centerY + 230);
-        batch.draw(arrowLeft,
-                centerX - 250,
-                centerY - 64,
-                96, 96);
-        batch.draw(arrowRight,
-                centerX + 150,
-                centerY - 64,
-                96, 96);
+
+        float titleY = centerY + 260;
+        float smileyY = centerY;
+        float arrowsY = smileyY - 10;
+        float info1Y = smileyY - 180;
+        float info2Y = info1Y - 60;
+        float info3Y = info2Y - 60;
+
+        fontTitle.draw(batch, "SELECT YOUR SMILEY", centerX - 330, titleY);
+
+        batch.draw(arrowLeft, centerX - 260, arrowsY - 48, 96, 96);
+        batch.draw(arrowRight, centerX + 160, arrowsY - 48, 96, 96);
+
         Texture current = smileys[selectedIndex];
-        batch.draw(current, centerX - 64, centerY - 64, 128, 128);
-        fontText.draw(batch, "USE <- AND -> TO CHOOSE",
-                centerX - 220, centerY - 200);
+        batch.draw(current, centerX - 64, smileyY - 64, 128, 128);
 
-        fontText.draw(batch, "PRESS ENTER TO CONFIRM",
-                centerX - 220, centerY - 240);
-
-        fontText.draw(batch, "ESC TO CANCEL",
-                centerX - 180, centerY - 280);
+        fontText.draw(batch, "USE <- AND -> TO CHOOSE", centerX - 220, info1Y);
+        fontText.draw(batch, "PRESS ENTER TO CONFIRM", centerX - 220, info2Y);
+        fontText.draw(batch, "ESC TO CANCEL", centerX - 180, info3Y);
 
         batch.end();
     }
