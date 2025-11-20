@@ -39,7 +39,7 @@ public class SkeletonWeakEnemy extends Enemy {
     }
 
     /**
-     * Le squelette se dirige vers le joueur avec légère variation aléatoire.
+     * Le squelette se dirige vers le joueur avec une légère variation aléatoire.
      *
      * @param player joueur ciblé
      * @param delta temps écoulé
