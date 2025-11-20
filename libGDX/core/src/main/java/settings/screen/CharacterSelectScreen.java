@@ -12,29 +12,66 @@ import com.badlogic.gdx.utils.ScreenUtils;
 
 import settings.GameState;
 
+/**
+ * Screen responsible for letting the player choose which smiley
+ * character they want to use. The player can navigate through the available
+ * smileys using the arrow keys and confirm their choice with ENTER.
+ * ESC returns to the main menu.
+ *
+ * <p>This screen loads UI assets (arrows, fonts, sprites) and
+ * handles keyboard inputs to update the selected index.</p>
+ */
 public class CharacterSelectScreen implements Screen {
 
+    /** Reference to the screen manager controlling navigation. */
     private final ScreenManager screenManager;
 
+    /** SpriteBatch used for rendering all textures and fonts. */
     private SpriteBatch batch;
+
+    /** Font used for the screen title. */
     private BitmapFont fontTitle;
+
+    /** Font used for informational text. */
     private BitmapFont fontText;
 
+    /** Arrow icon used to navigate left. */
     private Texture arrowLeft;
+
+    /** Arrow icon used to navigate right. */
     private Texture arrowRight;
+
+    /** Array of textures representing all available smiley heads. */
     private Texture[] smileys;
 
+    /** Index of the currently selected smiley in the array. */
     private int selectedIndex = 0;
 
+    /** Screen width value (cached at show()). */
     private float screenW;
+
+    /** Screen height value (cached at show()). */
     private float screenH;
+
+    /** Center X coordinate of the screen. */
     private float centerX;
+
+    /** Center Y coordinate of the screen. */
     private float centerY;
 
+    /**
+     * Creates a new character selection screen.
+     *
+     * @param screenManager The screen manager responsible for state switching.
+     */
     public CharacterSelectScreen(ScreenManager screenManager) {
         this.screenManager = screenManager;
     }
 
+    /**
+     * Initializes all graphical resources (textures, fonts, positions).
+     * Called automatically when this screen becomes active.
+     */
     @Override
     public void show() {
         batch = new SpriteBatch();
@@ -70,6 +107,12 @@ public class CharacterSelectScreen implements Screen {
         gen.dispose();
     }
 
+    /**
+     * Renders the selection screen, handles input and draws
+     * the currently selected smiley and UI instructions.
+     *
+     * @param delta Time elapsed since last frame.
+     */
     @Override
     public void render(float delta) {
         ScreenUtils.clear(0, 0, 0, 1);
@@ -99,6 +142,14 @@ public class CharacterSelectScreen implements Screen {
         batch.end();
     }
 
+    /**
+     * Handles all keyboard input for this screen:
+     * <ul>
+     *     <li>LEFT/RIGHT: Navigate between smileys</li>
+     *     <li>ENTER: Confirm selection and switch to PLAYING</li>
+     *     <li>ESCAPE: Return to the menu</li>
+     * </ul>
+     */
     private void handleInput() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
             selectedIndex = (selectedIndex + 1) % smileys.length;
@@ -120,6 +171,9 @@ public class CharacterSelectScreen implements Screen {
     @Override public void resume() {}
     @Override public void hide() {}
 
+    /**
+     * Releases all loaded assets to prevent memory leaks.
+     */
     @Override
     public void dispose() {
         batch.dispose();
