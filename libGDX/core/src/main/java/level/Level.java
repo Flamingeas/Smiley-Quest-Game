@@ -4,6 +4,7 @@ import entity.enemies.Enemy;
 import entity.Item;
 import utils.Coord;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Level {
@@ -26,6 +27,8 @@ public class Level {
         this.mapFile = mapFile;
         this.playerSpawn = playerSpawn;
         this.endPoint = endPoint;
+        this.enemies = new ArrayList<>();
+        this.items = new ArrayList<>();
     }
 
     public String getMapFile() { return mapFile; }
