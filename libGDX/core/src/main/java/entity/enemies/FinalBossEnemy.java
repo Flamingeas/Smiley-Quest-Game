@@ -1,112 +1,104 @@
 package entity.enemies;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 import entity.Player;
 import entity.Entity;
-import java.util.Random;
 
-/**
- * Boss du niveau 5 combinant force brute et attaque à distance.
- */
 public class FinalBossEnemy extends Enemy {
 
-    private final Player targetPlayer;
-    private final Random rng;
-    private float attackCooldownMelee;
-    private float attackCooldownRanged;
+    private float attackCooldownMelee = 0f;
+    private float attackCooldownRanged = 0f;
 
-    /**
-     * Constructeur du boss avec ses statistiques génériques.
-     *
-     * @param x position X initiale
-     * @param y position Y initiale
-     * @param genHealth points de vie génériques
-     * @param genSpeed vitesse générique
-     * @param genDamage dégâts génériques
-     * @param player joueur ciblé
-     */
-    public FinalBossEnemy(float x, float y, int genHealth, float genSpeed, int genDamage, Player player, Random rng) {
-        super(x, y, genHealth, genSpeed, genDamage, null);
+    public FinalBossEnemy(float tileX, float tileY, int genHealth, float genSpeed, int genDamage, Player player) {
+        super(tileX, tileY, genHealth, genSpeed, genDamage, player);
+
         this.targetPlayer = player;
-        this.rng = new Random();
-        this.attackCooldownMelee = 0f;
-        this.attackCooldownRanged = 0f;
+        this.texture = new Texture("images/enemies/FinalBossEnemy.png");
+
         scaleStats(1);
     }
 
-
-    /**
-     * Met à jour le boss : mouvements et attaques multiples.
-     */
     @Override
     public void update() {
         if (!isActive) return;
 
-        move(targetPlayer, 1f);
+        float delta = Gdx.graphics.getDeltaTime();
+
+        move(targetPlayer, delta);
 
         if (attackCooldownMelee <= 0f) {
             meleeAttack(targetPlayer);
             attackCooldownMelee = 1.5f;
         } else {
-            attackCooldownMelee -= 0.1f;
+            attackCooldownMelee -= delta;
         }
 
         if (attackCooldownRanged <= 0f) {
             rangedAttack(targetPlayer);
             attackCooldownRanged = 3f;
         } else {
-            attackCooldownRanged -= 0.1f;
+            attackCooldownRanged -= delta;
         }
     }
 
-    /**
-     * Déplacement agressif : se rapproche si trop loin du joueur.
-     */
     @Override
     public void move(Player player, float delta) {
+
+        if (gameScreen == null) return;
+        if (player == null) return;
+
         float dx = player.getX() - x;
         float dy = player.getY() - y;
-        float distance = (float) Math.sqrt(dx * dx + dy * dy);
+        float dist = (float)Math.sqrt(dx*dx + dy*dy);
+        if (dist == 0) return;
 
-        if (distance > 100f) {
-            x += (dx / distance) * speed * delta;
-            y += (dy / distance) * speed * delta;
+        dx /= dist;
+        dy /= dist;
+
+        float moveSpeed = speed * 32f * delta;
+
+        float newX = x;
+        float newY = y;
+
+        if (dist > 130f) {
+            newX += dx * moveSpeed;
+            newY += dy * moveSpeed;
+
         } else {
-            x += Math.sin(System.currentTimeMillis() * 0.001f) * 0.5f;
-            y += Math.cos(System.currentTimeMillis() * 0.001f) * 0.5f;
+            float t = Gdx.graphics.getFrameId() * 0.02f;
+            newX += (float)Math.sin(t) * moveSpeed * 0.7f;
+            newY += (float)Math.cos(t) * moveSpeed * 0.7f;
+        }
+
+        if (gameScreen.canMoveGeneric(newX, y)) {
+            x = newX;
+        }
+        if (gameScreen.canMoveGeneric(x, newY)) {
+            y = newY;
         }
     }
 
-    /**
-     * Intéraction avec le joueur.
-     */
     @Override
     public void interact(Entity e) {
         if (e instanceof Player) {
-            meleeAttack((Player) e);
-            rangedAttack((Player) e);
+            meleeAttack((Player)e);
         }
     }
-
-    /**
-     * Attaque corps à corps si proche du joueur.
-     */
     private void meleeAttack(Player player) {
         float dx = player.getX() - x;
         float dy = player.getY() - y;
-        float dist = (float) Math.sqrt(dx * dx + dy * dy);
+        float dist = (float)Math.sqrt(dx*dx + dy*dy);
+
         if (dist < 30f) {
             player.takeDamage(attackDamage);
         }
     }
-
-    /**
-     * Attaque à distance type souffle ou projectiles.
-     */
     private void rangedAttack(Player player) {
         float dx = player.getX() - x;
         float dy = player.getY() - y;
-        float dist = (float) Math.sqrt(dx * dx + dy * dy);
-        if (dist < 250f) {
+        float dist = (float)Math.sqrt(dx*dx + dy*dy);
+        if (dist < 260f) {
             player.takeDamage(attackDamage / 2);
         }
     }

@@ -1,13 +1,17 @@
 package entity.enemies;
 
+import com.badlogic.gdx.graphics.Texture;
 import entity.Entity;
 import entity.Player;
-import level.Level;
 
 /**
- * Représente un ennemi du jeu avec des stats qui évoluent selon le niveau.
+ * Représente un ennemi avec coordonnées TILE (spawn safe).
  */
 public abstract class Enemy extends Entity {
+
+    public float tileX;
+    public float tileY;
+    protected settings.screen.GameScreen gameScreen;
 
     protected int health;
     protected float speed;
@@ -16,31 +20,39 @@ public abstract class Enemy extends Entity {
     protected int genHealth;
     protected float genSpeed;
     protected int genDamage;
+
     protected Player targetPlayer;
+    protected Texture texture;
 
     /**
-     * Crée un ennemi à une position donnée avec des stats de base.
-     *
-     * @param x Position X
-     * @param y Position Y
-     * @param genHealth Santé de base
-     * @param genSpeed Vitesse de base
-     * @param genDamage Dégâts de base
+     * Constructeur Enemy : on fournit des coordonnées TILES.
+     * x et y pixel seront fixés par GameScreen ensuite.
      */
-    public Enemy(float x, float y, int genHealth, float genSpeed, int genDamage, Player player) {
-        super(x, y);
+    public Enemy(float tileX, float tileY, int genHealth, float genSpeed, int genDamage, Player player) {
+        super(0, 0);
+        this.tileX = tileX;
+        this.tileY = tileY;
+
         this.genHealth = genHealth;
         this.genSpeed = genSpeed;
         this.genDamage = genDamage;
+
         scaleStats(1);
+
         isActive = true;
         this.targetPlayer = player;
     }
 
     /**
-     * Ajuste les statistiques selon le niveau du jeu.
-     *
-     * @param level Niveau courant
+     * Appelé par GameScreen après calcul du tileSize + offsets.
+     */
+    public void setPixelPosition(float px, float py) {
+        this.x = px;
+        this.y = py;
+    }
+
+    /**
+     * Ajuste les stats selon le niveau.
      */
     public void scaleStats(int level) {
         health = (int)(genHealth * (1 + 0.2f * (level - 1)));
@@ -49,16 +61,13 @@ public abstract class Enemy extends Entity {
     }
 
     /**
-     * Met à jour l'état de l'ennemi à chaque frame.
+     * Update générique.
      */
     public void update() {
         if (!isActive) return;
     }
-
     /**
-     * Gère l'interaction avec une autre entité.
-     *
-     * @param e Entité avec laquelle interagir
+     * Interaction (dommages au joueur).
      */
     @Override
     public void interact(Entity e) {
@@ -66,31 +75,29 @@ public abstract class Enemy extends Entity {
             attack((Player) e);
         }
     }
-
-    /**
-     * Inflige des dégâts au joueur.
-     *
-     * @param player Joueur cible
-     */
     public void attack(Player player) {
         if (player != null && isActive) {
             player.takeDamage(attackDamage);
         }
     }
-
+    public void setGameScreen(settings.screen.GameScreen gs) {
+        this.gameScreen = gs;
+    }
     /**
      * L'ennemi reçoit des dégâts.
-     *
-     * @param damage Quantité de dégâts
      */
     public void takeDamage(int damage) {
         health -= damage;
         if (health <= 0) isActive = false;
     }
-
+    /**
+     * Déplacement (spécifique aux classes filles).
+     */
     public abstract void move(Player player, float delta);
-
     public int getHealth() { return health; }
     public float getSpeed() { return speed; }
     public int getAttackDamage() { return attackDamage; }
+    public Texture getTexture() {
+        return texture;
+    }
 }

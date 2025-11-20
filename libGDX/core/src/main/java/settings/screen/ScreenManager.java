@@ -38,12 +38,9 @@ public class ScreenManager {
                     setScreen(new CharacterSelectScreen(this));
 
             case PLAYING -> {
-                if (gameWorld == null) {
-                    gameWorld = new GameWorld(null,selectedSmileyIndex);
-                }
-                if (gameScreen == null) {
-                    gameScreen = new GameScreen(this, gameWorld);
-                }
+                gameWorld = new GameWorld(selectedSmileyIndex);
+                gameScreen = new GameScreen(this, gameWorld);
+                gameWorld.setGameScreen(gameScreen);
                 setScreen(gameScreen);
             }
 
@@ -56,10 +53,12 @@ public class ScreenManager {
             case SPLASH -> setScreen(new SplashScreen(this));
         }
     }
+
     public void resumeGame() {
         this.state = GameState.PLAYING;
         setScreen(gameScreen);
     }
+
     public void setScreen(Screen screen) {
         if (currentScreen != null)
             currentScreen.hide();
@@ -69,11 +68,14 @@ public class ScreenManager {
 
         ((Game) Gdx.app.getApplicationListener()).setScreen(screen);
     }
+
     public Screen getCurrentScreen() { return currentScreen; }
     public GameState getState() { return state; }
+
     public void setSelectedSmiley(int index) {
         this.selectedSmileyIndex = index;
     }
+
     public int getSelectedSmiley() {
         return selectedSmileyIndex;
     }

@@ -8,20 +8,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Level {
+
     private List<Enemy> enemies;
     private List<Item> items;
-    private Coord playerSpawn;
-    private Map map;
 
-    private String mapFile;
+    private Coord playerSpawn;
     private Coord endPoint;
 
-    public Level(List<Enemy> enemies, List<Item> items, Coord playerSpawn, Map map) {
-        this.enemies = enemies;
-        this.items = items;
-        this.playerSpawn = playerSpawn;
-        this.map = map;
-    }
+    private String mapFile;
+
+    private int mapWidthTiles;
+    private int mapHeightTiles;
 
     public Level(String mapFile, Coord playerSpawn, Coord endPoint) {
         this.mapFile = mapFile;
@@ -32,39 +29,29 @@ public class Level {
     }
 
     public String getMapFile() { return mapFile; }
+    public Coord getPlayerSpawn() { return playerSpawn; }
     public Coord getEndPoint() { return endPoint; }
 
+    public boolean isCleared(float px, float py, float tileSize) {
+        int tx = (int)(px / tileSize);
+        int ty = (int)(py / tileSize);
+        return tx == endPoint.getX() && ty == endPoint.getY();
+    }
+
+    public void setMapSize(int width, int height) {
+        this.mapWidthTiles = width;
+        this.mapHeightTiles = height;
+    }
+
+    public int getMapWidth() { return mapWidthTiles; }
+    public int getMapHeight() { return mapHeightTiles; }
+
+    public List<Enemy> getEnemies() { return enemies; }
+    public void setEnemies(List<Enemy> enemies) { this.enemies = enemies; }
+
+    public List<Item> getItems() { return items; }
+    public void setItems(List<Item> items) { this.items = items; }
+
     public void load() {
-    }
-
-    public boolean isCleared(float playerX, float playerY, float tileSize) {
-        float px = playerX / tileSize;
-        float py = playerY / tileSize;
-        return ((int)px == endPoint.getX() && (int)py == endPoint.getY());
-    }
-
-    public List<Enemy> getEnemies() {
-        return enemies;
-    }
-    public void setEnemies(List<Enemy> enemies) {
-        this.enemies = enemies;
-    }
-    public List<Item> getItems() {
-        return items;
-    }
-    public void setItems(List<Item> items) {
-        this.items = items;
-    }
-    public Coord getPlayerSpawn() {
-        return playerSpawn;
-    }
-    public void setPlayerSpawn(Coord playerSpawn) {
-        this.playerSpawn = playerSpawn;
-    }
-    public Map getMap() {
-        return map;
-    }
-    public void setMap(Map map) {
-        this.map = map;
     }
 }

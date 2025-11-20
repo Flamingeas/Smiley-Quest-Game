@@ -87,10 +87,8 @@ public class MenuScreen implements Screen {
     public void show() {
         batch = new SpriteBatch();
 
-        // Enable sound by default
         AudioManager.getInstance().setSoundEnabled(true);
 
-        // Load background animation frames
         TextureRegion[] frames = new TextureRegion[18];
         for (int i = 0; i < 18; i++) {
             String filename = String.format("images/menuBackground-split/frame_%02d.png", i);
@@ -100,7 +98,6 @@ public class MenuScreen implements Screen {
 
         pointer = new Texture(Gdx.files.internal("images/hand_cursor0000.png"));
 
-        // Load fonts
         FreeTypeFontGenerator generator =
                 new FreeTypeFontGenerator(Gdx.files.internal("fonts/PressStart2P-Regular.ttf"));
 
@@ -118,7 +115,6 @@ public class MenuScreen implements Screen {
 
         generator.dispose();
 
-        // Precompute item sizes
         layouts = new GlyphLayout[menuItems.length];
         for (int i = 0; i < menuItems.length; i++) {
             layouts[i] = new GlyphLayout(fontText, menuItems[i]);
@@ -136,8 +132,6 @@ public class MenuScreen implements Screen {
      * - Click activates item
      */
     private void handleInput() {
-
-        // Keyboard navigation
         if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT))
             selectedIndex = Math.min(selectedIndex + 1, menuItems.length - 1);
 
@@ -147,11 +141,9 @@ public class MenuScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER))
             activateMenuItem(selectedIndex);
 
-        // Mouse navigation
         float mouseX = Gdx.input.getX();
         float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
 
-        // Compute total width of all items
         float totalWidth = 0f;
         for (GlyphLayout layout : layouts) totalWidth += layout.width;
         totalWidth += spacing * (menuItems.length - 1);
@@ -209,16 +201,13 @@ public class MenuScreen implements Screen {
 
         batch.begin();
 
-        // Background
         TextureRegion frame = backgroundAnimation.getKeyFrame(stateTime, true);
         batch.draw(frame, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        // Title
         GlyphLayout titleLayout = new GlyphLayout(fontTitle, title);
         float titleX = (Gdx.graphics.getWidth() - titleLayout.width) / 2;
         fontTitle.draw(batch, title, titleX, Gdx.graphics.getHeight() - 100);
 
-        // Menu item centering
         float totalWidth = 0f;
         for (GlyphLayout layout : layouts) totalWidth += layout.width;
         totalWidth += spacing * (menuItems.length - 1);
@@ -227,13 +216,11 @@ public class MenuScreen implements Screen {
         float posY = 100;
         float x = startX;
 
-        // Draw menu items
         for (int i = 0; i < menuItems.length; i++) {
             fontText.draw(batch, menuItems[i], x, posY);
             x += layouts[i].width + spacing;
         }
 
-        // Draw pointer under selected item
         float pointerXPos = startX;
         for (int i = 0; i < selectedIndex; i++)
             pointerXPos += layouts[i].width + spacing;

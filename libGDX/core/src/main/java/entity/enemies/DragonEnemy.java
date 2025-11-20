@@ -2,94 +2,105 @@ package entity.enemies;
 
 import entity.Player;
 import entity.Entity;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+
 import java.util.Random;
 
-/**
- * Ennemi de type dragon caractérisé par des attaques à distance et un déplacement stratégique.
- */
 public class DragonEnemy extends Enemy {
 
-    private final Player targetPlayer;
-    private final Random rng;
-    private float attackCooldown;
+    private float attackCooldown = 0f;
+    private final Random rng = new Random();
 
-    /**
-     * Constructeur du dragon permettant l'utilisation des statistiques génériques.
-     *
-     * @param x position X initiale
-     * @param y position Y initiale
-     * @param genHealth points de vie génériques
-     * @param genSpeed vitesse générique
-     * @param genDamage dégâts génériques
-     * @param player joueur ciblé
-     */
-    public DragonEnemy(float x, float y, int genHealth, float genSpeed, int genDamage, Player player, Random rng) {
-        super(x, y, genHealth, genSpeed, genDamage, null);
+    public DragonEnemy(float tileX, float tileY, int genHealth, float genSpeed, int genDamage, Player player) {
+        super(tileX, tileY, genHealth, genSpeed, genDamage, player);
+
+        this.texture = new Texture("images/enemies/DragonEnemy.png");
         this.targetPlayer = player;
-        this.rng = new Random();
-        this.attackCooldown = 0f;
+
         scaleStats(1);
     }
 
-    /**
-     * Met à jour le dragon en appliquant son déplacement stratégique et son attaque à distance.
-     */
     @Override
     public void update() {
         if (!isActive) return;
-        move(targetPlayer, 1f);
+
+        float delta = Gdx.graphics.getDeltaTime();
+
+        move(targetPlayer, delta);
+
         if (attackCooldown <= 0f) {
             attack(targetPlayer);
             attackCooldown = 2f;
         } else {
-            attackCooldown -= 0.1f;
+            attackCooldown -= delta;
         }
     }
 
-    /**
-     * Déplacement stratégique : le dragon attaque à une distance optimale.
-     *
-     * @param player joueur ciblé
-     * @param delta temps écoulé
-     */
     @Override
     public void move(Player player, float delta) {
+        if (gameScreen == null || player == null) return;
+
         float dx = player.getX() - x;
         float dy = player.getY() - y;
-        float distance = (float) Math.sqrt(dx * dx + dy * dy);
 
+        float dist = (float)Math.sqrt(dx * dx + dy * dy);
+        if (dist == 0) return;
+
+        float nx = dx / dist;
+        float ny = dy / dist;
+
+        float moveSpeed = speed * 32f * delta;
         float optimalDistance = 150f;
-        if (distance > optimalDistance) {
-            x += (dx / distance) * speed * delta;
-            y += (dy / distance) * speed * delta;
-        } else if (distance < optimalDistance * 0.8f) {
-            x -= (dx / distance) * speed * delta;
-            y -= (dy / distance) * speed * delta;
+
+        float newX = x;
+        float newY = y;
+
+        if (dist > optimalDistance) {
+            newX += nx * moveSpeed;
+            newY += ny * moveSpeed;
+        }
+        else if (dist < optimalDistance * 0.7f) {
+            newX -= nx * moveSpeed;
+            newY -= ny * moveSpeed;
+        }
+        newX += (rng.nextFloat() - 0.5f) * 2f;
+        newY += (rng.nextFloat() - 0.5f) * 2f;
+
+        boolean moved = false;
+
+        if (gameScreen.canMoveGeneric(newX, y)) {
+            x = newX;
+            moved = true;
+        }
+        if (gameScreen.canMoveGeneric(x, newY)) {
+            y = newY;
+            moved = true;
+        }
+
+        if (!moved) {
+            float angle = rng.nextFloat() * (float)Math.PI * 2;
+            float ox = (float)Math.cos(angle) * moveSpeed * 0.6f;
+            float oy = (float)Math.sin(angle) * moveSpeed * 0.6f;
+
+            if (gameScreen.canMoveGeneric(x + ox, y)) x += ox;
+            if (gameScreen.canMoveGeneric(x, y + oy)) y += oy;
         }
     }
 
-    /**
-     * Intéraction du dragon avec une autre entité.
-     *
-     * @param e entité rencontrée
-     */
     @Override
     public void interact(Entity e) {
         if (e instanceof Player) {
-            attack((Player) e);
+            attack((Player)e);
         }
     }
-
-    /**
-     * Attaque du dragon : inflige des dégâts à distance si le joueur est dans sa zone.
-     *
-     * @param player joueur touché
-     */
     @Override
     public void attack(Player player) {
         float dx = player.getX() - x;
         float dy = player.getY() - y;
-        float dist = (float) Math.sqrt(dx * dx + dy * dy);
+
+        float dist = (float)Math.sqrt(dx*dx + dy*dy);
+
         if (dist < 200f) {
             player.takeDamage(attackDamage);
         }
