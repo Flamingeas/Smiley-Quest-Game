@@ -3,6 +3,7 @@ package settings.screen;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.sandy.smileyquest.SmileyQuestGame;
 import settings.GameState;
 import settings.GameWorld;
 
@@ -16,8 +17,12 @@ public class ScreenManager {
     private PausedScreen pausedScreen;
     private MenuScreen menuScreen;
     private SettingsScreen settingsScreen;
+    private GameOverScreen gameOverScreen;
+    private WinnerScreen winnerScreen;
 
     private GameWorld gameWorld;
+    private SmileyQuestGame game;
+    private Screen backgroundScreen;
 
     private int selectedSmileyIndex = 0;
 
@@ -25,10 +30,13 @@ public class ScreenManager {
         pausedScreen = new PausedScreen(this);
         menuScreen = new MenuScreen(this);
         settingsScreen = new SettingsScreen(this);
+        gameOverScreen= new GameOverScreen(this);
+        winnerScreen = new WinnerScreen(this);
     }
 
     public void setState(GameState newState) {
         this.state = newState;
+        backgroundScreen = null;
 
         switch (newState) {
 
@@ -48,7 +56,11 @@ public class ScreenManager {
 
             case SETTINGS -> setScreen(settingsScreen);
 
-            case GAME_OVER -> setScreen(new GameOverScreen());
+            case GAME_OVER -> {
+                backgroundScreen = gameScreen;
+                setScreen(gameOverScreen);
+            }
+            case WINNER -> setScreen(winnerScreen);
 
             case SPLASH -> setScreen(new SplashScreen(this));
         }

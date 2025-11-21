@@ -7,5 +7,6 @@ public enum GameState {
     PAUSED,
     SETTINGS,
     GAME_OVER,
-    CHARACTER_SELECT
+    CHARACTER_SELECT,
+    WINNER;
 }
