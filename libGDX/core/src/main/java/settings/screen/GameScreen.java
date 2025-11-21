@@ -544,9 +544,9 @@ public class GameScreen implements Screen, Observer {
         }
         batch.end();
 
-        if (gameWorld.getPlayer().getLives() <= 0) {
+        /* if (gameWorld.getPlayer().getLives() <= 0) {
             screenManager.setState(GameState.GAME_OVER);
-        }
+        } */
     }
 
     private void drawBlock(float x, float y, float w, float h) {

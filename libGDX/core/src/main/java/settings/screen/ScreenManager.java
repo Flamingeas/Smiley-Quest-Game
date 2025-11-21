@@ -18,7 +18,7 @@ public class ScreenManager {
     private MenuScreen menuScreen;
     private SettingsScreen settingsScreen;
     private GameOverScreen gameOverScreen;
-    private WinnerScreen winnerScreen;
+   // private WinnerScreen winnerScreen;
 
     private GameWorld gameWorld;
     private SmileyQuestGame game;
@@ -31,7 +31,7 @@ public class ScreenManager {
         menuScreen = new MenuScreen(this);
         settingsScreen = new SettingsScreen(this);
         gameOverScreen= new GameOverScreen(this);
-        winnerScreen = new WinnerScreen(this);
+     //   winnerScreen = new WinnerScreen(this);
     }
 
     public void setState(GameState newState) {
@@ -60,7 +60,7 @@ public class ScreenManager {
                 backgroundScreen = gameScreen;
                 setScreen(gameOverScreen);
             }
-            case WINNER -> setScreen(winnerScreen);
+          //  case WINNER -> setScreen(winnerScreen);
 
             case SPLASH -> setScreen(new SplashScreen(this));
         }
