@@ -52,7 +52,7 @@ public class GameWorld {
                 new Level("maps/sampleMap.tmx",    new Coord(0, 22), new Coord(27, 4)),
                 new Level("maps/laby.tmx",         new Coord(0, 31), new Coord(28, 0)),
                 new Level("maps/mapdebutant.tmx",  new Coord(1, 28), new Coord(28, 1)),
-                new Level("maps/final-map.tmx",    new Coord(6, 20), new Coord(15, 15))
+                new Level("maps/final-map.tmx", new Coord(1, 30), new Coord(30, 1))
         };
 
         this.state = GameState.PLAYING;
@@ -72,7 +72,13 @@ public class GameWorld {
 
         this.enemies = new ArrayList<>();
     }
-
+    public boolean isWalkableTile(int x, int y) {
+        if (gameScreen == null) return false;
+        return gameScreen.isWalkableTileRaw(x, y);
+    }
+    public GameScreen getGameScreen() {
+        return gameScreen;
+    }
     private Coord randomWalkableTile() {
         Level lvl = getCurrentLevel();
 

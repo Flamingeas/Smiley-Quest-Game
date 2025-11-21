@@ -255,7 +255,7 @@ public class GameScreen implements Screen {
         }
 
         WeaponSpawner spawner = new WeaponSpawner();
-        weaponDataList = spawner.spawnWeapons(tiledMap, 8);
+        weaponDataList = spawner.spawnWeapons(tiledMap, lvl.getMapFile(), 8, gameWorld);
         placeWeaponsOnMap();
 
         System.out.println("Level loaded: " + lvl.getMapFile());

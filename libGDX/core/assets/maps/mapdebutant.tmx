@@ -2,6 +2,26 @@
 <map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="1">
  <tileset firstgid="1" name="DungeonCrawl_ProjectUtumnoTileset" tilewidth="32" tileheight="32" tilecount="3072" columns="64">
   <image source="DungeonCrawl_ProjectUtumnoTileset.png" width="2048" height="1536"/>
+  <tile id="1743">
+   <properties>
+    <property name="weapon" value="staff"/>
+   </properties>
+  </tile>
+  <tile id="1796">
+   <properties>
+    <property name="weapon" value="longSword"/>
+   </properties>
+  </tile>
+  <tile id="1808">
+   <properties>
+    <property name="weapon" value="saber"/>
+   </properties>
+  </tile>
+  <tile id="2924">
+   <properties>
+    <property name="chest" type="bool" value="true"/>
+   </properties>
+  </tile>
  </tileset>
  <layer id="1" name="Calque de Tuiles 1" width="30" height="30">
   <data encoding="csv">
