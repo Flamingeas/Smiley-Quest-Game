@@ -15,7 +15,7 @@ public class DragonEnemy extends Enemy {
     public DragonEnemy(float tileX, float tileY, int genHealth, float genSpeed, int genDamage, Player player) {
         super(tileX, tileY, genHealth, genSpeed, genDamage, player);
 
-        this.texture = new Texture("images/enemies/DragonEnemy.png");
+        this.texture = new Texture("enemies/DragonEnemy.png");
         this.targetPlayer = player;
 
         scaleStats(1);

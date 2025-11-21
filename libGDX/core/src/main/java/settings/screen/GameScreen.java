@@ -140,7 +140,35 @@ public class GameScreen implements Screen {
             initialized = true;
         }
     }
+    private Coord findChestTile() {
+        for (var layer : tiledMap.getLayers()) {
 
+            if (!(layer instanceof TiledMapTileLayer tileLayer))
+                continue;
+
+            for (int y = 0; y < tileLayer.getHeight(); y++) {
+                for (int x = 0; x < tileLayer.getWidth(); x++) {
+
+                    TiledMapTileLayer.Cell cell = tileLayer.getCell(x, y);
+                    if (cell == null) continue;
+
+                    TiledMapTile tile = cell.getTile();
+                    if (tile == null) continue;
+
+                    var props = tile.getProperties();
+
+                    if (props.containsKey("chest") && props.get("chest", Boolean.class)) {
+                        System.out.println("Coffre trouvé dans layer " + layer.getName() +
+                                " : " + x + ", " + y);
+                        return new Coord(x, y);
+                    }
+                }
+            }
+        }
+
+        System.out.println("Aucun coffre trouvé !");
+        return null;
+    }
     private void loadLevel(Level lvl) {
 
         if (tiledMap != null)
@@ -180,35 +208,50 @@ public class GameScreen implements Screen {
 
         mapOffsetX = leftPanelWidth + (mapZoneW - worldW) / 2f;
         mapOffsetY = (screenH - worldH) / 2f;
+        Coord spawn = findFirstWalkableFromTopLeft();
 
-        Coord spawn = lvl.getPlayerSpawn();
         playerX = mapOffsetX + spawn.getX() * tileSize;
         playerY = mapOffsetY + spawn.getY() * tileSize;
 
         player.setX(playerX);
         player.setY(playerY);
 
-        TiledMapTile chest = tiledMap.getTileSets().getTile(90);
-        if (chest != null)
-            chestIcon = chest.getTextureRegion();
+        Coord chestCoord = findChestTile();
+        if (chestCoord != null) {
+            lvl.setEndPoint(chestCoord);
+            System.out.println("Coffre détecté : " + chestCoord.getX() + ", " + chestCoord.getY());
+        } else {
+            System.out.println("Aucun coffre trouvé dans cette map !");
+        }
 
         WeaponSpawner spawner = new WeaponSpawner();
         weaponDataList = spawner.spawnWeapons(tiledMap, 8);
 
         placeWeaponsOnMap();
 
-        System.out.println("➡ Level loaded: " + lvl.getMapFile());
-
+        System.out.println("Level loaded: " + lvl.getMapFile());
         for (Enemy enemy : gameWorld.getEnemies()) {
-
             enemy.setPixelPosition(
                     mapOffsetX + enemy.tileX * tileSize,
                     mapOffsetY + enemy.tileY * tileSize
             );
         }
-
     }
+    /** Trouve automatiquement le premier tile walkable depuis le coin haut-gauche */
+    private Coord findFirstWalkableFromTopLeft() {
 
+        int w = dungeonLayer.getWidth();
+        int h = dungeonLayer.getHeight();
+
+        for (int y = h - 1; y >= 0; y--) {
+            for (int x = 0; x < w; x++) {
+                if (isTileWalkable(x, y)) {
+                    return new Coord(x, y);
+                }
+            }
+        }
+        return new Coord(1, 1);
+    }
     /** UTILITÉ : Permet à GameWorld de vérifier si un tile est walkable */
     public boolean isWalkableTileRaw(int tileX, int tileY) {
         if (dungeonLayer == null) return false;

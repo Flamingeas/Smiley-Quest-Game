@@ -2,6 +2,11 @@
 <map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="1">
  <tileset firstgid="1" name="retro" tilewidth="32" tileheight="32" tilecount="256" columns="16">
   <image source="retro.png" width="512" height="512"/>
+  <tile id="67">
+   <properties>
+    <property name="chest" type="bool" value="true"/>
+   </properties>
+  </tile>
  </tileset>
  <layer id="1" name="Calque de Tuiles 1" width="32" height="32">
   <data encoding="csv">
