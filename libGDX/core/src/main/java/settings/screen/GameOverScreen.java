@@ -94,10 +94,6 @@ public class GameOverScreen implements Screen {
             System.out.println("M pressed = Menu");
             screenManager.setState(GameState.MENU);
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-            System.out.println("R pressed = Select Character");
-            screenManager.resumeGame();
-        }
     }
 
     private void renderOverlay() {
@@ -131,7 +127,6 @@ public class GameOverScreen implements Screen {
             drawCentered(promptFont, "TAP TO RESTART", centerX, centerY - 50);
         }
 
-        fontText.draw(batch, "R - Start Over", 100, 300);
         fontText.draw(batch, "M - Open Menu",  100, 240);
 
         batch.end();
