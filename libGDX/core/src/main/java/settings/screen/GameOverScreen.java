@@ -2,127 +2,91 @@ package settings.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import settings.GameState;
 
-/**
- * Represents the Game Over screen displayed when the player loses.
- * This screen simply shows the final score and waits for player input
- * (R to restart, M to go back to the menu). It can later be expanded
- * with textures, animations, and UI buttons.
- */
 public class GameOverScreen implements Screen {
 
-    /** The final score achieved by the player before losing. */
-    private int finalScore;
+    private final ScreenManager screenManager;
 
-    /** SpriteBatch used for rendering (if graphical elements are added). */
+    private Viewport viewport;
     private SpriteBatch batch;
+    private ShapeRenderer shapeRenderer;
+    private BitmapFont font;
 
-    /**
-     * Default constructor.
-     * Final score may be set later using {@link #setFinalScore(int)}.
-     */
-    public GameOverScreen() {}
+    private final Color TRANSPARENT_BLACK = new Color(0f, 0f, 0f, 0.7f);
 
-    /**
-     * Creates a Game Over screen with the given final score.
-     *
-     * @param finalScore The score the player reached before the game ended.
-     */
-    public GameOverScreen(int finalScore) {
-        this.finalScore = finalScore;
+    public GameOverScreen(ScreenManager screenManager) {
+        this.screenManager = screenManager;
     }
 
-    /**
-     * Displays textual results in the console.
-     * This is currently a placeholder until the graphical UI is implemented.
-     */
-    public void showResults() {
-        System.out.println("=== GAME OVER ===");
-        System.out.println("Final score: " + finalScore);
-        System.out.println("Press [R] to restart or [M] to return to the menu.");
-    }
-
-    /**
-     * Initializes rendering resources and loads placeholder animation frames.
-     * In its current state, the screen mostly outputs console feedback.
-     */
     @Override
     public void show() {
+        viewport = new FitViewport(800, 600);
         batch = new SpriteBatch();
-        ScreenUtils.clear(1f, 0.92f, 0.23f, 1);
-
-        TextureRegion[] frames = new TextureRegion[18];
-        for (int i = 0; i < 18; i++) {
-            String filename = String.format("images/menuBackground-split/frame_%02d.png", i);
-            frames[i] = new TextureRegion(new Texture(Gdx.files.internal(filename)));
-        }
-
-        showResults();
+        shapeRenderer = new ShapeRenderer();
+        font = new BitmapFont();
+        font.getData().setScale(2);
     }
 
     /**
-     * Updates the Game Over screen.
-     * Currently empty — logic may be added later for animations or inputs.
-     *
-     * @param delta Time elapsed since last frame.
-     */
-    public void update(float delta) {}
-
-    /**
-     * Renders the Game Over screen.
-     * Currently outputs debug text for development/demo purposes.
-     *
-     * @param delta Time elapsed since last frame.
+     * Effacer l'écran, et le rendre transparant, en centrant les mots "Game Over" et "Tap to restart".
+     * @param delta The time in seconds since the last render.
+     *  Réinitialiser le jeu, et revenir à l'écran de jeu.
      */
     @Override
     public void render(float delta) {
-        System.out.println("Rendering GameOverScreen...");
+        Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        shapeRenderer.setProjectionMatrix(viewport.getCamera().combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(TRANSPARENT_BLACK);
+        shapeRenderer.rect(0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
+        shapeRenderer.end();
+
+        batch.setProjectionMatrix(viewport.getCamera().combined);
+        batch.begin();
+
+        float centerX = viewport.getWorldWidth() / 2f;
+
+        font.setColor(Color.RED);
+        font.draw(batch, "GAME OVER", centerX, 400, 0, Align.center, false);
+
+        font.setColor(Color.WHITE);
+        font.draw(batch, "Tap to Restart", centerX, 300, 0, Align.center, false);
+
+        batch.end();
+
+        if (Gdx.input.justTouched()) {
+            screenManager.setState(GameState.PLAYING);
+        }
     }
 
     @Override
-    public void resize(int width, int height) {}
-
-    @Override
-    public void pause() {}
-
-    @Override
-    public void resume() {}
-
-    /**
-     * Called when this screen is no longer the active one.
-     * Logs a simple debug message.
-     */
-    @Override
-    public void hide() {
-        System.out.println("Closing GameOverScreen.");
+    public void resize(int width, int height) {
+        viewport.update(width, height, true);
     }
+    @Override
+    public void pause() { }
 
-    /**
-     * Frees resources allocated by this screen.
-     */
+    @Override
+    public void resume() { }
+
+    @Override
+    public void hide() { }
+
     @Override
     public void dispose() {
-        System.out.println("Disposing GameOverScreen.");
-    }
-
-    /**
-     * @return The final score achieved by the player.
-     */
-    public int getFinalScore() {
-        return finalScore;
-    }
-
-    /**
-     * Sets the score value that will be displayed on the Game Over screen.
-     *
-     * @param finalScore The score to store.
-     */
-    public void setFinalScore(int finalScore) {
-        this.finalScore = finalScore;
+        batch.dispose();
+        shapeRenderer.dispose();
+        font.dispose();
     }
 }
