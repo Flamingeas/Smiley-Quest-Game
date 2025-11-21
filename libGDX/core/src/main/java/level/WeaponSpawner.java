@@ -31,6 +31,24 @@ public class WeaponSpawner {
         WALKABLE_TILES.add(54);
     }
 
+    //    private static final Map<String, Set<Integer>> WALKABLE_TILES_MAP = new HashMap<>();
+//    static {
+//        WALKABLE_TILES_MAP.put("sampleMap", Set.of(31,37,38,39,49,50,51,52,53,54));
+//        WALKABLE_TILES_MAP.put("laby", Set.of(68,38));
+//        WALKABLE_TILES_MAP.put("mapdebutant", Set.of(961,963,964,967));
+//        WALKABLE_TILES_MAP.put("map2", Set.of(323,810,405,385)); // si utile
+//        WALKABLE_TILES_MAP.put("map4", Set.of(1,40,70));
+//        WALKABLE_TILES_MAP.put("final-map", Set.of(7,68));
+//    }
+//    private static final Map<String, int[]> WEAPON_IDS_MAP = new HashMap<>();
+//    static {
+//        WEAPON_IDS_MAP.put("sampleMap", new int[]{105,118,119,114});
+//        WEAPON_IDS_MAP.put("map4", new int[]{259,263,267,274});
+//        WEAPON_IDS_MAP.put("laby", new int[]{257,261,266,272});
+//        WEAPON_IDS_MAP.put("final-map", new int[]{257,261,266,272});
+//        WEAPON_IDS_MAP.put("mapdebutant", new int[]{3073,3078,3082,3088});
+//    }
+
     private static final int[] WEAPON_IDS = {105, 118, 119, 114};
     private static final int[] WEAPON_DAMAGES = {10, 15, 12, 8};
     private static final String[] WEAPON_NAMES = {"Épée", "Marteau", "Hache", "Poison"};
