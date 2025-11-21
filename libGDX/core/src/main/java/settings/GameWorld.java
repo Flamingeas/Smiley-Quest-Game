@@ -52,7 +52,7 @@ public class GameWorld {
                 new Level("maps/sampleMap.tmx",    new Coord(0, 22), new Coord(27, 4)),
                 new Level("maps/laby.tmx",         new Coord(0, 31), new Coord(28, 0)),
                 new Level("maps/mapdebutant.tmx",  new Coord(1, 28), new Coord(28, 1)),
-                new Level("maps/map2.tmx",         new Coord(6, 20), new Coord(15, 15))
+                new Level("maps/final-map.tmx",    new Coord(6, 20), new Coord(15, 15))
         };
 
         this.state = GameState.PLAYING;
@@ -66,7 +66,7 @@ public class GameWorld {
                 lvl.getPlayerSpawn().getX(),
                 lvl.getPlayerSpawn().getY(),
                 3,
-                2.0f,
+                0.7f,
                 this.selectedSmileyIndex
         );
 
@@ -76,34 +76,48 @@ public class GameWorld {
     private Coord randomWalkableTile() {
         Level lvl = getCurrentLevel();
 
-        if (gameScreen == null) {
-            System.out.println("⚠ GameScreen non lié à GameWorld !");
-            return new Coord(1, 1);
-        }
+        int maxTry = 500;
 
-        int tries = 0;
+        for (int i = 0; i < maxTry; i++) {
 
-        while (true) {
-            tries++;
+            int tx = (int)(Math.random() * lvl.getMapWidth());
+            int ty = (int)(Math.random() * lvl.getMapHeight());
 
-            int tx = (int) (Math.random() * lvl.getMapWidth());
-            int ty = (int) (Math.random() * lvl.getMapHeight());
+            if (!gameScreen.isWalkableTileRaw(tx, ty))
+                continue;
 
-            if (gameScreen.isWalkableTileRaw(tx, ty)) {
-                System.out.println("SPAWN TILE OK : " + tx + "," + ty);
-                return new Coord(tx, ty);
+            int px = (int)((player.getX() - gameScreen.getMapOffsetX()) / gameScreen.getTileSize());
+            int py = (int)((player.getY() - gameScreen.getMapOffsetY()) / gameScreen.getTileSize());
+
+            if (Math.abs(tx - px) + Math.abs(ty - py) < 5)
+                continue;
+
+            Coord chest = lvl.getEndPoint();
+            if (chest != null && tx == chest.getX() && ty == chest.getY())
+                continue;
+
+            boolean occupied = false;
+            for (Enemy e : enemies) {
+                if ((int)e.tileX == tx && (int)e.tileY == ty) {
+                    occupied = true;
+                    break;
+                }
             }
-
-            if (tries % 2000 == 0)
-                System.out.println("toujours rien trouvé après " + tries + " essais…");
+            if (occupied)
+                continue;
+            return new Coord(tx, ty);
         }
+        System.out.println("Impossible de trouver un bon tile, fallback en (1,1)");
+        return new Coord(1, 1);
     }
 
     private void spawnEnemiesForLevel(int level) {
 
         enemies = new ArrayList<>();
 
-        int enemyCount = 3 + (level * 2);
+        int enemyCount = 2 + level;
+        int eliteCount = (level >= 2) ? (1 + level / 2) : 0;
+
         float genSpeed = 0.8f + (level * 0.2f);
         int genHealth = 30 + (level * 10);
         int genDamage = 10 + (level * 5);
@@ -112,7 +126,6 @@ public class GameWorld {
 
             Coord c1 = randomWalkableTile();
             Enemy g = new GhostEnemy(c1.getX(), c1.getY(), genHealth, genSpeed, genDamage, player);
-
             g.setGameScreen(gameScreen);
             g.setPixelPosition(
                     gameScreen.getMapOffsetX() + c1.getX() * gameScreen.getTileSize(),
@@ -122,7 +135,6 @@ public class GameWorld {
 
             Coord c2 = randomWalkableTile();
             Enemy l = new LarvaEnemy(c2.getX(), c2.getY(), genHealth, genSpeed, genDamage, player);
-
             l.setGameScreen(gameScreen);
             l.setPixelPosition(
                     gameScreen.getMapOffsetX() + c2.getX() * gameScreen.getTileSize(),
@@ -130,11 +142,9 @@ public class GameWorld {
             );
             enemies.add(l);
         }
-
         for (int i = 0; i < enemyCount; i++) {
             Coord c = randomWalkableTile();
             Enemy e = new SkeletonWeakEnemy(c.getX(), c.getY(), genHealth, genSpeed, genDamage, player);
-
             e.setGameScreen(gameScreen);
             e.setPixelPosition(
                     gameScreen.getMapOffsetX() + c.getX() * gameScreen.getTileSize(),
@@ -142,33 +152,31 @@ public class GameWorld {
             );
             enemies.add(e);
         }
+        for (int i = 0; i < eliteCount; i++) {
 
-        if (level >= 2) {
-            for (int i = 0; i < enemyCount / 2; i++) {
-                Coord c1 = randomWalkableTile();
-                Enemy s = new SkeletonStrongEnemy(
-                        c1.getX(), c1.getY(),
-                        genHealth + 20, genSpeed + 0.2f, genDamage + 5, player
-                );
+            Coord c1 = randomWalkableTile();
+            Enemy s = new SkeletonStrongEnemy(
+                    c1.getX(), c1.getY(),
+                    genHealth + 20, genSpeed + 0.2f, genDamage + 5, player
+            );
+            s.setGameScreen(gameScreen);
+            s.setPixelPosition(
+                    gameScreen.getMapOffsetX() + c1.getX() * gameScreen.getTileSize(),
+                    gameScreen.getMapOffsetY() + c1.getY() * gameScreen.getTileSize()
+            );
+            enemies.add(s);
 
-                s.setGameScreen(gameScreen);
-                s.setPixelPosition(
-                        gameScreen.getMapOffsetX() + c1.getX() * gameScreen.getTileSize(),
-                        gameScreen.getMapOffsetY() + c1.getY() * gameScreen.getTileSize()
-                );
-                enemies.add(s);
-                Coord c2 = randomWalkableTile();
-                Enemy d = new DragonEnemy(
-                        c2.getX(), c2.getY(),
-                        genHealth + 40, genSpeed + 0.3f, genDamage + 10, player
-                );
-                d.setGameScreen(gameScreen);
-                d.setPixelPosition(
-                        gameScreen.getMapOffsetX() + c2.getX() * gameScreen.getTileSize(),
-                        gameScreen.getMapOffsetY() + c2.getY() * gameScreen.getTileSize()
-                );
-                enemies.add(d);
-            }
+            Coord c2 = randomWalkableTile();
+            Enemy d = new DragonEnemy(
+                    c2.getX(), c2.getY(),
+                    genHealth + 40, genSpeed + 0.3f, genDamage + 10, player
+            );
+            d.setGameScreen(gameScreen);
+            d.setPixelPosition(
+                    gameScreen.getMapOffsetX() + c2.getX() * gameScreen.getTileSize(),
+                    gameScreen.getMapOffsetY() + c2.getY() * gameScreen.getTileSize()
+            );
+            enemies.add(d);
         }
         if (level == 4) {
             Coord c = randomWalkableTile();
@@ -188,7 +196,6 @@ public class GameWorld {
             enemies.add(boss);
         }
     }
-
     public void update(float delta) {
         if (state == GameState.PLAYING) {
             timer.tick(delta);

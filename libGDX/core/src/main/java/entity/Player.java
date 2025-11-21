@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Player extends Entity implements Observable {
-
     private float speed;
     private int score;
     private int lives;
@@ -37,12 +36,11 @@ public class Player extends Entity implements Observable {
 
         this.texture = new Texture("images/smiley/smiley_" + smileyIndex + ".png");
     }
-
     /** Constructeur fallback pas utilisé en jeu */
     public Player() {
         super(0, 0);
         this.lives = 3;
-        this.speed = 2.0f;
+        this.speed = 0.7f;
         this.score = 0;
         this.currentWeapon = null;
     }
@@ -88,14 +86,12 @@ public class Player extends Entity implements Observable {
             notifyEvent(new GameEvent("PLAYER_DEAD", null));
         }
     }
-
     /** Gagner une vie */
     public void gainLife() {
         lives++;
         System.out.println("Vie gagnée ! Total : " + lives);
         notifyEvent(new GameEvent("LIFE_GAINED", lives));
     }
-
     /** Reset pour restart level */
     public void reset() {
         this.score = 0;
@@ -106,25 +102,21 @@ public class Player extends Entity implements Observable {
         System.out.println("Joueur réinitialisé.");
         notifyEvent(new GameEvent("PLAYER_RESET", null));
     }
-
     /** Gestion des Observers */
     @Override
     public void addObserver(Observer o) {
         observers.add(o);
     }
-
     @Override
     public void removeObserver(Observer o) {
         observers.remove(o);
     }
-
     @Override
     public void notifyObservers(GameEvent event) {
         for (Observer obs : observers) {
             obs.onNotify(event);
         }
     }
-
     public void notifyEvent(GameEvent event) {
         notifyObservers(event);
     }

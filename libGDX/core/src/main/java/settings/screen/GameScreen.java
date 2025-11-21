@@ -254,9 +254,6 @@ public class GameScreen implements Screen {
             System.out.println("Aucun coffre trouvé dans cette map !");
         }
 
-        // -------------------------
-        //       ARME RANDOM
-        // -------------------------
         WeaponSpawner spawner = new WeaponSpawner();
         weaponDataList = spawner.spawnWeapons(tiledMap, 8);
         placeWeaponsOnMap();

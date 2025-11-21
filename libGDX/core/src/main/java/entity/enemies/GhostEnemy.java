@@ -37,7 +37,7 @@ public class GhostEnemy extends Enemy {
     @Override
     public void update() {
         if (!isActive) return;
-        move(targetPlayer, 1f);
+        move(targetPlayer, 0.7f);
         attack(targetPlayer);
     }
 
