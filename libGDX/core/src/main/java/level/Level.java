@@ -35,6 +35,7 @@ public class Level {
     public boolean isCleared(float px, float py, float tileSize) {
         int tx = (int)(px / tileSize);
         int ty = (int)(py / tileSize);
+
         return tx == endPoint.getX() && ty == endPoint.getY();
     }
 
@@ -53,5 +54,8 @@ public class Level {
     public void setItems(List<Item> items) { this.items = items; }
 
     public void load() {
+    }
+    public void setEndPoint(Coord endPoint) {
+        this.endPoint = endPoint;
     }
 }
