@@ -1,27 +1,37 @@
 package settings.screen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
 import settings.GameState;
 
 public class GameOverScreen implements Screen {
 
-    private final ScreenManager screenManager;
+    private static final Color OVERLAY_COLOR = new Color(0f, 0f, 0f, 0.75f);
+    private static final Color GAME_OVER_COLOR = new Color(1f, 0f, 0f, 1f);
+    private static final Color PROMPT_COLOR = new Color(1f, 1f, 0f, 1f);
 
-    private Viewport viewport;
+    private static final int GAME_OVER_FONT_SIZE = 60;
+    private static final int PROMPT_FONT_SIZE = 30;
+    private static final float BLINK_SPEED = 0.5f;
+
+    private final ScreenManager screenManager;
     private SpriteBatch batch;
     private ShapeRenderer shapeRenderer;
-    private BitmapFont font;
 
-    private final Color TRANSPARENT_BLACK = new Color(0f, 0f, 0f, 0.7f);
+    private BitmapFont gameOverFont;
+    private BitmapFont promptFont;
+    private BitmapFont fontText;
+
+    private float stateTime = 0f;
+    private boolean showPrompt = true;
 
     public GameOverScreen(ScreenManager screenManager) {
         this.screenManager = screenManager;
@@ -29,64 +39,120 @@ public class GameOverScreen implements Screen {
 
     @Override
     public void show() {
-        viewport = new FitViewport(800, 600);
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
-        font = new BitmapFont();
-        font.getData().setScale(2);
+        initializeFonts();
     }
 
-    /**
-     * Effacer l'écran, et le rendre transparant, en centrant les mots "Game Over" et "Tap to restart".
-     * @param delta The time in seconds since the last render.
-     *  Réinitialiser le jeu, et revenir à l'écran de jeu.
-     */
+    private void initializeFonts() {
+        FreeTypeFontGenerator generator =
+                new FreeTypeFontGenerator(Gdx.files.internal("fonts/PressStart2P-Regular.ttf"));
+
+        FreeTypeFontGenerator.FreeTypeFontParameter gameOverParam =
+                new FreeTypeFontGenerator.FreeTypeFontParameter();
+        gameOverParam.size = GAME_OVER_FONT_SIZE;
+        gameOverParam.color = GAME_OVER_COLOR;
+        gameOverParam.borderWidth = 2;
+        gameOverParam.borderColor = Color.BLACK;
+        gameOverFont = generator.generateFont(gameOverParam);
+
+        FreeTypeFontGenerator.FreeTypeFontParameter promptParam =
+                new FreeTypeFontGenerator.FreeTypeFontParameter();
+        promptParam.size = PROMPT_FONT_SIZE;
+        promptParam.color = PROMPT_COLOR;
+        promptParam.borderWidth = 1;
+        promptParam.borderColor = Color.BLACK;
+        promptFont = generator.generateFont(promptParam);
+
+        FreeTypeFontGenerator.FreeTypeFontParameter textParam =
+                new FreeTypeFontGenerator.FreeTypeFontParameter();
+        textParam.size = 24;
+        textParam.color = Color.WHITE;
+        textParam.borderWidth = 1;
+        textParam.borderColor = Color.BLACK;
+        fontText = generator.generateFont(textParam);
+
+        generator.dispose();
+    }
+
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        stateTime += delta;
+        showPrompt = ((int)(stateTime / BLINK_SPEED) % 2 == 0);
 
-        shapeRenderer.setProjectionMatrix(viewport.getCamera().combined);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(TRANSPARENT_BLACK);
-        shapeRenderer.rect(0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
-        shapeRenderer.end();
+        handleInput();
+        renderOverlay();
+        renderText();
+    }
 
-        batch.setProjectionMatrix(viewport.getCamera().combined);
-        batch.begin();
-
-        float centerX = viewport.getWorldWidth() / 2f;
-
-        font.setColor(Color.RED);
-        font.draw(batch, "GAME OVER", centerX, 400, 0, Align.center, false);
-
-        font.setColor(Color.WHITE);
-        font.draw(batch, "Tap to Restart", centerX, 300, 0, Align.center, false);
-
-        batch.end();
-
+    private void handleInput() {
         if (Gdx.input.justTouched()) {
-            screenManager.setState(GameState.PLAYING);
+            screenManager.setState(GameState.CHARACTER_SELECT);
+        }
+
+        if (Gdx.input.isKeyJustPressed(74)) {
+            System.out.println("M pressed = Menu");
+            screenManager.setState(GameState.MENU);
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+            System.out.println("R pressed = Select Character");
+            screenManager.resumeGame();
         }
     }
 
-    @Override
-    public void resize(int width, int height) {
-        viewport.update(width, height, true);
+    private void renderOverlay() {
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(OVERLAY_COLOR);
+        shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        shapeRenderer.end();
+
+        Gdx.gl.glDisable(GL20.GL_BLEND);
     }
-    @Override
-    public void pause() { }
 
-    @Override
-    public void resume() { }
+    private void renderText() {
+        batch.begin();
 
-    @Override
-    public void hide() { }
+        float centerX = Gdx.graphics.getWidth() / 2f;
+        float centerY = Gdx.graphics.getHeight() / 2f;
+
+        gameOverFont.setColor(Color.BLACK);
+        drawCentered(gameOverFont, "GAME OVER", centerX + 3, centerY + 53);
+        gameOverFont.setColor(GAME_OVER_COLOR);
+        drawCentered(gameOverFont, "GAME OVER", centerX, centerY + 50);
+
+        if (showPrompt) {
+            promptFont.setColor(new Color(0, 0, 0, 0.7f));
+            drawCentered(promptFont, "TAP TO RESTART", centerX + 2, centerY - 52);
+
+            promptFont.setColor(PROMPT_COLOR);
+            drawCentered(promptFont, "TAP TO RESTART", centerX, centerY - 50);
+        }
+
+        fontText.draw(batch, "R - Start Over", 100, 300);
+        fontText.draw(batch, "M - Open Menu",  100, 240);
+
+        batch.end();
+    }
+
+    private void drawCentered(BitmapFont font, String text, float x, float y) {
+        GlyphLayout layout = new GlyphLayout(font, text);
+        font.draw(batch, text, x - layout.width / 2f, y + layout.height / 2f);
+    }
+
+    @Override public void resize(int width, int height) {}
+    @Override public void pause() {}
+    @Override public void resume() {}
+    @Override public void hide() {}
 
     @Override
     public void dispose() {
         batch.dispose();
         shapeRenderer.dispose();
-        font.dispose();
+        gameOverFont.dispose();
+        promptFont.dispose();
+        fontText.dispose();
     }
 }
