@@ -59,7 +59,6 @@ public abstract class Enemy extends Entity {
         speed = genSpeed * (1 + 0.1f * (level - 1));
         attackDamage = (int)(genDamage * (1 + 0.15f * (level - 1)));
     }
-
     /**
      * Update générique.
      */
