@@ -28,9 +28,11 @@ import level.WeaponSpawner;
 import settings.GameState;
 import settings.GameWorld;
 import system.EnemyRenderer;
+import system.GameEvent;
+import system.Observer;
 import utils.Coord;
 
-public class GameScreen implements Screen {
+public class GameScreen implements Screen, Observer {
 
     private OrthographicCamera camera;
     private OrthographicCamera uiCamera;
@@ -541,6 +543,10 @@ public class GameScreen implements Screen {
             enemyRenderer.render(batch, enemy);
         }
         batch.end();
+
+        /* if (gameWorld.getPlayer().getLives() <= 0) {
+            screenManager.setState(GameState.GAME_OVER);
+        } */
     }
 
     private void drawBlock(float x, float y, float w, float h) {
@@ -682,5 +688,28 @@ public class GameScreen implements Screen {
         if (arrowRight != null) arrowRight.dispose();
         if (keyEsc != null) keyEsc.dispose();
         if (keySpace != null) keySpace.dispose();
+    }
+
+    @Override
+    public void onNotify(GameEvent event) {
+        switch (event.getType()) {
+
+            case "PLAYER_DEAD":
+                System.out.println(">>> PLAYER DEAD");
+                screenManager.setState(GameState.GAME_OVER);
+                break;
+
+            case "PLAYER_HIT":
+                break;
+
+            case "SCORE_UPDATED":
+                break;
+
+            case "LIFE_GAINED":
+                break;
+
+            case "WEAPON_EQUIPPED":
+                break;
+        }
     }
 }
