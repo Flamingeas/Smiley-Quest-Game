@@ -7,19 +7,24 @@ import system.Observer;
 import entity.Item;
 import entity.Weapon;
 
-/**
- * Représente le joueur du jeu.
- * - Position gérée par GameScreen (pas ici)
- * - Gère score, vies, arme équipée, events, damage
- * - Texture dynamique selon le smiley choisi
- */
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+
+ * Représente le joueur du jeu.
+ * * Position gérée par GameScreen
+ * * Gère score, vies, arme équipée, events, damage
+ * * Texture dynamique selon le smiley choisi
+ */
 public class Player extends Entity implements Observable {
     private float speed;
     private int score;
+
     private int lives;
+    private int maxLives;
+    private int hpPerLife = 100;
+    private int currentHP;
 
     private Weapon currentWeapon;
     private final List<Observer> observers = new ArrayList<>();
@@ -29,29 +34,29 @@ public class Player extends Entity implements Observable {
     /** Constructeur principal utilisé par GameWorld */
     public Player(float x, float y, int lives, float speed, int smileyIndex) {
         super(x, y);
-        this.score = 0;
+        this.maxLives = lives;
         this.lives = lives;
         this.speed = speed;
+        this.score = 0;
         this.currentWeapon = null;
-
+        this.currentHP = lives * hpPerLife;
         this.texture = new Texture("images/smiley/smiley_" + smileyIndex + ".png");
     }
+
     /** Constructeur fallback pas utilisé en jeu */
     public Player() {
         super(0, 0);
+        this.maxLives = 3;
         this.lives = 3;
         this.speed = 0.7f;
         this.score = 0;
         this.currentWeapon = null;
+        this.currentHP = lives * hpPerLife;
     }
 
-    /**
-     * Update du joueur.
-     * GameScreen gère déjà les touches => ici on ne bouge RIEN.
-     */
+    /** Update du joueur (vide ici, déplacement géré ailleurs) */
     @Override
-    public void update() {
-    }
+    public void update() { }
 
     @Override
     public void interact(Entity e) {
@@ -70,38 +75,37 @@ public class Player extends Entity implements Observable {
     /** Ajoute du score manuellement */
     public void addScore(int points) {
         this.score += points;
-        System.out.println("Score augmenté de " + points + ". Total : " + score);
+        System.out.println("Score modifié de " + points + ". Total : " + score);
         notifyEvent(new GameEvent("SCORE_UPDATED", score));
     }
 
-    /** Perdre une vie */
+    /** Perdre une vie directement */
     public void loseLife() {
-        lives--;
-        System.out.println("Vie perdue ! Vies restantes : " + lives);
-
-        notifyEvent(new GameEvent("PLAYER_HIT", lives));
-
-        if (lives <= 0) {
-            isActive = false;
-            notifyEvent(new GameEvent("PLAYER_DEAD", null));
-        }
+        takeDamage(hpPerLife);
     }
+
     /** Gagner une vie */
     public void gainLife() {
-        lives++;
-        System.out.println("Vie gagnée ! Total : " + lives);
-        notifyEvent(new GameEvent("LIFE_GAINED", lives));
+        if (lives < maxLives) {
+            lives++;
+            currentHP += hpPerLife;
+            System.out.println("Vie gagnée ! Total : " + lives);
+            notifyEvent(new GameEvent("LIFE_GAINED", lives));
+        }
     }
+
     /** Reset pour restart level */
     public void reset() {
         this.score = 0;
-        this.lives = 3;
+        this.lives = maxLives;
+        this.currentHP = maxLives * hpPerLife;
         this.isActive = true;
         this.currentWeapon = null;
 
         System.out.println("Joueur réinitialisé.");
         notifyEvent(new GameEvent("PLAYER_RESET", null));
     }
+
     /** Gestion des Observers */
     @Override
     public void addObserver(Observer o) {
@@ -122,9 +126,7 @@ public class Player extends Entity implements Observable {
     }
 
     /** Weapon getter/setter */
-    public Weapon getCurrentWeapon() {
-        return currentWeapon;
-    }
+    public Weapon getCurrentWeapon() { return currentWeapon; }
 
     public void setCurrentWeapon(Weapon currentWeapon) {
         this.currentWeapon = currentWeapon;
@@ -151,15 +153,21 @@ public class Player extends Entity implements Observable {
     public float getX() { return x; }
     public float getY() { return y; }
 
-    /** Damage reçu */
+    /** Prendre des dégâts et gérer les cœurs */
     public void takeDamage(int damage) {
-        System.out.println("Le joueur subit " + damage + " dégâts !");
-        lives -= damage;
+        if (!isActive) return;
 
-        if (lives > 0) {
-            System.out.println("Vies restantes : " + lives);
+        currentHP -= damage;
+        int oldLives = lives;
+        lives = (int)Math.ceil((float)currentHP / hpPerLife);
+
+        if (lives < oldLives) {
+            System.out.println("💔 Cœur perdu ! Vies restantes : " + lives);
             notifyEvent(new GameEvent("PLAYER_HIT", lives));
-        } else {
+        }
+
+        if (lives <= 0) {
+            currentHP = 0;
             lives = 0;
             isActive = false;
             System.out.println("💀 Le joueur est mort !");
@@ -171,7 +179,7 @@ public class Player extends Entity implements Observable {
     public void displayInfo() {
         System.out.println("=== INFO JOUEUR ===");
         System.out.println("Position : (" + x + ", " + y + ")");
-        System.out.println("Vies : " + lives);
+        System.out.println("Vies : " + lives + " (" + currentHP + "/" + (maxLives*hpPerLife) + " HP)");
         System.out.println("Score : " + score);
         System.out.println("Vitesse : " + speed);
 
@@ -181,11 +189,7 @@ public class Player extends Entity implements Observable {
         } else {
             System.out.println("Arme : Aucune");
         }
-
         System.out.println("==================");
     }
-
-    public Texture getTexture() {
-        return texture;
-    }
+    public Texture getTexture() { return texture; }
 }
