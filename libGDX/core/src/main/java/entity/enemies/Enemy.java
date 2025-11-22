@@ -1,6 +1,7 @@
 package entity.enemies;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import entity.Entity;
 import entity.Player;
 
@@ -13,7 +14,7 @@ public abstract class Enemy extends Entity {
     public float tileY;
     protected settings.screen.GameScreen gameScreen;
 
-    protected int health;
+    public int health;
     protected float speed;
     protected int attackDamage;
 
@@ -22,7 +23,7 @@ public abstract class Enemy extends Entity {
     protected int genDamage;
 
     protected Player targetPlayer;
-    protected Texture texture;
+    public Texture texture;
 
     /**
      * Constructeur Enemy : on fournit des coordonnées TILES.
@@ -42,7 +43,9 @@ public abstract class Enemy extends Entity {
         isActive = true;
         this.targetPlayer = player;
     }
-
+    public TextureRegion getIconRegion() {
+        return new TextureRegion(texture, 0, 0, 32, 32);
+    }
     /**
      * Appelé par GameScreen après calcul du tileSize + offsets.
      */
@@ -55,9 +58,9 @@ public abstract class Enemy extends Entity {
      * Ajuste les stats selon le niveau.
      */
     public void scaleStats(int level) {
-        health = (int)(genHealth * (1 + 0.2f * (level - 1)));
-        speed = genSpeed * (1 + 0.1f * (level - 1));
-        attackDamage = (int)(genDamage * (1 + 0.15f * (level - 1)));
+        this.health = genHealth;
+        this.speed = genSpeed;
+        this.attackDamage = genDamage;
     }
     /**
      * Update générique.
