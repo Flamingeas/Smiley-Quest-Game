@@ -2,6 +2,7 @@ package system;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import entity.enemies.*;
 
 import java.util.HashMap;
@@ -30,5 +31,11 @@ public class EnemyRenderer {
         if (t != null && e.isActive()) {
             batch.draw(t, e.getX(), e.getY());
         }
+    }
+    public TextureRegion getIcon(Enemy enemy) {
+        return enemy.getIconRegion();
+    }
+    public Texture getTextureFor(Enemy enemy) {
+        return textures.get(enemy.getClass());
     }
 }

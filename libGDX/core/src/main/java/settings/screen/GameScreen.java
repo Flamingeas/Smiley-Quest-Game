@@ -77,6 +77,7 @@ public class GameScreen implements Screen, Observer {
     private boolean initialized = false;
 
     private EnemyRenderer enemyRenderer;
+    private Texture heartIcon;
 
     public GameScreen(ScreenManager screenManager, GameWorld gameWorld) {
         this.screenManager = screenManager;
@@ -112,6 +113,7 @@ public class GameScreen implements Screen, Observer {
             arrowRight = new Texture("images/ui/arrow_right.png");
             keyEsc = new Texture("images/ui/echap.png");
             keySpace = new Texture("images/ui/attack.png");
+            heartIcon = new Texture("images/ui/heart_full.png");
             heartFull = new Texture("images/ui/heart_full.png");
             heartEmpty = new Texture("images/ui/heart_empty.png");
 
@@ -547,6 +549,10 @@ public class GameScreen implements Screen, Observer {
             enemyRenderer.render(batch, enemy);
         }
         batch.end();
+
+        /* if (gameWorld.getPlayer().getLives() <= 0) {
+            screenManager.setState(GameState.GAME_OVER);
+        } */
     }
 
     private void drawBlock(float x, float y, float w, float h) {
@@ -579,9 +585,9 @@ public class GameScreen implements Screen, Observer {
         float gap = 40;
 
         float statutY = H - topMargin - blockHStatut;
-        float cmdY    = statutY - gap - blockHCmd;
-        float invY    = H - topMargin - blockHInv;
-        float legY    = invY - gap - blockHLeg - 30;
+        float cmdY = statutY - gap - blockHCmd;
+        float invY = H - topMargin - blockHInv;
+        float legY = invY - gap - blockHLeg - 30;
 
         shapeRenderer.setProjectionMatrix(uiCamera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -594,7 +600,6 @@ public class GameScreen implements Screen, Observer {
 
         drawBlock(leftX, statutY, leftBlockWidth, blockHStatut);
         drawBlock(leftX, cmdY, leftBlockWidth, blockHCmd);
-
         drawBlock(rightX, invY, rightBlockWidth, blockHInv);
         drawBlock(rightX, legY, rightBlockWidth, blockHLeg);
 
@@ -621,13 +626,9 @@ public class GameScreen implements Screen, Observer {
         batch.begin();
 
         fontTitle.draw(batch, "STATUS", leftX + 20, statutY + blockHStatut - 25);
-
-        font.draw(batch,
-                "Level : " + gameWorld.getCurrentLevelNumber() + "/" + gameWorld.getTotalLevels(),
+        font.draw(batch, "Level : " + gameWorld.getCurrentLevelNumber() + "/" + gameWorld.getTotalLevels(),
                 leftX + 25, statutY + blockHStatut - 80);
-
-        font.draw(batch,
-                "Score : " + gameWorld.getScoreSystem().getScore(),
+        font.draw(batch, "Score : " + gameWorld.getScoreSystem().getScore(),
                 leftX + 25, statutY + blockHStatut - 130);
 
         String livesText = "Lives : ";
@@ -652,17 +653,14 @@ public class GameScreen implements Screen, Observer {
 
         batch.draw(keyEsc, escX, lineY, 64, 64);
         font.draw(batch, "Pause", escX - 25, lineY - 15);
-
         batch.draw(keySpace, spaceX, lineY, 64, 64);
         font.draw(batch, "Attack", spaceX - 35, lineY - 15);
 
-        float rightTxt = rightX + 20;
-
-        fontTitle.draw(batch, "INVENTORY", rightTxt, invY + blockHInv - 25);
-
         float slotSize = 60;
-        float slotX = rightTxt;
-        float slotY = invY + blockHInv -135;
+        float slotX = rightX + 20;
+        float slotY = invY + blockHInv - 135;
+
+        fontTitle.draw(batch, "INVENTORY", rightX + 20, invY + blockHInv - 25);
 
         batch.end();
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -677,46 +675,106 @@ public class GameScreen implements Screen, Observer {
         shapeRenderer.rect(slotX + slotSize - 3, slotY, 3, slotSize);
 
         shapeRenderer.end();
-        batch.begin();
 
         Weapon current = player.getCurrentWeapon();
+        batch.begin();
 
-        if (current != null) {
-            TextureRegion icon = current.getTexture();
-            if (icon != null) {
-
-                batch.draw(
-                        icon,
-                        slotX + 5,
-                        slotY + 5,
-                        slotSize - 10,
-                        slotSize - 10
-                );
-                batch.end();
-                shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-                shapeRenderer.setColor(1f, 0.3f, 0.3f, 1f);
-                shapeRenderer.rect(slotX - 2, slotY - 2, slotSize + 4, slotSize + 4);
-                shapeRenderer.end();
-                batch.begin();
-            }
+        if (current != null && current.getTexture() != null) {
+            batch.draw(
+                    current.getTexture(),
+                    slotX + 5, slotY + 5,
+                    slotSize - 10, slotSize - 10
+            );
         }
 
-        fontTitle.draw(batch, "LEGEND", rightTxt, legY + blockHLeg - 25);
+        batch.end();
+
+        if (current != null) {
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(1f, 0.3f, 0.3f, 1f);
+            shapeRenderer.rect(slotX - 2, slotY - 2, slotSize + 4, slotSize + 4);
+            shapeRenderer.end();
+        }
+
+        batch.begin();
+
+        fontTitle.draw(batch, "LEGEND", rightX + 20, legY + blockHLeg - 25);
 
         float legY2 = legY + blockHLeg - 90;
 
-        font.draw(batch, "Player:", rightTxt, legY2);
-        batch.draw(playerTexture, rightTxt + 230, legY2 - 35, 60, 60);
+        font.draw(batch, "Player:", rightX + 20, legY2);
+        batch.draw(playerTexture, rightX + 250, legY2 - 35, 60, 60);
 
         legY2 -= 100;
 
-        font.draw(batch, "Objective:", rightTxt, legY2);
-        if (chestIcon != null)
-            batch.draw(chestIcon, rightTxt + 230, legY2 - 35, 60, 60);
+        font.draw(batch, "Objective:", rightX + 20, legY2);
+        if (chestIcon != null) {
+            batch.draw(chestIcon, rightX + 250, legY2 - 35, 60, 60);
+        }
+
+        batch.end();
+
+        float enemiesX = rightX;
+        float enemiesW = rightBlockWidth;
+
+        float enemiesBlockH = 475;
+        float enemiesY = legY - gap - enemiesBlockH;
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0, 0, 0, 0.45f);
+        shapeRenderer.rect(enemiesX, enemiesY, enemiesW, enemiesBlockH);
+
+        shapeRenderer.setColor(1f, 0.92f, 0.23f, 1f);
+        shapeRenderer.rect(enemiesX, enemiesY, enemiesW, 3);
+        shapeRenderer.rect(enemiesX, enemiesY + enemiesBlockH - 3, enemiesW, 3);
+        shapeRenderer.rect(enemiesX, enemiesY, 3, enemiesBlockH);
+        shapeRenderer.rect(enemiesX + enemiesW - 3, enemiesY, 3, enemiesBlockH);
+        shapeRenderer.end();
+
+        batch.begin();
+        fontTitle.draw(batch, "ENEMIES", enemiesX + 20, enemiesY + enemiesBlockH - 25);
+
+        float entryHeight = 55;
+
+        float col1X = enemiesX + 20;
+        float col2X = enemiesX + (enemiesW / 2) + 5;
+
+        float rowStartY = enemiesY + enemiesBlockH - 80;
+
+        int index = 0;
+
+        for (Enemy enemy : gameWorld.getEnemies()) {
+            int row = index % 7;
+
+            int col = index / 7;
+
+            float currentX = (col == 0) ? col1X : col2X;
+            float currentY = rowStartY - (row * entryHeight);
+
+            Texture enemyTex = enemy.getTexture();
+            if (enemyTex != null)
+                batch.draw(enemyTex, currentX, currentY - 32, 32, 32);
+
+            int maxHearts = 6;
+            int hearts = Math.min(maxHearts, enemy.getHealth() / 10);
+            drawHearts(batch, hearts, currentX + 50, currentY - 25);
+
+            index++;
+        }
 
         batch.end();
     }
+    private void drawHearts(SpriteBatch batch, int hearts, float x, float y) {
+        float size = 20;
+        float gap = 5;
 
+        for (int i = 0; i < hearts; i++) {
+            batch.draw(heartIcon, x + (i * (size + gap)), y, size, size);
+        }
+    }
+    public EnemyRenderer getEnemyRenderer() {
+        return enemyRenderer;
+    }
     @Override public void resize(int w, int h) {
         camera.setToOrtho(false, w, h);
         uiCamera.setToOrtho(false, w, h);

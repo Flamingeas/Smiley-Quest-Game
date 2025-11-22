@@ -102,10 +102,15 @@ public class GameWorld implements Observer {
     }
 
     private void spawnEnemiesForLevel(int level) {
+        int hpCap =
+                (level == 0) ? 40 :
+                        (level == 1) ? 60 :
+                                (level == 2) ? 70 :
+                                        (level == 3) ? 80 : 80;
+        enemies = new ArrayList<>();
+
         if (level == 3) {
             System.out.println("Dernière map → nombre d'ennemis réduit");
-
-            enemies = new ArrayList<>();
 
             int enemyCount = 4;
             boolean spawnBoss = true;
@@ -117,7 +122,12 @@ public class GameWorld implements Observer {
             for (int i = 0; i < enemyCount; i++) {
                 Coord c = randomWalkableTile();
 
-                Enemy e = new SkeletonWeakEnemy(c.getX(), c.getY(), health, speed, damage, player);
+                SkeletonWeakEnemy e = new SkeletonWeakEnemy(
+                        c.getX(), c.getY(),
+                        health, speed, damage, player
+                );
+                e.health = Math.min(e.health, hpCap);
+                e.texture = gameScreen.getEnemyRenderer().getTextureFor(e);
                 e.setGameScreen(gameScreen);
                 e.setPixelPosition(
                         gameScreen.getMapOffsetX() + c.getX() * gameScreen.getTileSize(),
@@ -125,10 +135,17 @@ public class GameWorld implements Observer {
                 );
                 enemies.add(e);
             }
+
             if (spawnBoss) {
                 Coord c = randomWalkableTile();
 
-                Enemy boss = new FinalBossEnemy(c.getX(), c.getY(), 300, 1.0f, 30, player);
+                Enemy boss = new FinalBossEnemy(
+                        c.getX(), c.getY(),
+                        300, 1.0f, 30, player
+                );
+                boss.health = Math.min(boss.health, hpCap);
+
+                boss.texture = gameScreen.getEnemyRenderer().getTextureFor(boss);
                 boss.setGameScreen(gameScreen);
                 boss.setPixelPosition(
                         gameScreen.getMapOffsetX() + c.getX() * gameScreen.getTileSize(),
@@ -139,7 +156,7 @@ public class GameWorld implements Observer {
 
             return;
         }
-        enemies = new ArrayList<>();
+
         int enemyCount = 2 + level;
         int eliteCount = (level >= 2) ? (1 + level / 2) : 0;
 
@@ -149,14 +166,20 @@ public class GameWorld implements Observer {
 
         for (int i = 0; i < enemyCount; i++) {
             Coord c1 = randomWalkableTile();
-            Enemy g = new GhostEnemy(c1.getX(), c1.getY(), genHealth, genSpeed, genDamage, player);
+            Enemy g = new GhostEnemy(c1.getX(), c1.getY(),
+                    genHealth, genSpeed, genDamage, player);
+            g.health = Math.min(g.health, hpCap);
+            g.texture = gameScreen.getEnemyRenderer().getTextureFor(g);
             g.setGameScreen(gameScreen);
             g.setPixelPosition(gameScreen.getMapOffsetX() + c1.getX() * gameScreen.getTileSize(),
                     gameScreen.getMapOffsetY() + c1.getY() * gameScreen.getTileSize());
             enemies.add(g);
 
             Coord c2 = randomWalkableTile();
-            Enemy l = new LarvaEnemy(c2.getX(), c2.getY(), genHealth, genSpeed, genDamage, player);
+            Enemy l = new LarvaEnemy(c2.getX(), c2.getY(),
+                    genHealth, genSpeed, genDamage, player);
+            l.health = Math.min(l.health, hpCap);
+            l.texture = gameScreen.getEnemyRenderer().getTextureFor(l);
             l.setGameScreen(gameScreen);
             l.setPixelPosition(gameScreen.getMapOffsetX() + c2.getX() * gameScreen.getTileSize(),
                     gameScreen.getMapOffsetY() + c2.getY() * gameScreen.getTileSize());
@@ -173,41 +196,33 @@ public class GameWorld implements Observer {
         for (int i = 0; i < eliteCount; i++) {
 
             Coord c1 = randomWalkableTile();
-            Enemy s = new SkeletonStrongEnemy(c1.getX(), c1.getY(), genHealth + 20, genSpeed + 0.2f, genDamage + 8, player);
+            Enemy s = new SkeletonStrongEnemy(
+                    c1.getX(), c1.getY(),
+                    genHealth + 20, genSpeed + 0.2f, genDamage + 5, player
+            );
+            s.health = Math.min(s.health, hpCap);
+            s.texture = gameScreen.getEnemyRenderer().getTextureFor(s);
             s.setGameScreen(gameScreen);
             s.setPixelPosition(gameScreen.getMapOffsetX() + c1.getX() * gameScreen.getTileSize(),
                     gameScreen.getMapOffsetY() + c1.getY() * gameScreen.getTileSize());
             enemies.add(s);
 
             Coord c2 = randomWalkableTile();
-            Enemy d = new DragonEnemy(c2.getX(), c2.getY(), genHealth + 40, genSpeed + 0.3f, genDamage + 10, player);
+            Enemy d = new DragonEnemy(
+                    c2.getX(), c2.getY(),
+                    genHealth + 40, genSpeed + 0.3f, genDamage + 10, player
+            );
+            d.health = Math.min(d.health, hpCap);
+            d.texture = gameScreen.getEnemyRenderer().getTextureFor(d);
             d.setGameScreen(gameScreen);
             d.setPixelPosition(gameScreen.getMapOffsetX() + c2.getX() * gameScreen.getTileSize(),
                     gameScreen.getMapOffsetY() + c2.getY() * gameScreen.getTileSize());
             enemies.add(d);
         }
-        if (level == 4) {
-            Coord c = randomWalkableTile();
-            Enemy boss = new FinalBossEnemy(
-                    c.getX(), c.getY(),
-                    300,
-                    1.0f,
-                    30,
-                    player
-            );
-
-            boss.setGameScreen(gameScreen);
-            boss.setPixelPosition(
-                    gameScreen.getMapOffsetX() + c.getX() * gameScreen.getTileSize(),
-                    gameScreen.getMapOffsetY() + c.getY() * gameScreen.getTileSize()
-            );
-            enemies.add(boss);
-        }
     }
     public void update(float delta) {
         if (state == GameState.PLAYING) {
             timer.tick(delta);
-            getCurrentLevel().load();
             if (!enemiesSpawned) {
                 spawnEnemiesForLevel(currentLevelIndex);
                 enemiesSpawned = true;
@@ -219,7 +234,6 @@ public class GameWorld implements Observer {
             enemy.interact(player);
         }
     }
-
     public void fullReset() {
         currentLevelIndex = 0;
         enemies.clear();
