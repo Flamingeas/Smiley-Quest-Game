@@ -118,7 +118,43 @@ public class GameWorld {
     }
 
     private void spawnEnemiesForLevel(int level) {
+        if (level == 3) {
+            System.out.println("Dernière map → nombre d'ennemis réduit");
 
+            enemies = new ArrayList<>();
+
+            int enemyCount = 4;
+            boolean spawnBoss = true;
+
+            float speed = 1.0f;
+            int health = 40;
+            int damage = 12;
+
+            for (int i = 0; i < enemyCount; i++) {
+                Coord c = randomWalkableTile();
+
+                Enemy e = new SkeletonWeakEnemy(c.getX(), c.getY(), health, speed, damage, player);
+                e.setGameScreen(gameScreen);
+                e.setPixelPosition(
+                        gameScreen.getMapOffsetX() + c.getX() * gameScreen.getTileSize(),
+                        gameScreen.getMapOffsetY() + c.getY() * gameScreen.getTileSize()
+                );
+                enemies.add(e);
+            }
+            if (spawnBoss) {
+                Coord c = randomWalkableTile();
+
+                Enemy boss = new FinalBossEnemy(c.getX(), c.getY(), 300, 1.0f, 30, player);
+                boss.setGameScreen(gameScreen);
+                boss.setPixelPosition(
+                        gameScreen.getMapOffsetX() + c.getX() * gameScreen.getTileSize(),
+                        gameScreen.getMapOffsetY() + c.getY() * gameScreen.getTileSize()
+                );
+                enemies.add(boss);
+            }
+
+            return;
+        }
         enemies = new ArrayList<>();
 
         int enemyCount = 2 + level;

@@ -14,7 +14,7 @@ public class FinalBossEnemy extends Enemy {
         super(tileX, tileY, genHealth, genSpeed, genDamage, player);
 
         this.targetPlayer = player;
-        this.texture = new Texture("images/enemies/FinalBossEnemy.png");
+        this.texture = new Texture("enemies/FinalBossEnemy.png");
 
         scaleStats(1);
     }
