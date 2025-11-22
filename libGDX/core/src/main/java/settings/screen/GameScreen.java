@@ -646,7 +646,47 @@ public class GameScreen implements Screen, Observer {
         float rightTxt = rightX + 20;
 
         fontTitle.draw(batch, "INVENTORY", rightTxt, invY + blockHInv - 25);
-        font.draw(batch, "No weapon", rightTxt, invY + blockHInv - 80);
+
+        float slotSize = 60;
+        float slotX = rightTxt;
+        float slotY = invY + blockHInv -135;
+
+        batch.end();
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        shapeRenderer.setColor(0, 0, 0, 0.45f);
+        shapeRenderer.rect(slotX, slotY, slotSize, slotSize);
+
+        shapeRenderer.setColor(1f, 0.92f, 0.23f, 1f);
+        shapeRenderer.rect(slotX, slotY, slotSize, 3);
+        shapeRenderer.rect(slotX, slotY + slotSize - 3, slotSize, 3);
+        shapeRenderer.rect(slotX, slotY, 3, slotSize);
+        shapeRenderer.rect(slotX + slotSize - 3, slotY, 3, slotSize);
+
+        shapeRenderer.end();
+        batch.begin();
+
+        Weapon current = player.getCurrentWeapon();
+
+        if (current != null) {
+            TextureRegion icon = current.getTexture();
+            if (icon != null) {
+
+                batch.draw(
+                        icon,
+                        slotX + 5,
+                        slotY + 5,
+                        slotSize - 10,
+                        slotSize - 10
+                );
+                batch.end();
+                shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+                shapeRenderer.setColor(1f, 0.3f, 0.3f, 1f);
+                shapeRenderer.rect(slotX - 2, slotY - 2, slotSize + 4, slotSize + 4);
+                shapeRenderer.end();
+                batch.begin();
+            }
+        }
 
         fontTitle.draw(batch, "LEGEND", rightTxt, legY + blockHLeg - 25);
 

@@ -1,35 +1,28 @@
 package entity;
 
-public class Weapon extends Item {
-    private int damage;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-    public Weapon(float x, float y, int damage) {
-        super(x, y, 100, "Weapon");
+public class Weapon extends Item {
+
+    private int damage;
+    private boolean active;
+    private TextureRegion icon;
+
+    public Weapon(float x, float y, int damage, String name, TextureRegion iconRegion) {
+        super(x, y, 100, name);
         this.damage = damage;
+        this.active = true;
+        this.icon = iconRegion;
     }
 
     @Override
     public void collectItem(Player player) {
-        collect(player);
-    }
-
-    public void collect(Player player) {
-        System.out.println("Le joueur a ramassé une arme (" + damage + " dégâts).");
-        equip(player);
-        isActive = false;
-    }
-
-    public void equip(Player player) {
-        System.out.println("Le joueur équipe l’arme.");
+        player.addWeaponToInventory(this);
         player.setCurrentWeapon(this);
-        player.addScore(100);
+        this.active = false;
     }
 
-    public int getDamage() {
-        return damage;
-    }
-
-    public void setDamage(int damage) {
-        this.damage = damage;
-    }
+    public int getDamage() { return damage; }
+    public TextureRegion getTexture() { return icon; }
+    public boolean isActive() { return active; }
 }

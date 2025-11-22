@@ -25,6 +25,7 @@ public class Player extends Entity implements Observable {
     private final List<Observer> observers = new ArrayList<>();
 
     private Texture texture;
+    private List<Weapon> inventory = new ArrayList<>();
 
     /** Constructeur principal utilisé par GameWorld */
     public Player(float x, float y, int lives, float speed, int smileyIndex) {
@@ -93,14 +94,17 @@ public class Player extends Entity implements Observable {
         notifyEvent(new GameEvent("LIFE_GAINED", lives));
     }
     /** Reset pour restart level */
-    public void reset() {
+    public void resetLevel() {
+        this.isActive = true;
+        this.currentWeapon = null;
+        this.inventory.clear();    }
+
+    public void resetFull() {
         this.score = 0;
         this.lives = 3;
         this.isActive = true;
         this.currentWeapon = null;
-
-        System.out.println("Joueur réinitialisé.");
-        notifyEvent(new GameEvent("PLAYER_RESET", null));
+        this.inventory.clear();
     }
     /** Gestion des Observers */
     @Override
@@ -120,12 +124,17 @@ public class Player extends Entity implements Observable {
     public void notifyEvent(GameEvent event) {
         notifyObservers(event);
     }
-
+    public List<Weapon> getInventory() {
+        return inventory;
+    }
     /** Weapon getter/setter */
     public Weapon getCurrentWeapon() {
         return currentWeapon;
     }
-
+    public void addWeaponToInventory(Weapon weapon) {
+        inventory.add(weapon);
+        System.out.println("Arme ajoutée à l'inventaire : " + weapon.getName());
+    }
     public void setCurrentWeapon(Weapon currentWeapon) {
         this.currentWeapon = currentWeapon;
         if (currentWeapon != null) {

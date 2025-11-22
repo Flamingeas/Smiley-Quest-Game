@@ -241,7 +241,6 @@ public class GameWorld {
     public void update(float delta) {
         if (state == GameState.PLAYING) {
             timer.tick(delta);
-            getCurrentLevel().load();
             if (!enemiesSpawned) {
                 spawnEnemiesForLevel(currentLevelIndex);
                 enemiesSpawned = true;
@@ -263,7 +262,7 @@ public class GameWorld {
         player.setX(spawn.getX() * 32f);
         player.setY(spawn.getY() * 32f);
 
-        player.reset();
+        player.resetFull();
         timer.reset();
         scoreSystem.reset();
 
@@ -294,7 +293,7 @@ public class GameWorld {
 
     public void restart() {
         System.out.println("Redémarrage du niveau…");
-        this.player.reset();
+        this.player.resetLevel();
         this.timer.reset();
         this.scoreSystem.reset();
         this.state = GameState.PLAYING;
