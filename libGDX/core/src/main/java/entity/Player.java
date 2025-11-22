@@ -34,10 +34,9 @@ public class Player extends Entity implements Observable {
     /** Constructeur principal utilisé par GameWorld */
     public Player(float x, float y, int lives, float speed, int smileyIndex) {
         super(x, y);
-        this.maxLives = lives;
-        this.lives = lives;
+        this.maxLives = 3;
+        this.lives = maxLives;
         this.speed = speed;
-        this.score = 0;
         this.currentWeapon = null;
         this.currentHP = lives * hpPerLife;
         this.texture = new Texture("images/smiley/smiley_" + smileyIndex + ".png");
@@ -49,7 +48,6 @@ public class Player extends Entity implements Observable {
         this.maxLives = 3;
         this.lives = 3;
         this.speed = 0.7f;
-        this.score = 0;
         this.currentWeapon = null;
         this.currentHP = lives * hpPerLife;
     }
@@ -143,6 +141,7 @@ public class Player extends Entity implements Observable {
 
     public int getLives() { return lives; }
     public void setLives(int lives) { this.lives = lives; }
+    public int getMaxLives() { return maxLives; }
 
     public float getSpeed() { return speed; }
     public void setSpeed(float speed) { this.speed = speed; }

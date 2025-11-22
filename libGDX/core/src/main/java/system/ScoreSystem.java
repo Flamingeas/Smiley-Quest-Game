@@ -24,14 +24,16 @@ public class ScoreSystem {
             }
         }
     }
-    public void addScore(int points) {
+    public int addScore(int points) {
         currentScore += points;
         System.out.println("Score +" + points + " (total : " + currentScore + ")");
+        return currentScore;
     }
 
     public int getScore() {
         return currentScore;
     }
+    public int getAddScore() { return addScore(currentScore); }
 
     public void reset() {
         currentScore = 0;

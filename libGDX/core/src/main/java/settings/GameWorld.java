@@ -1,29 +1,20 @@
 package settings;
 
 import entity.Player;
-
-import entity.enemies.FinalBossEnemy;
-import entity.enemies.SkeletonWeakEnemy;
-import entity.enemies.SkeletonStrongEnemy;
-import entity.enemies.GhostEnemy;
-import entity.enemies.LarvaEnemy;
-import entity.enemies.DragonEnemy;
-
+import entity.enemies.*;
 import level.Level;
-
+import settings.screen.ScreenManager;
 import system.GameTimer;
+import system.Observer;
 import system.ScoreSystem;
 import system.GameEvent;
-
 import utils.Coord;
-
-import entity.enemies.Enemy;
 import settings.screen.GameScreen;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameWorld {
+public class GameWorld implements Observer {
 
     private Level[] levels;
     private int currentLevelIndex = 0;
@@ -37,21 +28,20 @@ public class GameWorld {
     private boolean enemiesSpawned = false;
 
     private int selectedSmileyIndex;
-
     private GameScreen gameScreen;
+    private ScreenManager screenManager;
 
     public void setGameScreen(GameScreen gs) {
         this.gameScreen = gs;
     }
 
     public GameWorld(int smileyIndex) {
-
         this.selectedSmileyIndex = smileyIndex;
 
         this.levels = new Level[] {
-                new Level("maps/sampleMap.tmx",    new Coord(0, 22), new Coord(27, 4)),
-                new Level("maps/laby.tmx",         new Coord(0, 31), new Coord(28, 0)),
-                new Level("maps/mapdebutant.tmx",  new Coord(1, 28), new Coord(28, 1)),
+                new Level("maps/sampleMap.tmx", new Coord(0, 22), new Coord(27, 4)),
+                new Level("maps/laby.tmx", new Coord(0, 31), new Coord(28, 0)),
+                new Level("maps/mapdebutant.tmx", new Coord(1, 28), new Coord(28, 1)),
                 new Level("maps/final-map.tmx", new Coord(1, 30), new Coord(30, 1))
         };
 
@@ -72,35 +62,33 @@ public class GameWorld {
 
         this.enemies = new ArrayList<>();
     }
+
     public boolean isWalkableTile(int x, int y) {
         if (gameScreen == null) return false;
         return gameScreen.isWalkableTileRaw(x, y);
     }
+
     public GameScreen getGameScreen() {
         return gameScreen;
     }
+
     private Coord randomWalkableTile() {
         Level lvl = getCurrentLevel();
-
         int maxTry = 500;
 
         for (int i = 0; i < maxTry; i++) {
-
             int tx = (int)(Math.random() * lvl.getMapWidth());
             int ty = (int)(Math.random() * lvl.getMapHeight());
 
-            if (!gameScreen.isWalkableTileRaw(tx, ty))
-                continue;
+            if (!gameScreen.isWalkableTileRaw(tx, ty)) continue;
 
             int px = (int)((player.getX() - gameScreen.getMapOffsetX()) / gameScreen.getTileSize());
             int py = (int)((player.getY() - gameScreen.getMapOffsetY()) / gameScreen.getTileSize());
 
-            if (Math.abs(tx - px) + Math.abs(ty - py) < 5)
-                continue;
+            if (Math.abs(tx - px) + Math.abs(ty - py) < 5) continue;
 
             Coord chest = lvl.getEndPoint();
-            if (chest != null && tx == chest.getX() && ty == chest.getY())
-                continue;
+            if (chest != null && tx == chest.getX() && ty == chest.getY()) continue;
 
             boolean occupied = false;
             for (Enemy e : enemies) {
@@ -109,54 +97,15 @@ public class GameWorld {
                     break;
                 }
             }
-            if (occupied)
-                continue;
+            if (occupied) continue;
+
             return new Coord(tx, ty);
         }
-        System.out.println("Impossible de trouver un bon tile, fallback en (1,1)");
         return new Coord(1, 1);
     }
 
     private void spawnEnemiesForLevel(int level) {
-        if (level == 3) {
-            System.out.println("Dernière map → nombre d'ennemis réduit");
-
-            enemies = new ArrayList<>();
-
-            int enemyCount = 4;
-            boolean spawnBoss = true;
-
-            float speed = 1.0f;
-            int health = 40;
-            int damage = 12;
-
-            for (int i = 0; i < enemyCount; i++) {
-                Coord c = randomWalkableTile();
-
-                Enemy e = new SkeletonWeakEnemy(c.getX(), c.getY(), health, speed, damage, player);
-                e.setGameScreen(gameScreen);
-                e.setPixelPosition(
-                        gameScreen.getMapOffsetX() + c.getX() * gameScreen.getTileSize(),
-                        gameScreen.getMapOffsetY() + c.getY() * gameScreen.getTileSize()
-                );
-                enemies.add(e);
-            }
-            if (spawnBoss) {
-                Coord c = randomWalkableTile();
-
-                Enemy boss = new FinalBossEnemy(c.getX(), c.getY(), 300, 1.0f, 30, player);
-                boss.setGameScreen(gameScreen);
-                boss.setPixelPosition(
-                        gameScreen.getMapOffsetX() + c.getX() * gameScreen.getTileSize(),
-                        gameScreen.getMapOffsetY() + c.getY() * gameScreen.getTileSize()
-                );
-                enemies.add(boss);
-            }
-
-            return;
-        }
         enemies = new ArrayList<>();
-
         int enemyCount = 2 + level;
         int eliteCount = (level >= 2) ? (1 + level / 2) : 0;
 
@@ -165,79 +114,46 @@ public class GameWorld {
         int genDamage = 10 + (level * 5);
 
         for (int i = 0; i < enemyCount; i++) {
-
             Coord c1 = randomWalkableTile();
             Enemy g = new GhostEnemy(c1.getX(), c1.getY(), genHealth, genSpeed, genDamage, player);
             g.setGameScreen(gameScreen);
-            g.setPixelPosition(
-                    gameScreen.getMapOffsetX() + c1.getX() * gameScreen.getTileSize(),
-                    gameScreen.getMapOffsetY() + c1.getY() * gameScreen.getTileSize()
-            );
+            g.setPixelPosition(gameScreen.getMapOffsetX() + c1.getX() * gameScreen.getTileSize(),
+                    gameScreen.getMapOffsetY() + c1.getY() * gameScreen.getTileSize());
             enemies.add(g);
 
             Coord c2 = randomWalkableTile();
             Enemy l = new LarvaEnemy(c2.getX(), c2.getY(), genHealth, genSpeed, genDamage, player);
             l.setGameScreen(gameScreen);
-            l.setPixelPosition(
-                    gameScreen.getMapOffsetX() + c2.getX() * gameScreen.getTileSize(),
-                    gameScreen.getMapOffsetY() + c2.getY() * gameScreen.getTileSize()
-            );
+            l.setPixelPosition(gameScreen.getMapOffsetX() + c2.getX() * gameScreen.getTileSize(),
+                    gameScreen.getMapOffsetY() + c2.getY() * gameScreen.getTileSize());
             enemies.add(l);
         }
+
         for (int i = 0; i < enemyCount; i++) {
             Coord c = randomWalkableTile();
             Enemy e = new SkeletonWeakEnemy(c.getX(), c.getY(), genHealth, genSpeed, genDamage, player);
             e.setGameScreen(gameScreen);
-            e.setPixelPosition(
-                    gameScreen.getMapOffsetX() + c.getX() * gameScreen.getTileSize(),
-                    gameScreen.getMapOffsetY() + c.getY() * gameScreen.getTileSize()
-            );
+            e.setPixelPosition(gameScreen.getMapOffsetX() + c.getX() * gameScreen.getTileSize(),
+                    gameScreen.getMapOffsetY() + c.getY() * gameScreen.getTileSize());
             enemies.add(e);
         }
         for (int i = 0; i < eliteCount; i++) {
-
             Coord c1 = randomWalkableTile();
-            Enemy s = new SkeletonStrongEnemy(
-                    c1.getX(), c1.getY(),
-                    genHealth + 20, genSpeed + 0.2f, genDamage + 5, player
-            );
+            Enemy s = new SkeletonStrongEnemy(c1.getX(), c1.getY(), genHealth + 20, genSpeed + 0.2f, genDamage + 8, player);
             s.setGameScreen(gameScreen);
-            s.setPixelPosition(
-                    gameScreen.getMapOffsetX() + c1.getX() * gameScreen.getTileSize(),
-                    gameScreen.getMapOffsetY() + c1.getY() * gameScreen.getTileSize()
-            );
+            s.setPixelPosition(gameScreen.getMapOffsetX() + c1.getX() * gameScreen.getTileSize(),
+                    gameScreen.getMapOffsetY() + c1.getY() * gameScreen.getTileSize());
             enemies.add(s);
 
             Coord c2 = randomWalkableTile();
-            Enemy d = new DragonEnemy(
-                    c2.getX(), c2.getY(),
-                    genHealth + 40, genSpeed + 0.3f, genDamage + 10, player
-            );
+            Enemy d = new DragonEnemy(c2.getX(), c2.getY(), genHealth + 40, genSpeed + 0.3f, genDamage + 10, player);
             d.setGameScreen(gameScreen);
-            d.setPixelPosition(
-                    gameScreen.getMapOffsetX() + c2.getX() * gameScreen.getTileSize(),
-                    gameScreen.getMapOffsetY() + c2.getY() * gameScreen.getTileSize()
-            );
+            d.setPixelPosition(gameScreen.getMapOffsetX() + c2.getX() * gameScreen.getTileSize(),
+                    gameScreen.getMapOffsetY() + c2.getY() * gameScreen.getTileSize());
             enemies.add(d);
         }
-        if (level == 4) {
-            Coord c = randomWalkableTile();
-            Enemy boss = new FinalBossEnemy(
-                    c.getX(), c.getY(),
-                    300,
-                    1.0f,
-                    30,
-                    player
-            );
-
-            boss.setGameScreen(gameScreen);
-            boss.setPixelPosition(
-                    gameScreen.getMapOffsetX() + c.getX() * gameScreen.getTileSize(),
-                    gameScreen.getMapOffsetY() + c.getY() * gameScreen.getTileSize()
-            );
-            enemies.add(boss);
-        }
     }
+
     public void update(float delta) {
         if (state == GameState.PLAYING) {
             timer.tick(delta);
@@ -253,6 +169,7 @@ public class GameWorld {
             enemy.interact(player);
         }
     }
+
     public void fullReset() {
         currentLevelIndex = 0;
         enemies.clear();
@@ -271,46 +188,31 @@ public class GameWorld {
     }
 
     public boolean nextLevel() {
-
         if (currentLevelIndex < levels.length - 1) {
-
             currentLevelIndex++;
             enemiesSpawned = false;
             enemies.clear();
 
-            System.out.println("➡ Passage au niveau suivant…");
-
             Level lvl = levels[currentLevelIndex];
-
             player.setX(lvl.getPlayerSpawn().getX() * 32f);
             player.setY(lvl.getPlayerSpawn().getY() * 32f);
 
             return true;
         }
-
-        System.out.println("Il n’y a plus de niveaux");
         return false;
     }
-
     public void restart() {
-        System.out.println("Redémarrage du niveau…");
-        this.player.reset();
-        this.timer.reset();
-        this.scoreSystem.reset();
-        this.state = GameState.PLAYING;
+        player.reset();
+        timer.reset();
+        scoreSystem.reset();
+        state = GameState.PLAYING;
     }
-
     public void publish(GameEvent e) {
-        System.out.println("Événement : " + e.getType());
+        System.out.println("Event: " + e.getType());
     }
 
     public void setState(GameState state) { this.state = state; }
     public GameState getState() { return this.state; }
-
-    public void endGame() {
-        System.out.println("Fin du jeu !");
-        this.state = GameState.GAME_OVER;
-    }
 
     public Level getCurrentLevel() { return levels[currentLevelIndex]; }
     public Player getPlayer() { return player; }
@@ -319,4 +221,28 @@ public class GameWorld {
     public int getCurrentLevelNumber() { return currentLevelIndex + 1; }
     public int getTotalLevels() { return levels.length; }
     public List<Enemy> getEnemies() { return enemies; }
+
+    @Override
+    public void onNotify(GameEvent event) {
+        switch (event.getType()) {
+            case "PLAYER_DEAD" -> {
+                if (screenManager != null) screenManager.setState(GameState.GAME_OVER);
+            }
+            case "CHEST_FOUND" -> {
+                scoreSystem.addScore(100);
+                if (nextLevel()) {
+                    enemiesSpawned = false;
+                    gameScreen.loadLevel(getCurrentLevel());
+                } else {
+                    if (screenManager != null) screenManager.setState(GameState.WINNER);
+                }
+            }
+            case "PLAYER_HIT" -> {
+                scoreSystem.addScore(-30);
+            }
+            case "SCORE_UPDATED" -> {}
+            case "LIFE_GAINED" -> {}
+            case "WEAPON_EQUIPPED" -> {}
+        }
+    }
 }

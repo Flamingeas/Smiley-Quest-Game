@@ -62,6 +62,8 @@ public class GameScreen implements Screen, Observer {
 
     private Texture arrowUp, arrowDown, arrowLeft, arrowRight;
     private Texture keyEsc, keySpace;
+    private Texture heartFull;
+    private Texture heartEmpty;
 
     private BitmapFont font, fontTitle;
     private ShapeRenderer shapeRenderer;
@@ -110,6 +112,8 @@ public class GameScreen implements Screen, Observer {
             arrowRight = new Texture("images/ui/arrow_right.png");
             keyEsc = new Texture("images/ui/echap.png");
             keySpace = new Texture("images/ui/attack.png");
+            heartFull = new Texture("images/ui/heart_full.png");
+            heartEmpty = new Texture("images/ui/heart_empty.png");
 
             FreeTypeFontGenerator gen =
                     new FreeTypeFontGenerator(Gdx.files.internal("fonts/PressStart2P-Regular.ttf"));
@@ -168,7 +172,7 @@ public class GameScreen implements Screen, Observer {
         System.out.println("Aucun coffre trouvé !");
         return null;
     }
-    private void loadLevel(Level lvl) {
+    public void loadLevel(Level lvl) {
 
         if (tiledMap != null)
             tiledMap.dispose();
@@ -543,10 +547,6 @@ public class GameScreen implements Screen, Observer {
             enemyRenderer.render(batch, enemy);
         }
         batch.end();
-
-        /* if (gameWorld.getPlayer().getLives() <= 0) {
-            screenManager.setState(GameState.GAME_OVER);
-        } */
     }
 
     private void drawBlock(float x, float y, float w, float h) {
@@ -567,7 +567,7 @@ public class GameScreen implements Screen, Observer {
         float leftBlockWidth = leftPanelWidth - 2 * leftMargin;
         float rightBlockWidth = rightPanelWidth - 2 * rightMargin;
 
-        float blockHStatut = 190;
+        float blockHStatut = 250;
         float blockHCmd = 600;
         float blockHInv = 190;
         float blockHLeg = 250;
@@ -630,6 +630,19 @@ public class GameScreen implements Screen, Observer {
                 "Score : " + gameWorld.getScoreSystem().getScore(),
                 leftX + 25, statutY + blockHStatut - 130);
 
+        String livesText = "Lives : ";
+        font.draw(batch, livesText, leftX + 25, statutY + blockHStatut - 180);
+
+        int heartSize = 32;
+        int heartGap = 10;
+        int lives = player.getLives();
+        float heartsX = leftX + 25 + font.getRegion().getRegionWidth() * livesText.length() / 2f;
+        float heartsY = statutY + blockHStatut - 180;
+
+        for (int i = 0; i < lives; i++) {
+            batch.draw(heartFull, heartsX + i * (heartSize + heartGap), heartsY, heartSize, heartSize);
+        }
+
         fontTitle.draw(batch, "COMMANDS", leftX + 20, cmdY + blockHCmd - 25);
 
         batch.draw(arrowUp, keysX + 70 - 2, keysY + (keyH - 64) / 2f, 64, 64);
@@ -688,6 +701,7 @@ public class GameScreen implements Screen, Observer {
         if (arrowRight != null) arrowRight.dispose();
         if (keyEsc != null) keyEsc.dispose();
         if (keySpace != null) keySpace.dispose();
+        if (heartFull != null) heartFull.dispose();
     }
 
     @Override
