@@ -25,6 +25,10 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:5.5.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.5.0'
 
+    testImplementation "com.badlogicgames.gdx:gdx-backend-headless:1.12.1"
+
+    testImplementation "com.badlogicgames.gdx:gdx-backend-headless:1.12.1"
+    testImplementation "com.badlogicgames.gdx:gdx-platform:1.12.1:natives-desktop"
 }
 
 java {
@@ -46,4 +50,10 @@ jacocoTestReport {
         csv.required = false
         html.required = true
     }
+
+    classDirectories.setFrom(
+            fileTree(dir: 'build/classes/java/main', include: '**/*.class')
+    )
+    sourceDirectories.setFrom(files('src/main/java'))
+    executionData.setFrom(fileTree(dir: 'build/jacoco', include: '**/*.exec'))
 }
