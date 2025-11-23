@@ -4,13 +4,12 @@ import entity.Player;
 import entity.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
-
 import java.util.Random;
 
 public class DragonEnemy extends Enemy {
 
-    private float attackCooldown = 0f;
     private final Random rng = new Random();
+    private final float optimalDistance = 150f;
 
     public DragonEnemy(float tileX, float tileY, int genHealth, float genSpeed, int genDamage, Player player) {
         super(tileX, tileY, genHealth, genSpeed, genDamage, player);
@@ -18,6 +17,7 @@ public class DragonEnemy extends Enemy {
         this.texture = new Texture("enemies/DragonEnemy.png");
         this.targetPlayer = player;
 
+        this.attackRange = 200f;
         scaleStats(1);
     }
 
@@ -29,12 +29,7 @@ public class DragonEnemy extends Enemy {
 
         move(targetPlayer, delta);
 
-        if (attackCooldown <= 0f) {
-            attack(targetPlayer);
-            attackCooldown = 2f;
-        } else {
-            attackCooldown -= delta;
-        }
+        super.attack(targetPlayer);
     }
 
     @Override
@@ -44,26 +39,25 @@ public class DragonEnemy extends Enemy {
         float dx = player.getX() - x;
         float dy = player.getY() - y;
 
-        float dist = (float)Math.sqrt(dx * dx + dy * dy);
+        float dist = (float) Math.sqrt(dx * dx + dy * dy);
         if (dist == 0) return;
 
         float nx = dx / dist;
         float ny = dy / dist;
 
         float moveSpeed = speed * 32f * delta;
-        float optimalDistance = 150f;
 
         float newX = x;
         float newY = y;
-
         if (dist > optimalDistance) {
             newX += nx * moveSpeed;
             newY += ny * moveSpeed;
-        }
-        else if (dist < optimalDistance * 0.7f) {
+
+        } else if (dist < optimalDistance * 0.7f) {
             newX -= nx * moveSpeed;
             newY -= ny * moveSpeed;
         }
+
         newX += (rng.nextFloat() - 0.5f) * 2f;
         newY += (rng.nextFloat() - 0.5f) * 2f;
 
@@ -79,9 +73,9 @@ public class DragonEnemy extends Enemy {
         }
 
         if (!moved) {
-            float angle = rng.nextFloat() * (float)Math.PI * 2;
-            float ox = (float)Math.cos(angle) * moveSpeed * 0.6f;
-            float oy = (float)Math.sin(angle) * moveSpeed * 0.6f;
+            float angle = rng.nextFloat() * (float) Math.PI * 2;
+            float ox = (float) Math.cos(angle) * moveSpeed * 0.6f;
+            float oy = (float) Math.sin(angle) * moveSpeed * 0.6f;
 
             if (gameScreen.canMoveGeneric(x + ox, y)) x += ox;
             if (gameScreen.canMoveGeneric(x, y + oy)) y += oy;
@@ -90,19 +84,8 @@ public class DragonEnemy extends Enemy {
 
     @Override
     public void interact(Entity e) {
-        if (e instanceof Player) {
-            attack((Player)e);
-        }
-    }
-    @Override
-    public void attack(Player player) {
-        float dx = player.getX() - x;
-        float dy = player.getY() - y;
-
-        float dist = (float)Math.sqrt(dx*dx + dy*dy);
-
-        if (dist < 200f) {
-            player.takeDamage(attackDamage);
+        if (e instanceof Player player) {
+            super.attack(player);
         }
     }
 }

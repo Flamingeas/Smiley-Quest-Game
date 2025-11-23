@@ -142,6 +142,7 @@ public class GameScreen implements Screen, Observer {
 
             loadLevel(gameWorld.getCurrentLevel());
 
+            player.addObserver(this);
             initialized = true;
         }
     }
@@ -536,7 +537,7 @@ public class GameScreen implements Screen, Observer {
             if (gameWorld.nextLevel())
                 loadLevel(gameWorld.getCurrentLevel());
             else
-                screenManager.setState(GameState.GAME_OVER);
+                screenManager.setState(GameState.WINNER);
         }
 
         if (pendingPause) {
@@ -631,19 +632,19 @@ public class GameScreen implements Screen, Observer {
         font.draw(batch, "Score : " + gameWorld.getScoreSystem().getScore(),
                 leftX + 25, statutY + blockHStatut - 130);
 
-        String livesText = "Lives : ";
+        String livesText = "Lives :";
         font.draw(batch, livesText, leftX + 25, statutY + blockHStatut - 180);
 
         int heartSize = 32;
         int heartGap = 10;
         int lives = player.getLives();
-        float heartsX = leftX + 25 + font.getRegion().getRegionWidth() * livesText.length() / 2f;
-        float heartsY = statutY + blockHStatut - 180;
+
+        float heartsX = leftX + 200;
+        float heartsY = statutY + blockHStatut - 200;
 
         for (int i = 0; i < lives; i++) {
             batch.draw(heartFull, heartsX + i * (heartSize + heartGap), heartsY, heartSize, heartSize);
         }
-
         fontTitle.draw(batch, "COMMANDS", leftX + 20, cmdY + blockHCmd - 25);
 
         batch.draw(arrowUp, keysX + 70 - 2, keysY + (keyH - 64) / 2f, 64, 64);
@@ -805,7 +806,6 @@ public class GameScreen implements Screen, Observer {
     @Override
     public void onNotify(GameEvent event) {
         switch (event.getType()) {
-
             case "PLAYER_DEAD":
                 System.out.println(">>> PLAYER DEAD");
                 screenManager.setState(GameState.GAME_OVER);

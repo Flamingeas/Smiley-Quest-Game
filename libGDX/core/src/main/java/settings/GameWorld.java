@@ -223,6 +223,7 @@ public class GameWorld implements Observer {
     public void update(float delta) {
         if (state == GameState.PLAYING) {
             timer.tick(delta);
+
             if (!enemiesSpawned) {
                 spawnEnemiesForLevel(currentLevelIndex);
                 enemiesSpawned = true;
@@ -231,7 +232,6 @@ public class GameWorld implements Observer {
         player.update();
         for (Enemy enemy : enemies) {
             enemy.update();
-            enemy.interact(player);
         }
     }
     public void fullReset() {

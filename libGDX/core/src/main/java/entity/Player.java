@@ -30,6 +30,8 @@ public class Player extends Entity implements Observable {
 
     private Texture texture;
     private List<Weapon> inventory = new ArrayList<>();
+    private float invulnTime = 0f;
+    private float invulnDuration = 0.8f;
 
     /** Constructeur principal utilisé par GameWorld */
     public Player(float x, float y, int lives, float speed, int smileyIndex) {
@@ -53,8 +55,11 @@ public class Player extends Entity implements Observable {
 
     /** Update du joueur (vide ici, déplacement géré ailleurs) */
     @Override
-    public void update() { }
-
+    public void update() {
+        if (invulnTime > 0) {
+            invulnTime -= com.badlogic.gdx.Gdx.graphics.getDeltaTime();
+        }
+    }
     @Override
     public void interact(Entity e) {
         if (e instanceof Item && e.isActive()) {
@@ -165,6 +170,8 @@ public class Player extends Entity implements Observable {
     public void takeDamage(int damage) {
         if (!isActive) return;
 
+        if (invulnTime > 0) return;
+        invulnTime = invulnDuration;
         currentHP -= damage;
         int oldLives = lives;
         lives = (int)Math.ceil((float)currentHP / hpPerLife);
@@ -173,7 +180,6 @@ public class Player extends Entity implements Observable {
             System.out.println("💔 Cœur perdu ! Vies restantes : " + lives);
             notifyEvent(new GameEvent("PLAYER_HIT", lives));
         }
-
         if (lives <= 0) {
             currentHP = 0;
             lives = 0;

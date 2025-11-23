@@ -61,6 +61,7 @@ public class ScreenManager {
                 backgroundScreen = gameScreen;
                 setScreen(gameOverScreen);
             }
+            case WINNER -> setScreen(new GameWinnerScreen(this));
             case SPLASH -> setScreen(new SplashScreen(this));
         }
     }

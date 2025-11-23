@@ -1,7 +1,7 @@
 package entity.enemies;
 
-import entity.Player;
 import entity.Entity;
+import entity.Player;
 import java.util.Random;
 
 public class SkeletonStrongEnemy extends Enemy {
@@ -10,15 +10,22 @@ public class SkeletonStrongEnemy extends Enemy {
 
     public SkeletonStrongEnemy(float tileX, float tileY, int genHealth, float genSpeed, int genDamage, Player player) {
         super(tileX, tileY, genHealth, genSpeed, genDamage, player);
+
+        this.targetPlayer = player;
+        this.texture = new com.badlogic.gdx.graphics.Texture("enemies/SkeletonStrongEnemy.png");
+
+        this.attackRange = 32f;
         scaleStats(1);
     }
 
     @Override
     public void update() {
         if (!isActive) return;
+
         float delta = com.badlogic.gdx.Gdx.graphics.getDeltaTime();
+
         move(targetPlayer, delta);
-        attack(targetPlayer);
+        attemptAttack(targetPlayer);
     }
 
     @Override
@@ -28,7 +35,8 @@ public class SkeletonStrongEnemy extends Enemy {
 
         float dx = player.getX() - x;
         float dy = player.getY() - y;
-        float len = (float)Math.sqrt(dx*dx + dy*dy);
+
+        float len = (float) Math.sqrt(dx * dx + dy * dy);
         if (len == 0) return;
 
         dx /= len;
@@ -53,10 +61,11 @@ public class SkeletonStrongEnemy extends Enemy {
             y = newY;
             moved = true;
         }
+
         if (!moved) {
-            float angle = rng.nextFloat() * (float)Math.PI * 2;
-            float ox = (float)Math.cos(angle) * moveSpeed * 0.8f;
-            float oy = (float)Math.sin(angle) * moveSpeed * 0.8f;
+            float angle = rng.nextFloat() * (float) Math.PI * 2;
+            float ox = (float) Math.cos(angle) * moveSpeed * 0.8f;
+            float oy = (float) Math.sin(angle) * moveSpeed * 0.8f;
 
             if (gameScreen.canMoveGeneric(x + ox, y)) x += ox;
             if (gameScreen.canMoveGeneric(x, y + oy)) y += oy;
@@ -65,18 +74,26 @@ public class SkeletonStrongEnemy extends Enemy {
 
     @Override
     public void interact(Entity e) {
-        if (e instanceof Player player) attack(player);
+        if (e instanceof Player player) {
+            attemptAttack(player);
+        }
+    }
+
+    private void attemptAttack(Player player) {
+        if (player == null) return;
+
+        float dx = player.getX() - x;
+        float dy = player.getY() - y;
+
+        float dist = (float) Math.sqrt(dx * dx + dy * dy);
+
+        if (dist <= attackRange) {
+            super.attack(player);
+        }
     }
 
     @Override
     public void attack(Player player) {
-        float dx = player.getX() - x;
-        float dy = player.getY() - y;
-
-        float dist = (float)Math.sqrt(dx*dx + dy*dy);
-
-        if (dist < 28f) {
-            player.takeDamage(attackDamage);
-        }
+        attemptAttack(player);
     }
 }

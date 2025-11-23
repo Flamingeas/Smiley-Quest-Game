@@ -24,7 +24,9 @@ public abstract class Enemy extends Entity {
 
     protected Player targetPlayer;
     public Texture texture;
-
+    protected float attackCooldown = 0.8f;
+    protected float attackTimer = 0f;
+    protected float attackRange = 40f;
     /**
      * Constructeur Enemy : on fournit des coordonnées TILES.
      * x et y pixel seront fixés par GameScreen ensuite.
@@ -65,22 +67,36 @@ public abstract class Enemy extends Entity {
     /**
      * Update générique.
      */
+    @Override
     public void update() {
         if (!isActive) return;
+
+        if (attackTimer > 0) {
+            attackTimer -= com.badlogic.gdx.Gdx.graphics.getDeltaTime();
+        }
     }
     /**
      * Interaction (dommages au joueur).
      */
     @Override
     public void interact(Entity e) {
-        if (e instanceof Player) {
-            attack((Player) e);
-        }
     }
     public void attack(Player player) {
-        if (player != null && isActive) {
-            player.takeDamage(attackDamage);
+        if (player == null || !isActive) return;
+        if (attackTimer > 0) return;
+
+        if (!isPlayerClose(player, attackRange)) {
+            return;
         }
+
+        System.out.println(getClass().getSimpleName() + " >>> attaque !");
+        player.takeDamage(attackDamage);
+        attackTimer = attackCooldown;
+    }
+    public boolean isPlayerClose(Player player, float range) {
+        float dx = player.getX() - x;
+        float dy = player.getY() - y;
+        return (dx*dx + dy*dy) < (range * range);
     }
     public void setGameScreen(settings.screen.GameScreen gs) {
         this.gameScreen = gs;

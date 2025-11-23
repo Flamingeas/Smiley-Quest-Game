@@ -23,11 +23,13 @@ public class SkeletonWeakEnemy extends Enemy {
     public void update() {
         if (!isActive) return;
 
+        super.update();
+
         float delta = com.badlogic.gdx.Gdx.graphics.getDeltaTime();
         move(targetPlayer, delta);
-        attack(targetPlayer);
-    }
 
+        tryAttack(targetPlayer);
+    }
     @Override
     public void move(Player player, float delta) {
 
@@ -75,20 +77,24 @@ public class SkeletonWeakEnemy extends Enemy {
 
     @Override
     public void interact(Entity e) {
-        if (e instanceof Player) {
-            attack((Player)e);
+        if (e instanceof Player player) {
+            tryAttack(player);
         }
     }
 
     @Override
     public void attack(Player player) {
+        tryAttack(player);
+    }
+
+    private void tryAttack(Player player) {
         float dx = player.getX() - x;
         float dy = player.getY() - y;
 
         float dist = (float)Math.sqrt(dx*dx + dy*dy);
 
         if (dist < 22f) {
-            player.takeDamage(attackDamage);
+            super.attack(player);
         }
     }
 }
