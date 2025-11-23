@@ -10,6 +10,9 @@ import java.util.List;
 
 public class Player extends Entity implements Observable {
 
+    public enum Direction { LEFT, RIGHT }
+    private Direction direction = Direction.RIGHT;
+
     private float speed;
 
     private int lives;
@@ -39,11 +42,12 @@ public class Player extends Entity implements Observable {
         this.currentHP = lives * hpPerLife;
         this.texture = new Texture("images/smiley/smiley_" + smileyIndex + ".png");
     }
+
     public void collectItem(Item item) {
         System.out.println("TEST DEBUG - ENVOI EVENT ITEM_COLLECTED");
-
         notifyEvent(new GameEvent("ITEM_COLLECTED", item.getValue()));
     }
+
     /** Optional fallback constructor */
     public Player() {
         super(0, 0);
@@ -104,9 +108,11 @@ public class Player extends Entity implements Observable {
             obs.onNotify(event);
         }
     }
+
     public boolean isBlinking() {
         return invulnTime > 0 && ((int)(invulnTime * 20) % 2 == 0);
     }
+
     public void notifyEvent(GameEvent event) {
         notifyObservers(event);
     }
@@ -132,7 +138,6 @@ public class Player extends Entity implements Observable {
             notifyEvent(new GameEvent("WEAPON_EQUIPPED", currentWeapon));
         }
     }
-
 
     public int getLives() { return lives; }
 
@@ -171,4 +176,7 @@ public class Player extends Entity implements Observable {
             notifyEvent(new GameEvent("PLAYER_DEAD", null));
         }
     }
+
+    public void setDirection(Direction d) { this.direction = d; }
+    public Direction getDirection() { return direction; }
 }

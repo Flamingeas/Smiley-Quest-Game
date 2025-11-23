@@ -455,19 +455,29 @@ public class GameScreen implements Screen, Observer {
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) ||
                 Gdx.input.isKeyPressed(Input.Keys.A))
+        {
             newX -= move;
+            player.setDirection(Player.Direction.LEFT);   // ✔ correct
+        }
 
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) ||
                 Gdx.input.isKeyPressed(Input.Keys.D))
+        {
             newX += move;
+            player.setDirection(Player.Direction.RIGHT);  // ✔ correct
+        }
 
         if (Gdx.input.isKeyPressed(Input.Keys.UP) ||
                 Gdx.input.isKeyPressed(Input.Keys.W))
+        {
             newY += move;
+        }
 
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN) ||
                 Gdx.input.isKeyPressed(Input.Keys.S))
+        {
             newY -= move;
+        }
 
         if (canMoveTo(newX, playerY)) playerX = newX;
         if (canMoveTo(playerX, newY)) playerY = newY;
@@ -548,12 +558,41 @@ public class GameScreen implements Screen, Observer {
             shapeRenderer.end();
         }
         batch.begin();
+
         if (!player.isBlinking()) {
             batch.draw(playerTexture, playerX, playerY, 32, 32);
         } else {
             batch.setColor(1, 1, 1, 0.3f);
             batch.draw(playerTexture, playerX, playerY, 32, 32);
             batch.setColor(1, 1, 1, 1f);
+        }
+        Weapon w = player.getCurrentWeapon();
+        if (w != null && w.getHeldRegion() != null) {
+
+            float weaponX;
+            float weaponY = playerY - 1;
+
+            float rotation;
+            float originX = 12;
+            float originY = 12;
+            System.out.println(player.getDirection());
+            if (player.getDirection() == Player.Direction.RIGHT) {
+                weaponX = playerX + 13;
+                rotation = -35f;
+            } else {
+                // Position + rotation côté gauche
+                weaponX = playerX - 5;
+                rotation = 35f;
+            }
+
+            batch.draw(
+                    w.getHeldRegion(),
+                    weaponX, weaponY,
+                    originX, originY,
+                    24, 24,
+                    1f, 1f,
+                    rotation
+            );
         }
         batch.end();
 

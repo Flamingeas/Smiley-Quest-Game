@@ -14,6 +14,7 @@ public class Weapon extends Item {
     private int damage;
     private boolean active;
     private TextureRegion icon;
+    private TextureRegion heldRegion;
 
     /**
      * Constructs a Weapon with position, damage, name, and icon.
@@ -41,7 +42,10 @@ public class Weapon extends Item {
         player.addWeaponToInventory(this);
         player.setCurrentWeapon(this);
         this.active = false;
+
+        System.out.println("DEBUG HELD REGION = " + (heldRegion != null));
     }
+
 
     /** Returns the damage of the weapon. */
     public int getDamage() { return damage; }
@@ -51,4 +55,10 @@ public class Weapon extends Item {
 
     /** Returns whether the weapon is active. */
     public boolean isActive() { return active; }
+    public TextureRegion getHeldRegion() {
+        return heldRegion;
+    }
+    public void setHeldRegion(TextureRegion region) {
+        this.heldRegion = region;
+    }
 }

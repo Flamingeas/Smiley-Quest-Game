@@ -22,11 +22,6 @@ public class WeaponSpawner {
 
     /**
      * Spawns weapons based on map type.
-     * @param tiledMap the map to scan for weapon placement
-     * @param mapFile the map file name (used to determine spawn method)
-     * @param maxWeapons maximum number of weapons to spawn
-     * @param gameWorld reference to the game world for walkable tile checks
-     * @return list of spawned weapons data
      */
     public List<WeaponData> spawnWeapons(
             TiledMap tiledMap,
@@ -64,6 +59,10 @@ public class WeaponSpawner {
             Coord pos = freeTiles.get(i);
 
             Weapon weapon = new Weapon(pos.getX(), pos.getY(), MAP1_WEAPON_DMG[i], MAP1_WEAPON_NAMES[i], icon);
+
+            // 🔥 heldRegion = same icon (simple)
+            weapon.setHeldRegion(icon);
+
             result.add(new WeaponData(weapon, tileId, pos));
         }
 
@@ -74,9 +73,11 @@ public class WeaponSpawner {
     private List<WeaponData> spawnFromTileset(TiledMap map, int max, settings.GameWorld gameWorld) {
         List<WeaponTile> declaredWeapons = new ArrayList<>();
 
+        // Scan tilesets for weapons
         for (TiledMapTileSet set : map.getTileSets()) {
             for (TiledMapTile tile : set) {
                 if (tile == null) continue;
+
                 if (tile.getProperties().containsKey("weapon")) {
                     String name = tile.getProperties().get("weapon", String.class);
                     int dmg = getWeaponDamage(name);
@@ -86,12 +87,13 @@ public class WeaponSpawner {
         }
 
         if (declaredWeapons.isEmpty()) return new ArrayList<>();
-
         Collections.shuffle(declaredWeapons);
+
         TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(0);
         int w = layer.getWidth();
         int h = layer.getHeight();
 
+        // find walkable tiles
         List<Coord> walkable = new ArrayList<>();
         for (int y = 0; y < h; y++)
             for (int x = 0; x < w; x++)
@@ -99,23 +101,31 @@ public class WeaponSpawner {
                     walkable.add(new Coord(x, y));
 
         Collections.shuffle(walkable);
+
         max = Math.min(max, declaredWeapons.size());
         max = Math.min(max, walkable.size());
 
         List<WeaponData> result = new ArrayList<>();
+
         for (int i = 0; i < max; i++) {
             WeaponTile wt = declaredWeapons.get(i);
             Coord pos = walkable.get(i);
+
             TiledMapTile tile = map.getTileSets().getTile(wt.tileId);
             TextureRegion icon = tile != null ? tile.getTextureRegion() : null;
+
             Weapon weapon = new Weapon(pos.getX(), pos.getY(), wt.damage, wt.name, icon);
+
+            // 🔥 Same icon used for held version
+            weapon.setHeldRegion(icon);
+
             result.add(new WeaponData(weapon, wt.tileId, pos));
         }
 
         return result;
     }
 
-    /** Maps weapon name to its damage value */
+    /** Set weapon damage based on name */
     private int getWeaponDamage(String name) {
         return switch (name.toLowerCase()) {
             case "sword", "magicsword" -> 12;
@@ -140,7 +150,7 @@ public class WeaponSpawner {
         }
     }
 
-    /** Contains data for a spawned weapon */
+    /** Data for one spawned weapon */
     public static class WeaponData {
         private Weapon weapon;
         private int tileId;
