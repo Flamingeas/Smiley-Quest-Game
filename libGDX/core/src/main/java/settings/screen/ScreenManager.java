@@ -9,22 +9,48 @@ import settings.GameWorld;
 
 public class ScreenManager {
 
+    /** Current game state */
     private GameState state;
 
+    /** Currently active screen */
     private Screen currentScreen;
 
+    /** Gameplay screen */
     private GameScreen gameScreen;
+
+    /** Pause screen */
     private PausedScreen pausedScreen;
+
+    /** Main menu screen */
     private MenuScreen menuScreen;
+
+    /** Settings screen */
     private SettingsScreen settingsScreen;
+
+    /** Game over screen */
     private GameOverScreen gameOverScreen;
 
+    /** Current game world instance for gameplay */
     private GameWorld gameWorld;
+
+    /** Reference to the main game class */
     private SmileyQuestGame game;
+
+    /** Optional background screen (used for overlays like game over) */
     private Screen backgroundScreen;
 
+    /** Currently selected smiley index for character selection */
     private int selectedSmileyIndex = 0;
 
+
+    /**
+     * Manages the game's screens and transitions between them.
+     * The ScreenManager handles:
+     * - switching between different screens (menu, gameplay, pause, settings, game over)
+     * - initializing and disposing screens as needed
+     * - keeping track of the current game state
+     * - maintaining the selected character (smiley)
+     */
     public ScreenManager() {
         pausedScreen = new PausedScreen(this);
         menuScreen = new MenuScreen(this);
@@ -32,6 +58,11 @@ public class ScreenManager {
         gameOverScreen= new GameOverScreen(this);
     }
 
+    /**
+     * Changes the current game state and switches to the corresponding screen.
+     *
+     * @param newState the new game state
+     */
     public void setState(GameState newState) {
         this.state = newState;
         backgroundScreen = null;
@@ -87,6 +118,11 @@ public class ScreenManager {
         this.selectedSmileyIndex = index;
     }
 
+    /**
+     * Returns the currently selected smiley character index.
+     *
+     * @return the selected smiley index
+     */
     public int getSelectedSmiley() {
         return selectedSmileyIndex;
     }

@@ -1,3 +1,7 @@
+/**
+ * Represents a dragon-type enemy with pursuit behavior, attack cooldown,
+ * and dynamic movement around an optimal distance from the player.
+ */
 package entity.enemies;
 
 import entity.Player;
@@ -7,11 +11,25 @@ import com.badlogic.gdx.graphics.Texture;
 
 import java.util.Random;
 
+/**
+ * A specific enemy type that chases the player while maintaining an optimal
+ * distance and attacks when the cooldown allows.
+ */
 public class DragonEnemy extends Enemy {
 
     private float attackCooldown = 0f;
     private final Random rng = new Random();
 
+    /**
+     * Creates a new DragonEnemy instance with generated stats.
+     *
+     * @param tileX      initial X position in tile coordinates
+     * @param tileY      initial Y position in tile coordinates
+     * @param genHealth  generated base health
+     * @param genSpeed   generated base movement speed
+     * @param genDamage  generated base attack damage
+     * @param player     reference to the player target
+     */
     public DragonEnemy(float tileX, float tileY, int genHealth, float genSpeed, int genDamage, Player player) {
         super(tileX, tileY, genHealth, genSpeed, genDamage, player);
 
@@ -21,6 +39,9 @@ public class DragonEnemy extends Enemy {
         scaleStats(1);
     }
 
+    /**
+     * Updates movement, attack cooldown, and triggers attacks when possible.
+     */
     @Override
     public void update() {
         if (!isActive) return;
@@ -37,6 +58,13 @@ public class DragonEnemy extends Enemy {
         }
     }
 
+    /**
+     * Moves the dragon toward or away from the player to maintain an optimal distance,
+     * with slight random deviations to avoid predictable movement.
+     *
+     * @param player the player used as movement target
+     * @param delta  frame time delta
+     */
     @Override
     public void move(Player player, float delta) {
         if (gameScreen == null || player == null) return;
@@ -88,12 +116,23 @@ public class DragonEnemy extends Enemy {
         }
     }
 
+    /**
+     * Interacts with another entity. If the entity is a player, attacks it.
+     *
+     * @param e the entity interacted with
+     */
     @Override
     public void interact(Entity e) {
         if (e instanceof Player) {
             attack((Player)e);
         }
     }
+
+    /**
+     * Attacks the player if within range.
+     *
+     * @param player the player being attacked
+     */
     @Override
     public void attack(Player player) {
         float dx = player.getX() - x;

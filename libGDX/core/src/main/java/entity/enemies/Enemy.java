@@ -1,3 +1,7 @@
+/**
+ * Represents a generic enemy entity spawned using tile-based coordinates.
+ * Subclasses define specific movement and attack behaviors.
+ */
 package entity.enemies;
 
 import com.badlogic.gdx.graphics.Texture;
@@ -6,7 +10,9 @@ import entity.Entity;
 import entity.Player;
 
 /**
- * Représente un ennemi avec coordonnées TILE (spawn safe).
+ * Base class for all enemy types. It stores generated stats, tile-based spawn
+ * position, references to the target player and the GameScreen, and provides
+ * shared logic such as receiving damage, interacting, or scaling stats.
  */
 public abstract class Enemy extends Entity {
 
@@ -26,8 +32,15 @@ public abstract class Enemy extends Entity {
     public Texture texture;
 
     /**
-     * Constructeur Enemy : on fournit des coordonnées TILES.
-     * x et y pixel seront fixés par GameScreen ensuite.
+     * Creates a new Enemy instance using tile coordinates (safe spawn position).
+     * Pixel coordinates are set later by the GameScreen.
+     *
+     * @param tileX     X position in tile coordinates
+     * @param tileY     Y position in tile coordinates
+     * @param genHealth generated base health
+     * @param genSpeed  generated base movement speed
+     * @param genDamage generated base attack damage
+     * @param player    player reference used as target
      */
     public Enemy(float tileX, float tileY, int genHealth, float genSpeed, int genDamage, Player player) {
         super(0, 0);
@@ -43,11 +56,22 @@ public abstract class Enemy extends Entity {
         isActive = true;
         this.targetPlayer = player;
     }
+
+    /**
+     * Returns a 32x32 texture region used as an icon for UI elements.
+     *
+     * @return texture region containing the enemy icon
+     */
     public TextureRegion getIconRegion() {
         return new TextureRegion(texture, 0, 0, 32, 32);
     }
+
     /**
-     * Appelé par GameScreen après calcul du tileSize + offsets.
+     * Sets the enemy's pixel position, computed externally by the GameScreen
+     * after tile size and offsets are applied.
+     *
+     * @param px pixel X coordinate
+     * @param py pixel Y coordinate
      */
     public void setPixelPosition(float px, float py) {
         this.x = px;
@@ -55,21 +79,29 @@ public abstract class Enemy extends Entity {
     }
 
     /**
-     * Ajuste les stats selon le niveau.
+     * Scales the enemy's stats according to the level. Currently applies the
+     * generated values directly.
+     *
+     * @param level scale factor or level number
      */
     public void scaleStats(int level) {
         this.health = genHealth;
         this.speed = genSpeed;
         this.attackDamage = genDamage;
     }
+
     /**
-     * Update générique.
+     * Default update behavior for enemies. Subclasses normally extend or
+     * override this method.
      */
     public void update() {
         if (!isActive) return;
     }
+
     /**
-     * Interaction (dommages au joueur).
+     * Interacts with another entity. If the entity is a player, deals damage.
+     *
+     * @param e the entity interacted with
      */
     @Override
     public void interact(Entity e) {
@@ -77,28 +109,55 @@ public abstract class Enemy extends Entity {
             attack((Player) e);
         }
     }
+
+    /**
+     * Applies damage to the player if both the enemy and player are active.
+     *
+     * @param player the player to attack
+     */
     public void attack(Player player) {
         if (player != null && isActive) {
             player.takeDamage(attackDamage);
         }
     }
+
+    /**
+     * Assigns the GameScreen to the enemy, allowing movement validation.
+     *
+     * @param gs the GameScreen instance
+     */
     public void setGameScreen(settings.screen.GameScreen gs) {
         this.gameScreen = gs;
     }
+
     /**
-     * L'ennemi reçoit des dégâts.
+     * Applies incoming damage to the enemy. If health reaches zero, the
+     * enemy becomes inactive.
+     *
+     * @param damage amount of damage taken
      */
     public void takeDamage(int damage) {
         health -= damage;
         if (health <= 0) isActive = false;
     }
+
     /**
-     * Déplacement (spécifique aux classes filles).
+     * Abstract method defining movement behavior. Implemented by subclasses.
+     *
+     * @param player player used as reference for movement
+     * @param delta  frame delta time
      */
     public abstract void move(Player player, float delta);
+
     public int getHealth() { return health; }
     public float getSpeed() { return speed; }
     public int getAttackDamage() { return attackDamage; }
+
+    /**
+     * Returns the enemy's current texture.
+     *
+     * @return texture of the enemy
+     */
     public Texture getTexture() {
         return texture;
     }

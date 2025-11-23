@@ -14,6 +14,10 @@ import settings.screen.GameScreen;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents the core game world, managing levels, player state, enemies, and game logic.
+ * Handles enemy spawning, level progression, and observes game events.
+ */
 public class GameWorld implements Observer {
 
     private Level[] levels;
@@ -31,10 +35,19 @@ public class GameWorld implements Observer {
     private GameScreen gameScreen;
     private ScreenManager screenManager;
 
+    /**
+     * Sets the current game screen.
+     * @param gs the GameScreen instance
+     */
     public void setGameScreen(GameScreen gs) {
         this.gameScreen = gs;
     }
 
+    /**
+     * Initializes the game world with a selected smiley index for the player.
+     * Loads the first level and sets up player and score systems.
+     * @param smileyIndex index for the player's smiley texture
+     */
     public GameWorld(int smileyIndex) {
         this.selectedSmileyIndex = smileyIndex;
 
@@ -62,13 +75,30 @@ public class GameWorld implements Observer {
 
         this.enemies = new ArrayList<>();
     }
+
+    /**
+     * Checks if a tile is walkable in the current game screen.
+     * @param x tile x-coordinate
+     * @param y tile y-coordinate
+     * @return true if walkable, false otherwise
+     */
     public boolean isWalkableTile(int x, int y) {
         if (gameScreen == null) return false;
         return gameScreen.isWalkableTileRaw(x, y);
     }
+
+    /**
+     * Gets the current game screen.
+     * @return the GameScreen instance
+     */
     public GameScreen getGameScreen() {
         return gameScreen;
     }
+
+    /**
+     * Chooses a random walkable tile avoiding the player, chest, and existing enemies.
+     * @return a Coord object representing the chosen tile
+     */
     private Coord randomWalkableTile() {
         Level lvl = getCurrentLevel();
         int maxTry = 500;
@@ -101,6 +131,10 @@ public class GameWorld implements Observer {
         return new Coord(1, 1);
     }
 
+    /**
+     * Spawns enemies for the specified level index, adjusting stats and positioning.
+     * @param level level index
+     */
     private void spawnEnemiesForLevel(int level) {
         int hpCap =
                 (level == 0) ? 40 :
@@ -220,6 +254,11 @@ public class GameWorld implements Observer {
             enemies.add(d);
         }
     }
+
+    /**
+     * Updates the game world state, player, and enemies.
+     * @param delta time elapsed since last update
+     */
     public void update(float delta) {
         if (state == GameState.PLAYING) {
             timer.tick(delta);
@@ -234,6 +273,10 @@ public class GameWorld implements Observer {
             enemy.interact(player);
         }
     }
+
+    /**
+     * Resets the game world completely to the first level and initial player state.
+     */
     public void fullReset() {
         currentLevelIndex = 0;
         enemies.clear();
@@ -251,10 +294,12 @@ public class GameWorld implements Observer {
         state = GameState.PLAYING;
     }
 
+    /**
+     * Advances to the next level if available.
+     * @return true if next level exists, false otherwise
+     */
     public boolean nextLevel() {
-
         if (currentLevelIndex < levels.length - 1) {
-
             currentLevelIndex++;
             enemiesSpawned = false;
             enemies.clear();
@@ -267,6 +312,10 @@ public class GameWorld implements Observer {
         }
         return false;
     }
+
+    /**
+     * Restarts the current level, resetting player, timer, and score.
+     */
     public void restart() {
         System.out.println("Redémarrage du niveau…");
         player.resetLevel();
@@ -275,6 +324,10 @@ public class GameWorld implements Observer {
         state = GameState.PLAYING;
     }
 
+    /**
+     * Publishes a game event for debugging or logging purposes.
+     * @param e the GameEvent instance
+     */
     public void publish(GameEvent e) {
         System.out.println("Événement : " + e.getType());
     }
@@ -282,6 +335,9 @@ public class GameWorld implements Observer {
     public void setState(GameState state) { this.state = state; }
     public GameState getState() { return this.state; }
 
+    /**
+     * Ends the game and sets the state to GAME_OVER.
+     */
     public void endGame() {
         System.out.println("Fin du jeu !");
         this.state = GameState.GAME_OVER;
@@ -295,6 +351,10 @@ public class GameWorld implements Observer {
     public int getTotalLevels() { return levels.length; }
     public List<Enemy> getEnemies() { return enemies; }
 
+    /**
+     * Handles notifications from observed game events and applies corresponding logic.
+     * @param event the GameEvent instance
+     */
     @Override
     public void onNotify(GameEvent event) {
         switch (event.getType()) {

@@ -12,28 +12,72 @@ import settings.GameState;
 import com.badlogic.gdx.Preferences;
 import system.AudioManager;
 
+/**
+ * Screen that handles game settings.
+ * This screen allows the player to:
+ * - Toggle sound on/off
+ * - Adjust volume
+ * - Return to the main menu
+ * The screen supports keyboard and mouse navigation.
+ */
 public class SettingsScreen implements Screen {
 
+    /** Current volume level (0.0 to 1.0) */
     private float volume;
+
+    /** ScreenManager used to switch screens */
     private final ScreenManager screenManager;
+
+    /** Main batch for drawing */
     private SpriteBatch batch;
+
+    /** Font for the screen title */
     private BitmapFont fontTitle;
+
+    /** Font for menu items */
     private BitmapFont fontText;
+
+    /** Pointer icon displayed next to the selected menu item */
     private Texture pointer;
+
+    /** Currently selected menu index */
     private int selectedIndex = 0;
+
+    /** Screen title */
     private final String title = "Settings";
+
+    /** Menu item labels */
     private final String[] menuItems = {"Sound", "Back"};
 
+    /** X position of pointer */
     private final float pointerX = 400;
+
+    /** X position of menu items */
     private final float menuX = 650;
+
+    /** Starting Y position of the first menu item */
     private final int menuStartY = 600;
+
+    /** Vertical spacing between menu items */
     private final int menuSpacing = 100;
+
+    /** Preferences object to store settings */
     private Preferences preferences;
 
+    /**
+     * Creates a SettingsScreen linked to a ScreenManager.
+     *
+     * @param screenManager the screen manager to handle screen transitions
+     */
     public SettingsScreen(ScreenManager screenManager) {
         this.screenManager = screenManager;
     }
 
+    /**
+     * Handles keyboard and mouse input for menu navigation.
+     * Arrow keys select items, enter or click activates them.
+     * Adjusts sound setting when applicable.
+     */
     private void handleInput() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) selectedIndex = Math.max(selectedIndex - 1, 0);
         if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) selectedIndex = Math.min(selectedIndex + 1, menuItems.length - 1);
@@ -70,6 +114,11 @@ public class SettingsScreen implements Screen {
         }
     }
 
+    /**
+     * Sets the volume level and updates preferences and audio manager.
+     *
+     * @param value volume level between 0.0 and 1.0
+     */
     private void adjustVolume(float value) {
         volume = Math.max(0f, Math.min(1f, value));
         preferences.putFloat("volume", volume);
@@ -77,12 +126,18 @@ public class SettingsScreen implements Screen {
         AudioManager.getInstance().setVolume(volume);
     }
 
-    private boolean isSoundEnabled() { return preferences.getBoolean("sound"); }
+    /** Returns whether sound is currently enabled. */
+    private boolean isSoundEnabled() {
+        return preferences.getBoolean("sound");
+    }
+
+    /** Enables or disables sound and updates preferences. */
     private void setSoundEnabled(boolean value) {
         preferences.putBoolean("sound", value);
         preferences.flush();
     }
 
+    /** Loads fonts, textures, preferences, and initializes the screen. */
     @Override
     public void show() {
         batch = new SpriteBatch();
@@ -107,6 +162,7 @@ public class SettingsScreen implements Screen {
         preferences.flush();
     }
 
+    /** Renders the settings screen including title, menu items, and pointer. */
     @Override
     public void render(float delta) {
         handleInput();
@@ -120,11 +176,10 @@ public class SettingsScreen implements Screen {
         for (int i = 0; i < menuItems.length; i++) {
             String text = menuItems[i];
             if (i == 0) text += " : " + (isSoundEnabled() ? "ON" : "OFF");
-
-            fontText.draw(batch, text, menuX, menuStartY - i*menuSpacing);
+            fontText.draw(batch, text, menuX, menuStartY - i * menuSpacing);
         }
-        batch.draw(pointer, pointerX, menuStartY - selectedIndex*menuSpacing - pointer.getHeight()/2);
 
+        batch.draw(pointer, pointerX, menuStartY - selectedIndex * menuSpacing - pointer.getHeight() / 2);
         batch.end();
     }
 
@@ -132,7 +187,10 @@ public class SettingsScreen implements Screen {
     @Override public void pause() {}
     @Override public void resume() {}
     @Override public void hide() {}
-    @Override public void dispose() {
+
+    /** Frees resources like fonts, textures, and batch. */
+    @Override
+    public void dispose() {
         if (fontTitle != null) fontTitle.dispose();
         if (fontText != null) fontText.dispose();
         if (pointer != null) pointer.dispose();

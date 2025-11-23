@@ -1,3 +1,7 @@
+/**
+ * Represents a ghost-type enemy featuring oscillating spectral movement
+ * and constant pursuit of the player.
+ */
 package entity.enemies;
 
 import entity.Entity;
@@ -5,23 +9,26 @@ import entity.Player;
 import java.util.Random;
 
 /**
- * Ennemi de type fantôme caractérisé par un déplacement spectral oscillant
- * et une poursuite constante du joueur.
+ * GhostEnemy implements a spectral movement pattern combined with
+ * continuous tracking of the player. Its movement includes sinusoidal
+ * oscillation to create an unpredictable drifting motion.
  */
 public class GhostEnemy extends Enemy {
 
     private final Player targetPlayer;
     private final Random rng;
     private float phase;
+
     /**
-     * Constructeur du fantôme permettant l'utilisation des statistiques génériques.
+     * Creates a new GhostEnemy using generic stats and initial coordinates.
+     * The ghost begins with a random oscillation phase.
      *
-     * @param x position X initiale
-     * @param y position Y initiale
-     * @param genHealth points de vie génériques
-     * @param genSpeed vitesse générique
-     * @param genDamage dégâts génériques
-     * @param player joueur suivi par le fantôme
+     * @param x         initial X coordinate (tile-based)
+     * @param y         initial Y coordinate (tile-based)
+     * @param genHealth base health value
+     * @param genSpeed  base movement speed
+     * @param genDamage base attack damage
+     * @param player    player the ghost will follow
      */
     public GhostEnemy(float x, float y, int genHealth, float genSpeed, int genDamage, Player player) {
         super(x, y, genHealth, genSpeed, genDamage, null);
@@ -32,7 +39,7 @@ public class GhostEnemy extends Enemy {
     }
 
     /**
-     * Met à jour le fantôme en appliquant son mouvement spectral et son attaque.
+     * Updates the ghost's movement and triggers its attack logic.
      */
     @Override
     public void update() {
@@ -42,10 +49,11 @@ public class GhostEnemy extends Enemy {
     }
 
     /**
-     * Mouvement spectral du fantôme avec oscillation et variation légère de vitesse.
+     * Applies spectral drifting movement with sinusoidal oscillation
+     * while steadily moving toward the player.
      *
-     * @param player joueur ciblé
-     * @param delta temps écoulé
+     * @param player player the ghost is targeting
+     * @param delta  time delta for movement scaling
      */
     @Override
     public void move(Player player, float delta) {
@@ -69,9 +77,9 @@ public class GhostEnemy extends Enemy {
     }
 
     /**
-     * Intéraction du fantôme avec une autre entité.
+     * Ghost interaction logic: attacks the player on collision.
      *
-     * @param e entité rencontrée
+     * @param e entity encountered
      */
     @Override
     public void interact(Entity e) {
@@ -81,9 +89,9 @@ public class GhostEnemy extends Enemy {
     }
 
     /**
-     * Attaque du fantôme déclenchée lorsqu'il est à coté du joueur.
+     * Performs a melee attack when the ghost is close enough to the player.
      *
-     * @param player joueur touché
+     * @param player player to damage
      */
     @Override
     public void attack(Player player) {

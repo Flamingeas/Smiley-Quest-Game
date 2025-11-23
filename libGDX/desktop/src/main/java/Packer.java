@@ -1,5 +1,10 @@
 import com.badlogic.gdx.tools.texturepacker.TexturePacker;
 
+/**
+ * Packs textures from the "intro" folder into a single atlas using libGDX TexturePacker.
+ * Configures settings such as max size, aliasing, edge padding, and duplicate padding.
+ * Outputs the atlas into the specified assets directory.
+ */
 public class Packer {
     public static void main(String[] args) throws Exception {
 

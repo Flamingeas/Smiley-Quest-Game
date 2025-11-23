@@ -1,7 +1,6 @@
 package settings.screen;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -12,6 +11,11 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import settings.GameState;
 
+/**
+ * Screen displayed when the player loses all lives.
+ * Shows a translucent overlay, "GAME OVER" text, and a blinking restart prompt.
+ * Allows the player to tap/click to restart or press 'M' to return to the menu.
+ */
 public class GameOverScreen implements Screen {
 
     private static final Color OVERLAY_COLOR = new Color(0f, 0f, 0f, 0.75f);
