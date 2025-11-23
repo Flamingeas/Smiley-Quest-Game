@@ -75,6 +75,9 @@ public class GameScreen implements Screen, Observer {
 
     private boolean pendingPause = false;
     private boolean initialized = false;
+    private float hitFlashTimer = 0f;
+    private float heartHitFlashTimer = 0f;
+    private float heartPopScale = 1f;
 
     private EnemyRenderer enemyRenderer;
     private Texture heartIcon;
@@ -426,7 +429,9 @@ public class GameScreen implements Screen, Observer {
 
         return true;
     }
-
+    public void triggerHitFlash() {
+        hitFlashTimer = 0.25f;
+    }
     private boolean isTileWalkable(int tileX, int tileY) {
         if (dungeonLayer == null) return false;
 
@@ -525,8 +530,31 @@ public class GameScreen implements Screen, Observer {
         );
 
         batch.setProjectionMatrix(camera.combined);
+        if (heartHitFlashTimer > 0) {
+            heartHitFlashTimer -= delta;
+        }
+
+        if (heartPopScale > 1f) {
+            heartPopScale -= delta * 1.5f;
+            if (heartPopScale < 1f) heartPopScale = 1f;
+        }
+        if (hitFlashTimer > 0) {
+            hitFlashTimer -= delta;
+
+            shapeRenderer.setProjectionMatrix(uiCamera.combined);
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(1, 0, 0, 0.35f * (hitFlashTimer / 0.25f));
+            shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            shapeRenderer.end();
+        }
         batch.begin();
-        batch.draw(playerTexture, playerX, playerY, 32, 32);
+        if (!player.isBlinking()) {
+            batch.draw(playerTexture, playerX, playerY, 32, 32);
+        } else {
+            batch.setColor(1, 1, 1, 0.3f);
+            batch.draw(playerTexture, playerX, playerY, 32, 32);
+            batch.setColor(1, 1, 1, 1f);
+        }
         batch.end();
 
         drawHUD();
@@ -547,10 +575,6 @@ public class GameScreen implements Screen, Observer {
             enemyRenderer.render(batch, enemy);
         }
         batch.end();
-
-        /* if (gameWorld.getPlayer().getLives() <= 0) {
-            screenManager.setState(GameState.GAME_OVER);
-        } */
     }
 
     private void drawBlock(float x, float y, float w, float h) {
@@ -629,8 +653,7 @@ public class GameScreen implements Screen, Observer {
         font.draw(batch, "Score : " + gameWorld.getScoreSystem().getScore(),
                 leftX + 25, statutY + blockHStatut - 130);
 
-        String livesText = "Lives :";
-        font.draw(batch, livesText, leftX + 25, statutY + blockHStatut - 180);
+        font.draw(batch, "Lives :", leftX + 25, statutY + blockHStatut - 180);
 
         int heartSize = 32;
         int heartGap = 10;
@@ -640,8 +663,28 @@ public class GameScreen implements Screen, Observer {
         float heartsY = statutY + blockHStatut - 200;
 
         for (int i = 0; i < lives; i++) {
-            batch.draw(heartFull, heartsX + i * (heartSize + heartGap), heartsY, heartSize, heartSize);
+
+            boolean animate = (i == lives - 1 && heartHitFlashTimer > 0);
+
+            float scale = animate ? heartPopScale : 1f;
+
+            float size = heartSize * scale;
+            float offset = (size - heartSize) / 2f;
+
+            if (animate) {
+                batch.setColor(1f, 0.3f, 0.3f, 1f);
+            } else {
+                batch.setColor(1f, 1f, 1f, 1f);
+            }
+
+            batch.draw(heartFull,
+                    heartsX + i * (heartSize + heartGap) - offset,
+                    heartsY - offset,
+                    size, size);
         }
+
+        batch.setColor(Color.WHITE);
+
         fontTitle.draw(batch, "COMMANDS", leftX + 20, cmdY + blockHCmd - 25);
 
         batch.draw(arrowUp, keysX + 70 - 2, keysY + (keyH - 64) / 2f, 64, 64);
@@ -659,10 +702,9 @@ public class GameScreen implements Screen, Observer {
         float slotY = invY + blockHInv - 135;
 
         fontTitle.draw(batch, "INVENTORY", rightX + 20, invY + blockHInv - 25);
-
         batch.end();
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(0, 0, 0, 0.45f);
         shapeRenderer.rect(slotX, slotY, slotSize, slotSize);
 
@@ -671,50 +713,37 @@ public class GameScreen implements Screen, Observer {
         shapeRenderer.rect(slotX, slotY + slotSize - 3, slotSize, 3);
         shapeRenderer.rect(slotX, slotY, 3, slotSize);
         shapeRenderer.rect(slotX + slotSize - 3, slotY, 3, slotSize);
-
         shapeRenderer.end();
 
-        Weapon current = player.getCurrentWeapon();
         batch.begin();
-
+        Weapon current = player.getCurrentWeapon();
         if (current != null && current.getTexture() != null) {
-            batch.draw(
-                    current.getTexture(),
-                    slotX + 5, slotY + 5,
-                    slotSize - 10, slotSize - 10
-            );
+            batch.draw(current.getTexture(), slotX + 5, slotY + 5, slotSize - 10, slotSize - 10);
         }
-
         batch.end();
 
         if (current != null) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.setColor(1f, 0.3f, 0.3f, 1f);
+            shapeRenderer.setColor(1, 0.3f, 0.3f, 1);
             shapeRenderer.rect(slotX - 2, slotY - 2, slotSize + 4, slotSize + 4);
             shapeRenderer.end();
         }
 
         batch.begin();
-
         fontTitle.draw(batch, "LEGEND", rightX + 20, legY + blockHLeg - 25);
 
         float legY2 = legY + blockHLeg - 90;
-
         font.draw(batch, "Player:", rightX + 20, legY2);
         batch.draw(playerTexture, rightX + 250, legY2 - 35, 60, 60);
 
         legY2 -= 100;
-
         font.draw(batch, "Objective:", rightX + 20, legY2);
-        if (chestIcon != null) {
+        if (chestIcon != null)
             batch.draw(chestIcon, rightX + 250, legY2 - 35, 60, 60);
-        }
-
         batch.end();
 
         float enemiesX = rightX;
         float enemiesW = rightBlockWidth;
-
         float enemiesBlockH = 475;
         float enemiesY = legY - gap - enemiesBlockH;
 
@@ -733,17 +762,13 @@ public class GameScreen implements Screen, Observer {
         fontTitle.draw(batch, "ENEMIES", enemiesX + 20, enemiesY + enemiesBlockH - 25);
 
         float entryHeight = 55;
-
         float col1X = enemiesX + 20;
         float col2X = enemiesX + (enemiesW / 2) + 5;
-
         float rowStartY = enemiesY + enemiesBlockH - 80;
 
         int index = 0;
-
         for (Enemy enemy : gameWorld.getEnemies()) {
             int row = index % 7;
-
             int col = index / 7;
 
             float currentX = (col == 0) ? col1X : col2X;
@@ -807,10 +832,11 @@ public class GameScreen implements Screen, Observer {
                 System.out.println(">>> PLAYER DEAD");
                 screenManager.setState(GameState.GAME_OVER);
                 break;
-
             case "PLAYER_HIT":
+                triggerHitFlash();
+                heartHitFlashTimer = 0.3f;
+                heartPopScale = 1.3f;
                 break;
-
             case "SCORE_UPDATED":
                 break;
 

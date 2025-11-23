@@ -104,7 +104,9 @@ public class Player extends Entity implements Observable {
             obs.onNotify(event);
         }
     }
-
+    public boolean isBlinking() {
+        return invulnTime > 0 && ((int)(invulnTime * 20) % 2 == 0);
+    }
     public void notifyEvent(GameEvent event) {
         notifyObservers(event);
     }
