@@ -8,142 +8,138 @@ import java.lang.reflect.Field;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests unitaires pour PausedScreen - Version simplifiée sans LibGDX.
- * Teste via réflexion et vérifications structurelles.
+ * Unit tests for PausedScreen.
+ * Verifies class existence, implemented interfaces, fields, methods, constructor, and visibility.
  */
-@DisplayName("PausedScreen Tests - Réflexion")
+@DisplayName("PausedScreen Tests - Reflection")
 class PausedScreenTest {
 
-    // ========== TESTS DE STRUCTURE ==========
+    // ================= STRUCTURE TESTS =================
 
     @Test
-    @DisplayName("La classe PausedScreen existe")
+    @DisplayName("Class PausedScreen exists")
     void testClassPausedScreenExists() {
         assertNotNull(PausedScreen.class);
     }
 
     @Test
-    @DisplayName("PausedScreen implémente Screen")
+    @DisplayName("PausedScreen implements Screen")
     void testPausedScreenImplementsScreen() {
         assertTrue(com.badlogic.gdx.Screen.class.isAssignableFrom(PausedScreen.class));
     }
 
-    // ========== TESTS DES CHAMPS ==========
+    // ================= FIELD TESTS =================
 
     @Test
-    @DisplayName("Le champ 'screenManager' existe")
+    @DisplayName("Field 'screenManager' exists")
     void testFieldScreenManagerExists() throws NoSuchFieldException {
         Field field = PausedScreen.class.getDeclaredField("screenManager");
         assertNotNull(field);
     }
 
     @Test
-    @DisplayName("Le champ 'batch' existe")
+    @DisplayName("Field 'batch' exists")
     void testFieldBatchExists() throws NoSuchFieldException {
         Field field = PausedScreen.class.getDeclaredField("batch");
         assertNotNull(field);
     }
 
     @Test
-    @DisplayName("Le champ 'fontTitle' existe")
+    @DisplayName("Field 'fontTitle' exists")
     void testFieldFontTitleExists() throws NoSuchFieldException {
         Field field = PausedScreen.class.getDeclaredField("fontTitle");
         assertNotNull(field);
     }
 
     @Test
-    @DisplayName("Le champ 'fontText' existe")
+    @DisplayName("Field 'fontText' exists")
     void testFieldFontTextExists() throws NoSuchFieldException {
         Field field = PausedScreen.class.getDeclaredField("fontText");
         assertNotNull(field);
     }
 
-    // ========== TESTS DES MÉTHODES ==========
+    // ================= METHOD TESTS =================
 
     @Test
-    @DisplayName("La méthode 'show()' existe")
+    @DisplayName("Method 'show()' exists")
     void testMethodShowExists() throws NoSuchMethodException {
         assertNotNull(PausedScreen.class.getDeclaredMethod("show"));
     }
 
     @Test
-    @DisplayName("La méthode 'render(float)' existe")
+    @DisplayName("Method 'render(float)' exists")
     void testMethodRenderExists() throws NoSuchMethodException {
         assertNotNull(PausedScreen.class.getDeclaredMethod("render", float.class));
     }
 
     @Test
-    @DisplayName("La méthode 'resize(int, int)' existe")
+    @DisplayName("Method 'resize(int, int)' exists")
     void testMethodResizeExists() throws NoSuchMethodException {
         assertNotNull(PausedScreen.class.getDeclaredMethod("resize", int.class, int.class));
     }
 
     @Test
-    @DisplayName("La méthode 'pause()' existe")
+    @DisplayName("Method 'pause()' exists")
     void testMethodPauseExists() throws NoSuchMethodException {
         assertNotNull(PausedScreen.class.getDeclaredMethod("pause"));
     }
 
     @Test
-    @DisplayName("La méthode 'resume()' existe")
+    @DisplayName("Method 'resume()' exists")
     void testMethodResumeExists() throws NoSuchMethodException {
         assertNotNull(PausedScreen.class.getDeclaredMethod("resume"));
     }
 
     @Test
-    @DisplayName("La méthode 'hide()' existe")
+    @DisplayName("Method 'hide()' exists")
     void testMethodHideExists() throws NoSuchMethodException {
         assertNotNull(PausedScreen.class.getDeclaredMethod("hide"));
     }
 
     @Test
-    @DisplayName("La méthode 'dispose()' existe")
+    @DisplayName("Method 'dispose()' exists")
     void testMethodDisposeExists() throws NoSuchMethodException {
         assertNotNull(PausedScreen.class.getDeclaredMethod("dispose"));
     }
 
-    // ========== TESTS DE LA MÉTHODE PRIVÉE ==========
-
     @Test
-    @DisplayName("La méthode privée 'handleInput()' existe")
+    @DisplayName("Private method 'handleInput()' exists")
     void testMethodHandleInputExists() throws NoSuchMethodException {
         assertNotNull(PausedScreen.class.getDeclaredMethod("handleInput"));
     }
 
-    // ========== TESTS DU CONSTRUCTEUR ==========
+    // ================= CONSTRUCTOR TESTS =================
 
     @Test
-    @DisplayName("Le constructeur PausedScreen(ScreenManager) existe")
+    @DisplayName("Constructor PausedScreen(ScreenManager) exists")
     void testConstructorExists() throws NoSuchMethodException {
         assertNotNull(PausedScreen.class.getDeclaredConstructor(ScreenManager.class));
     }
 
     @Test
-    @DisplayName("Le constructeur est public")
+    @DisplayName("Constructor is public")
     void testConstructorIsPublic() throws NoSuchMethodException {
         var constructor = PausedScreen.class.getDeclaredConstructor(ScreenManager.class);
         assertTrue(java.lang.reflect.Modifier.isPublic(constructor.getModifiers()));
     }
 
-    // ========== TESTS DES MODIFIEURS DE CLASSE ==========
+    // ================= VISIBILITY TESTS =================
 
     @Test
-    @DisplayName("La classe PausedScreen est publique")
+    @DisplayName("Class PausedScreen is public")
     void testPausedScreenIsPublic() {
         assertTrue(java.lang.reflect.Modifier.isPublic(PausedScreen.class.getModifiers()));
     }
 
     @Test
-    @DisplayName("Le champ 'screenManager' est final")
+    @DisplayName("Field 'screenManager' is final")
     void testScreenManagerFieldIsFinal() throws NoSuchFieldException {
         Field field = PausedScreen.class.getDeclaredField("screenManager");
         assertTrue(java.lang.reflect.Modifier.isFinal(field.getModifiers()));
     }
 
-    // ========== TESTS DE LA STRUCTURE GLOBALE ==========
-
     @Test
-    @DisplayName("PausedScreen a des méthodes de cycle de vie (Screen interface)")
+    @DisplayName("PausedScreen implements lifecycle methods")
     void testHasLifecycleMethods() throws NoSuchMethodException {
         PausedScreen.class.getDeclaredMethod("show");
         PausedScreen.class.getDeclaredMethod("render", float.class);
@@ -155,44 +151,42 @@ class PausedScreenTest {
     }
 
     @Test
-    @DisplayName("Toutes les méthodes publiques existent")
+    @DisplayName("All public methods exist")
     void testAllPublicMethodsExist() {
         var publicMethods = PausedScreen.class.getDeclaredMethods();
-        assertTrue(publicMethods.length >= 7, "PausedScreen devrait avoir au moins 7 méthodes publiques");
+        assertTrue(publicMethods.length >= 7);
     }
 
     @Test
-    @DisplayName("Tous les champs existent")
+    @DisplayName("All fields exist")
     void testAllFieldsExist() {
         var fields = PausedScreen.class.getDeclaredFields();
-        assertTrue(fields.length >= 4, "PausedScreen devrait avoir au moins 4 champs");
+        assertTrue(fields.length >= 4);
     }
 
-    // ========== TESTS DE VISIBILITÉ DES MÉTHODES ==========
-
     @Test
-    @DisplayName("La méthode 'show()' est publique")
+    @DisplayName("Method 'show()' is public")
     void testShowIsPublic() throws NoSuchMethodException {
         var method = PausedScreen.class.getDeclaredMethod("show");
         assertTrue(java.lang.reflect.Modifier.isPublic(method.getModifiers()));
     }
 
     @Test
-    @DisplayName("La méthode 'render(float)' est publique")
+    @DisplayName("Method 'render(float)' is public")
     void testRenderIsPublic() throws NoSuchMethodException {
         var method = PausedScreen.class.getDeclaredMethod("render", float.class);
         assertTrue(java.lang.reflect.Modifier.isPublic(method.getModifiers()));
     }
 
     @Test
-    @DisplayName("La méthode 'dispose()' est publique")
+    @DisplayName("Method 'dispose()' is public")
     void testDisposeIsPublic() throws NoSuchMethodException {
         var method = PausedScreen.class.getDeclaredMethod("dispose");
         assertTrue(java.lang.reflect.Modifier.isPublic(method.getModifiers()));
     }
 
     @Test
-    @DisplayName("La méthode 'handleInput()' est privée")
+    @DisplayName("Private method 'handleInput()' is private")
     void testHandleInputIsPrivate() throws NoSuchMethodException {
         var method = PausedScreen.class.getDeclaredMethod("handleInput");
         assertTrue(java.lang.reflect.Modifier.isPrivate(method.getModifiers()));

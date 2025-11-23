@@ -6,7 +6,11 @@ import system.TimeBasedScoreRule;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@DisplayName("Tests TimeBasedScoreRule - Coverage Maximum")
+/**
+ * Unit tests for TimeBasedScoreRule.
+ * Verifies score is awarded correctly based on time intervals, including positive, negative, and zero points.
+ */
+@DisplayName("TimeBasedScoreRule Tests - Maximum Coverage")
 class TimeBasedScoreRuleTest {
 
     private ScoreSystem scoreSystem;
@@ -20,15 +24,15 @@ class TimeBasedScoreRuleTest {
     }
 
     @Test
-    @DisplayName("Création de la règle")
+    @DisplayName("Rule creation")
     void testCreation() {
         rule = new TimeBasedScoreRule(5f, 10, scoreSystem);
         assertNotNull(rule);
     }
 
     @Test
-    @DisplayName("apply ne donne pas de points si temps insuffisant")
-    void testApplyPasDePoints() {
+    @DisplayName("apply does not add points if time is insufficient")
+    void testApplyNoPoints() {
         rule = new TimeBasedScoreRule(10f, 50, scoreSystem);
         when(timer.getElapsed()).thenReturn(5f);
 
@@ -38,8 +42,8 @@ class TimeBasedScoreRuleTest {
     }
 
     @Test
-    @DisplayName("apply donne des points après l'intervalle")
-    void testApplyAvecIntervalle() {
+    @DisplayName("apply awards points after interval")
+    void testApplyWithInterval() {
         rule = new TimeBasedScoreRule(5f, 100, scoreSystem);
         when(timer.getElapsed()).thenReturn(5f);
 
@@ -49,8 +53,8 @@ class TimeBasedScoreRuleTest {
     }
 
     @Test
-    @DisplayName("apply plusieurs fois avec temps qui avance")
-    void testApplyPlusieurs() {
+    @DisplayName("apply multiple times with advancing time")
+    void testApplyMultiple() {
         rule = new TimeBasedScoreRule(2f, 10, scoreSystem);
 
         when(timer.getElapsed()).thenReturn(1f);
@@ -67,8 +71,8 @@ class TimeBasedScoreRuleTest {
     }
 
     @Test
-    @DisplayName("Intervalle de 1 seconde")
-    void testIntervalle1Seconde() {
+    @DisplayName("1-second interval")
+    void testOneSecondInterval() {
         rule = new TimeBasedScoreRule(1f, 5, scoreSystem);
 
         when(timer.getElapsed()).thenReturn(1f);
@@ -81,8 +85,8 @@ class TimeBasedScoreRuleTest {
     }
 
     @Test
-    @DisplayName("Points négatifs fonctionnent")
-    void testPointsNegatifs() {
+    @DisplayName("Negative points work")
+    void testNegativePoints() {
         rule = new TimeBasedScoreRule(3f, -50, scoreSystem);
         scoreSystem.addScore(200);
 
@@ -93,7 +97,7 @@ class TimeBasedScoreRuleTest {
     }
 
     @Test
-    @DisplayName("Zéro points fonctionne")
+    @DisplayName("Zero points work")
     void testZeroPoints() {
         rule = new TimeBasedScoreRule(5f, 0, scoreSystem);
 

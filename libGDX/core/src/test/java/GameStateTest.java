@@ -1,18 +1,14 @@
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import settings.GameState;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Tests unitaires pour l'enum GameState
- * Vérifie que tous les états du jeu sont bien définis
- */
-@DisplayName("Tests de GameState")
+@DisplayName("GameState Enum Tests")
 class GameStateTest {
 
     @Test
-    @DisplayName("Tous les états devraient exister")
+    @DisplayName("All game states should exist")
     void testAllStatesExist() {
         assertNotNull(GameState.SPLASH);
         assertNotNull(GameState.MENU);
