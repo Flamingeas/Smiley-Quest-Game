@@ -120,20 +120,32 @@ public class WeaponSpawner {
 
         return result;
     }
-
     /** Set weapon damage based on name */
     private int getWeaponDamage(String name) {
-        return switch (name.toLowerCase()) {
-            case "sword", "magicsword" -> 12;
-            case "divinesword" -> 20;
-            case "legendaryhach", "massivhache" -> 15;
-            case "massivmass" -> 10;
-            case "poison" -> 8;
-            case "thor" -> 15;
-            default -> 6;
-        };
+        switch (name.toLowerCase()) {
+            case "sword", "magicsword" -> {
+                return 5;
+            }
+            case "divinesword" -> {
+                return 8;
+            }
+            case "legendaryhach", "massivhache" -> {
+                return 6;
+            }
+            case "massivmass", "hammer", "marteau" -> {
+                return 7;
+            }
+            case "poison" -> {
+                return 3;
+            }
+            case "thor" -> {
+                return 8;
+            }
+            default -> {
+                return 4;
+            }
+        }
     }
-
     private static class WeaponTile {
         int tileId;
         String name;
