@@ -10,9 +10,7 @@ import java.util.Random;
  * while applying noise to its trajectory to make its movement less predictable.
  */
 public class SkeletonStrongEnemy extends Enemy {
-
     private final Random rng = new Random();
-
     /**
      * Creates a strong skeleton enemy using generic stat values.
      *
@@ -32,34 +30,30 @@ public class SkeletonStrongEnemy extends Enemy {
         this.attackRange = 32f;
         scaleStats(1);
     }
-
     /**
      * Updates the enemy each frame:
-     * <ul>
-     *     <li>moves toward the player with added random deviation</li>
-     *     <li>attempts to attack if close enough</li>
-     * </ul>
+     * - handles knockback & attack cooldown (via super.update())
+     * - moves toward the player
+     * - triggers an attack if close enough
      */
     @Override
     public void update() {
         if (!isActive) return;
 
+        super.update();
+
         float delta = com.badlogic.gdx.Gdx.graphics.getDeltaTime();
 
         move(targetPlayer, delta);
+
         attemptAttack(targetPlayer);
     }
-
     /**
      * Moves toward the player with a small randomized offset in direction.
      * If movement is blocked, the skeleton attempts a short random displacement.
-     *
-     * @param player targeted player
-     * @param delta  elapsed time
      */
     @Override
     public void move(Player player, float delta) {
-
         if (player == null || gameScreen == null) return;
 
         float dx = player.getX() - x;
@@ -85,12 +79,10 @@ public class SkeletonStrongEnemy extends Enemy {
             x = newX;
             moved = true;
         }
-
         if (gameScreen.canMoveGeneric(x, newY)) {
             y = newY;
             moved = true;
         }
-
         if (!moved) {
             float angle = rng.nextFloat() * (float) Math.PI * 2;
             float ox = (float) Math.cos(angle) * moveSpeed * 0.8f;
@@ -100,20 +92,9 @@ public class SkeletonStrongEnemy extends Enemy {
             if (gameScreen.canMoveGeneric(x, y + oy)) y += oy;
         }
     }
-
     /**
-     * Handles entity interaction. If the entity is a player,
-     * the skeleton attempts to attack.
-     *
-     * @param e encountered entity
+     * If close enough, call super.attack(), which checks cooldown & distance.
      */
-    @Override
-    public void interact(Entity e) {
-        if (e instanceof Player player) {
-            attemptAttack(player);
-        }
-    }
-
     private void attemptAttack(Player player) {
         if (player == null) return;
 
@@ -126,12 +107,12 @@ public class SkeletonStrongEnemy extends Enemy {
             super.attack(player);
         }
     }
-
-    /**
-     * Performs a melee attack if the player is within range.
-     *
-     * @param player player hit by the attack
-     */
+    @Override
+    public void interact(Entity e) {
+        if (e instanceof Player player) {
+            attemptAttack(player);
+        }
+    }
     @Override
     public void attack(Player player) {
         attemptAttack(player);

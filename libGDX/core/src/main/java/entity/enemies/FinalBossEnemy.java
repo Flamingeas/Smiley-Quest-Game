@@ -22,17 +22,10 @@ public class FinalBossEnemy extends Enemy {
     private final float rangedRange = 260f;
     private final float keepDistance = 130f;
 
-    /**
-     * Creates a new instance of the Final Boss enemy using tile coordinates.
-     *
-     * @param tileX     X tile coordinate
-     * @param tileY     Y tile coordinate
-     * @param genHealth base health value
-     * @param genSpeed  base movement speed
-     * @param genDamage base attack damage
-     * @param player    reference to the player
-     */
-    public FinalBossEnemy(float tileX, float tileY, int genHealth, float genSpeed, int genDamage, Player player) {
+    public FinalBossEnemy(float tileX, float tileY,
+                          int genHealth, float genSpeed, int genDamage,
+                          Player player) {
+
         super(tileX, tileY, genHealth, genSpeed, genDamage, player);
 
         this.texture = new Texture("enemies/FinalBossEnemy.png");
@@ -43,14 +36,21 @@ public class FinalBossEnemy extends Enemy {
     }
 
     /**
-     * Updates the boss logic including movement, melee attacks,
-     * and ranged attacks, each with their own cooldown.
+     * Boss update:
+     * - knockback handled by Enemy parent
+     * - movement
+     * - melee attack cooldown
+     * - ranged attack cooldown
      */
     @Override
     public void update() {
+
         if (!isActive) return;
 
         float delta = Gdx.graphics.getDeltaTime();
+
+        super.update();
+
         move(targetPlayer, delta);
 
         if (meleeCooldown <= 0f) {
@@ -69,89 +69,85 @@ public class FinalBossEnemy extends Enemy {
     }
 
     /**
-     * Moves the boss toward the player until reaching a certain distance,
-     * then applies an oscillating movement pattern for unpredictability.
-     *
-     * @param player reference player used for movement direction
-     * @param delta  frame delta time
+     * Movement logic:
+     * - Approach until keepDistance
+     * - Then oscillate around the player to appear more dynamic
      */
     @Override
     public void move(Player player, float delta) {
-        if (gameScreen == null || player == null) return;
+
+        if (gameScreen == null || player == null || !isActive) return;
 
         float dx = player.getX() - x;
         float dy = player.getY() - y;
 
-        float dist = (float) Math.sqrt(dx*dx + dy*dy);
+        float dist = (float) Math.sqrt(dx * dx + dy * dy);
         if (dist == 0) return;
 
-        dx /= dist;
-        dy /= dist;
+        float nx = dx / dist;
+        float ny = dy / dist;
 
         float moveSpeed = speed * 32f * delta;
+
         float newX = x;
         float newY = y;
 
         if (dist > keepDistance) {
-            newX += dx * moveSpeed;
-            newY += dy * moveSpeed;
+
+            newX += nx * moveSpeed;
+            newY += ny * moveSpeed;
 
         } else {
             float t = Gdx.graphics.getFrameId() * 0.02f;
+
             newX += (float) Math.sin(t) * moveSpeed * 0.7f;
             newY += (float) Math.cos(t) * moveSpeed * 0.7f;
         }
-
         if (gameScreen.canMoveGeneric(newX, y)) x = newX;
         if (gameScreen.canMoveGeneric(x, newY)) y = newY;
     }
 
-    /**
-     * Interacts with another entity. If the entity is a player,
-     * performs a melee attack.
-     *
-     * @param e entity to interact with
-     */
     @Override
     public void interact(Entity e) {
         if (e instanceof Player player) {
             tryMeleeAttack(player);
         }
     }
+
     /**
-     * Performs a melee attack when the player is very close.
-     *
-     * @param player the player being targeted
+     * Melee attack if the player is very close.
      */
     private void tryMeleeAttack(Player player) {
+
         if (player == null) return;
 
         float dx = player.getX() - x;
         float dy = player.getY() - y;
-
-        float dist = (float) Math.sqrt(dx*dx + dy*dy);
+        float dist = (float) Math.sqrt(dx * dx + dy * dy);
 
         if (dist < meleeRange) {
             super.attack(player);
         }
     }
+
     /**
-     * Performs a ranged attack when the player is within a larger radius.
-     *
-     * @param player the player being targeted
+     * Ranged attack: half damage, longer distance.
      */
     private void tryRangedAttack(Player player) {
+
         if (player == null) return;
 
         float dx = player.getX() - x;
         float dy = player.getY() - y;
-
-        float dist = (float) Math.sqrt(dx*dx + dy*dy);
+        float dist = (float) Math.sqrt(dx * dx + dy * dy);
 
         if (dist < rangedRange) {
+
             int realDamage = attackDamage;
-            attackDamage = attackDamage / 2;
+            attackDamage = realDamage / 2;
+
             super.attack(player);
+
             attackDamage = realDamage;
         }
     }
