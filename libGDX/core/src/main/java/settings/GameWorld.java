@@ -72,6 +72,7 @@ public class GameWorld implements Observer {
                 0.7f,
                 this.selectedSmileyIndex
         );
+        player.addObserver(this);
 
         this.enemies = new ArrayList<>();
     }
@@ -254,7 +255,6 @@ public class GameWorld implements Observer {
             enemies.add(d);
         }
     }
-
     /**
      * Updates the game world state, player, and enemies.
      * @param delta time elapsed since last update
@@ -273,27 +273,6 @@ public class GameWorld implements Observer {
             enemy.update();
         }
     }
-
-    /**
-     * Resets the game world completely to the first level and initial player state.
-     */
-    public void fullReset() {
-        currentLevelIndex = 0;
-        enemies.clear();
-        enemiesSpawned = false;
-
-        Level lvl = levels[0];
-        Coord spawn = lvl.getPlayerSpawn();
-        player.setX(spawn.getX() * 32f);
-        player.setY(spawn.getY() * 32f);
-
-        player.resetFull();
-        timer.reset();
-        scoreSystem.reset();
-
-        state = GameState.PLAYING;
-    }
-
     /**
      * Advances to the next level if available.
      * @return true if next level exists, false otherwise
@@ -312,24 +291,13 @@ public class GameWorld implements Observer {
         }
         return false;
     }
-
-    /**
-     * Restarts the current level, resetting player, timer, and score.
-     */
-    public void restart() {
-        System.out.println("Redémarrage du niveau…");
-        player.resetLevel();
-        timer.reset();
-        scoreSystem.reset();
-        state = GameState.PLAYING;
-    }
-
     /**
      * Publishes a game event for debugging or logging purposes.
      * @param e the GameEvent instance
      */
     public void publish(GameEvent e) {
         System.out.println("Événement : " + e.getType());
+        scoreSystem.onEvent(e);
     }
 
     public void setState(GameState state) { this.state = state; }
@@ -350,32 +318,41 @@ public class GameWorld implements Observer {
     public int getCurrentLevelNumber() { return currentLevelIndex + 1; }
     public int getTotalLevels() { return levels.length; }
     public List<Enemy> getEnemies() { return enemies; }
-
+    public void setScreenManager(ScreenManager sm) {
+        this.screenManager = sm;
+    }
     /**
      * Handles notifications from observed game events and applies corresponding logic.
      * @param event the GameEvent instance
      */
     @Override
     public void onNotify(GameEvent event) {
+
         switch (event.getType()) {
-            case "PLAYER_DEAD" -> {
-                if (screenManager != null) screenManager.setState(GameState.GAME_OVER);
+
+            case "ITEM_COLLECTED" -> {
+                int value = (int) event.getData();
+                scoreSystem.addScore(value);
             }
-            case "CHEST_FOUND" -> {
-                scoreSystem.addScore(100);
-                if (nextLevel()) {
-                    enemiesSpawned = false;
-                    gameScreen.loadLevel(getCurrentLevel());
-                } else {
-                    if (screenManager != null) screenManager.setState(GameState.WINNER);
-                }
-            }
+
             case "PLAYER_HIT" -> {
                 scoreSystem.addScore(-30);
             }
-            case "SCORE_UPDATED" -> {}
-            case "LIFE_GAINED" -> {}
-            case "WEAPON_EQUIPPED" -> {}
+
+            case "CHEST_FOUND" -> {
+                scoreSystem.addScore(100);
+
+                if (nextLevel()) {
+                    scoreSystem.addScore(200);
+                    enemiesSpawned = false;
+                    gameScreen.loadLevel(getCurrentLevel());
+                } else {
+                    screenManager.setState(GameState.WINNER);
+                }
+            }
+            case "PLAYER_DEAD" -> {
+                screenManager.setState(GameState.GAME_OVER);
+            }
         }
     }
 }

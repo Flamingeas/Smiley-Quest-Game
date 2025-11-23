@@ -495,7 +495,7 @@ public class GameScreen implements Screen, Observer {
             if (px == (int) pos.getX() && py == (int) pos.getY()) {
 
                 weapon.collectItem(player);
-
+                player.collectItem(weapon);
                 weaponsLayer.setCell(px, py, null);
             }
         }
@@ -534,10 +534,7 @@ public class GameScreen implements Screen, Observer {
         Level lvl = gameWorld.getCurrentLevel();
 
         if (lvl.isCleared(playerX - mapOffsetX, playerY - mapOffsetY, tileSize)) {
-            if (gameWorld.nextLevel())
-                loadLevel(gameWorld.getCurrentLevel());
-            else
-                screenManager.setState(GameState.WINNER);
+            player.notifyEvent(new GameEvent("CHEST_FOUND", null));
         }
 
         if (pendingPause) {

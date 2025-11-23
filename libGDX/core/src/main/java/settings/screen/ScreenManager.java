@@ -78,12 +78,16 @@ public class ScreenManager {
                     setScreen(new CharacterSelectScreen(this));
 
             case PLAYING -> {
+
                 gameWorld = new GameWorld(selectedSmileyIndex);
                 gameScreen = new GameScreen(this, gameWorld);
+
                 gameWorld.setGameScreen(gameScreen);
+                gameWorld.setScreenManager(this);
+                gameWorld.getPlayer().resetFull();
+
                 setScreen(gameScreen);
             }
-
             case PAUSED -> setScreen(pausedScreen);
 
             case SETTINGS -> setScreen(settingsScreen);

@@ -33,8 +33,13 @@ public abstract class Item extends Entity {
      *
      * @param p player collecting the item
      */
-    public abstract void collectItem(Player p);
-
+    public void collectItem(Player p) {
+        System.out.println("TEST DEBUG - ITEM.COLLECTITEM APPELÉ !");
+        p.addWeaponToInventory((Weapon) this);
+        p.setCurrentWeapon((Weapon) this);
+        p.notifyEvent(new GameEvent("ITEM_COLLECTED", this.value));
+        this.isActive = false;
+    }
     /**
      * Update method called each frame (no default behavior for items).
      */
@@ -69,9 +74,8 @@ public abstract class Item extends Entity {
      * @return GameEvent object for item collection
      */
     public GameEvent createEvent() {
-        return new GameEvent("ITEM_COLLECTED", this);
+        return new GameEvent("ITEM_COLLECTED", value);
     }
-
     /**
      * Returns the value of the item.
      *
