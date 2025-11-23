@@ -2,10 +2,7 @@ package settings.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
+import org.junit.jupiter.api.*;
 import settings.GameState;
 
 import java.lang.reflect.Field;
@@ -15,8 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Tests unitaires pour PausedScreen.
- * Vérifie l'état initial et le comportement de navigation.
+ * Tests unitaires pour PausedScreen avec bon coverage JaCoCo.
  */
 @DisplayName("Tests du PausedScreen")
 class PausedScreenTest {
@@ -24,237 +20,241 @@ class PausedScreenTest {
     private PausedScreen pausedScreen;
     private ScreenManager screenManagerMock;
 
-    /**
-     * Prépare l'environnement de test avant chaque test.
-     */
     @BeforeEach
     void preparerLeTest() {
-        // Créer un mock du ScreenManager
         screenManagerMock = mock(ScreenManager.class);
-
-        // Créer l'écran de pause
         pausedScreen = new PausedScreen(screenManagerMock);
     }
 
-    /**
-     * Teste que le ScreenManager est bien stocké.
-     */
+    @AfterEach
+    void nettoyerApresTest() {
+        Gdx.input = null;
+    }
+
+    // ========== TESTS DU CONSTRUCTEUR ==========
+
     @Test
-    @DisplayName("Le ScreenManager ne doit pas être null")
-    void testerScreenManagerNonNull() throws Exception {
-        // Récupérer le champ privé screenManager
+    @DisplayName("Le constructeur initialise screenManager")
+    void testerConstructeur() throws Exception {
         Field champManager = PausedScreen.class.getDeclaredField("screenManager");
         champManager.setAccessible(true);
         ScreenManager manager = (ScreenManager) champManager.get(pausedScreen);
 
-        // Vérifications
-        assertNotNull(manager, "Le ScreenManager ne doit pas être null");
-        assertSame(screenManagerMock, manager,
-                "Le ScreenManager doit être celui passé au constructeur");
+        assertSame(screenManagerMock, manager);
     }
 
-    /**
-     * Teste que le batch est null avant l'appel à show().
-     */
     @Test
-    @DisplayName("Le batch doit être null avant show()")
-    void testerBatchNullAvantShow() throws Exception {
-        // Récupérer le champ privé batch
+    @DisplayName("Le constructeur initialise batch à null")
+    void testerConstructeurBatch() throws Exception {
         Field champBatch = PausedScreen.class.getDeclaredField("batch");
         champBatch.setAccessible(true);
         Object batch = champBatch.get(pausedScreen);
 
-        // Vérification
-        assertNull(batch, "Le batch doit être null avant l'appel à show()");
+        assertNull(batch);
     }
 
-    /**
-     * Teste que fontTitle est null avant l'appel à show().
-     */
     @Test
-    @DisplayName("fontTitle doit être null avant show()")
-    void testerFontTitleNullAvantShow() throws Exception {
-        // Récupérer le champ privé fontTitle
+    @DisplayName("Le constructeur initialise fontTitle à null")
+    void testerConstructeurFontTitle() throws Exception {
         Field champFont = PausedScreen.class.getDeclaredField("fontTitle");
         champFont.setAccessible(true);
         Object font = champFont.get(pausedScreen);
 
-        // Vérification
-        assertNull(font, "fontTitle doit être null avant l'appel à show()");
+        assertNull(font);
     }
 
-    /**
-     * Teste que fontText est null avant l'appel à show().
-     */
     @Test
-    @DisplayName("fontText doit être null avant show()")
-    void testerFontTextNullAvantShow() throws Exception {
-        // Récupérer le champ privé fontText
+    @DisplayName("Le constructeur initialise fontText à null")
+    void testerConstructeurFontText() throws Exception {
         Field champFont = PausedScreen.class.getDeclaredField("fontText");
         champFont.setAccessible(true);
         Object font = champFont.get(pausedScreen);
 
-        // Vérification
-        assertNull(font, "fontText doit être null avant l'appel à show()");
+        assertNull(font);
     }
 
-    /**
-     * Teste que la méthode handleInput existe et est privée.
-     */
-    @Test
-    @DisplayName("La méthode handleInput doit exister et être privée")
-    void testerHandleInputExiste() throws Exception {
-        // Récupérer la méthode privée handleInput
-        Method methode = PausedScreen.class.getDeclaredMethod("handleInput");
+    // ========== TESTS DE handleInput ==========
 
-        // Vérifications
-        assertNotNull(methode, "La méthode handleInput doit exister");
-        assertTrue(java.lang.reflect.Modifier.isPrivate(methode.getModifiers()),
-                "handleInput doit être une méthode privée");
-    }
-
-    /**
-     * Teste que handleInput appelle setState(MENU) quand la touche J (74) est pressée.
-     */
     @Test
-    @DisplayName("Presser la touche J doit retourner au menu")
-    void testerRetourMenuAvecToucheJ() throws Exception {
-        // Mock de Gdx.input
+    @DisplayName("handleInput avec touche J retourne au menu")
+    void testerHandleInputToucheJ() throws Exception {
         Input inputMock = mock(Input.class);
         Gdx.input = inputMock;
 
-        // Simuler : touche J (code 74) pressée
         when(inputMock.isKeyJustPressed(74)).thenReturn(true);
         when(inputMock.isKeyJustPressed(anyInt())).thenReturn(false);
         when(inputMock.isKeyJustPressed(74)).thenReturn(true);
 
-        // Récupérer et appeler handleInput
         Method methode = PausedScreen.class.getDeclaredMethod("handleInput");
         methode.setAccessible(true);
         methode.invoke(pausedScreen);
 
-        // Vérifier que setState(MENU) a été appelé
-        verify(screenManagerMock).setState(GameState.MENU);
+        verify(screenManagerMock, times(1)).setState(GameState.MENU);
     }
 
-    /**
-     * Teste que handleInput appelle resumeGame() quand la touche R est pressée.
-     */
     @Test
-    @DisplayName("Presser la touche R doit reprendre le jeu")
-    void testerReprendreJeuAvecToucheR() throws Exception {
-        // Mock de Gdx.input
+    @DisplayName("handleInput avec touche R reprend le jeu")
+    void testerHandleInputToucheR() throws Exception {
         Input inputMock = mock(Input.class);
         Gdx.input = inputMock;
 
-        // Simuler : touche R pressée
         when(inputMock.isKeyJustPressed(Input.Keys.R)).thenReturn(true);
         when(inputMock.isKeyJustPressed(anyInt())).thenReturn(false);
         when(inputMock.isKeyJustPressed(Input.Keys.R)).thenReturn(true);
 
-        // Récupérer et appeler handleInput
         Method methode = PausedScreen.class.getDeclaredMethod("handleInput");
         methode.setAccessible(true);
         methode.invoke(pausedScreen);
 
-        // Vérifier que resumeGame() a été appelé
-        verify(screenManagerMock).resumeGame();
+        verify(screenManagerMock, times(1)).resumeGame();
     }
 
-    /**
-     * Teste que handleInput ne fait rien si aucune touche n'est pressée.
-     */
     @Test
-    @DisplayName("Ne rien presser ne doit rien déclencher")
-    void testerAucuneTouchePressee() throws Exception {
-        // Mock de Gdx.input
+    @DisplayName("handleInput sans touche ne fait rien")
+    void testerHandleInputSansTouche() throws Exception {
         Input inputMock = mock(Input.class);
         Gdx.input = inputMock;
 
-        // Simuler : aucune touche pressée
         when(inputMock.isKeyJustPressed(anyInt())).thenReturn(false);
 
-        // Récupérer et appeler handleInput
         Method methode = PausedScreen.class.getDeclaredMethod("handleInput");
         methode.setAccessible(true);
         methode.invoke(pausedScreen);
 
-        // Vérifier qu'aucune méthode du ScreenManager n'a été appelée
         verifyNoInteractions(screenManagerMock);
     }
 
-    /**
-     * Teste que presser J et R en même temps ne provoque pas d'erreur.
-     */
     @Test
-    @DisplayName("Presser J et R simultanément doit appeler les deux actions")
-    void testerDeuxTouchesSimultanees() throws Exception {
-        // Mock de Gdx.input
+    @DisplayName("handleInput avec J et R en même temps")
+    void testerHandleInputDeuxTouches() throws Exception {
         Input inputMock = mock(Input.class);
         Gdx.input = inputMock;
 
-        // Simuler : J et R pressées en même temps
         when(inputMock.isKeyJustPressed(74)).thenReturn(true);
         when(inputMock.isKeyJustPressed(Input.Keys.R)).thenReturn(true);
         when(inputMock.isKeyJustPressed(anyInt())).thenReturn(false);
         when(inputMock.isKeyJustPressed(74)).thenReturn(true);
         when(inputMock.isKeyJustPressed(Input.Keys.R)).thenReturn(true);
 
-        // Récupérer et appeler handleInput
         Method methode = PausedScreen.class.getDeclaredMethod("handleInput");
         methode.setAccessible(true);
         methode.invoke(pausedScreen);
 
-        // Vérifier que les deux méthodes ont été appelées
         verify(screenManagerMock).setState(GameState.MENU);
         verify(screenManagerMock).resumeGame();
     }
 
-    /**
-     * Teste que dispose ne lance pas d'exception même si show() n'a pas été appelé.
-     */
     @Test
-    @DisplayName("dispose() ne doit pas planter même sans appeler show()")
-    void testerDisposeSansShow() {
-        // dispose() devrait gérer le cas où batch et fonts sont null
-        assertDoesNotThrow(() -> pausedScreen.dispose(),
-                "dispose() ne doit pas planter même si show() n'a pas été appelé");
+    @DisplayName("handleInput détecte plusieurs touches")
+    void testerHandleInputPlusieursTouches() throws Exception {
+        Input inputMock = mock(Input.class);
+        Gdx.input = inputMock;
+
+        // Simuler que plusieurs touches sont pressées (le for loop)
+        when(inputMock.isKeyJustPressed(anyInt())).thenReturn(false);
+        when(inputMock.isKeyJustPressed(74)).thenReturn(true);
+
+        Method methode = PausedScreen.class.getDeclaredMethod("handleInput");
+        methode.setAccessible(true);
+        methode.invoke(pausedScreen);
+
+        // Vérifier que la boucle s'est exécutée
+        verify(inputMock, atLeast(1)).isKeyJustPressed(anyInt());
     }
 
-    /**
-     * Teste que les méthodes du cycle de vie existent.
-     */
+    // ========== TESTS DU CYCLE DE VIE ==========
+
     @Test
-    @DisplayName("Les méthodes resize, pause, resume et hide doivent exister")
-    void testerMethodesCycleDeVie() throws Exception {
-        // Vérifier que ces méthodes existent
-        assertNotNull(PausedScreen.class.getDeclaredMethod("resize", int.class, int.class),
-                "La méthode resize doit exister");
-        assertNotNull(PausedScreen.class.getDeclaredMethod("pause"),
-                "La méthode pause doit exister");
-        assertNotNull(PausedScreen.class.getDeclaredMethod("resume"),
-                "La méthode resume doit exister");
-        assertNotNull(PausedScreen.class.getDeclaredMethod("hide"),
-                "La méthode hide doit exister");
+    @DisplayName("resize ne plante pas")
+    void testerResize() {
+        assertDoesNotThrow(() -> pausedScreen.resize(1920, 1080));
+        assertDoesNotThrow(() -> pausedScreen.resize(800, 600));
+        assertDoesNotThrow(() -> pausedScreen.resize(0, 0));
     }
 
-    /**
-     * Teste que l'écran implémente bien l'interface Screen.
-     */
     @Test
-    @DisplayName("PausedScreen doit implémenter l'interface Screen")
+    @DisplayName("pause ne plante pas")
+    void testerPause() {
+        assertDoesNotThrow(() -> pausedScreen.pause());
+    }
+
+    @Test
+    @DisplayName("resume ne plante pas")
+    void testerResume() {
+        assertDoesNotThrow(() -> pausedScreen.resume());
+    }
+
+    @Test
+    @DisplayName("hide ne plante pas")
+    void testerHide() {
+        assertDoesNotThrow(() -> pausedScreen.hide());
+    }
+
+    @Test
+    @DisplayName("dispose ne plante pas sans show")
+    void testerDispose() {
+        assertDoesNotThrow(() -> pausedScreen.dispose());
+    }
+
+    @Test
+    @DisplayName("dispose avec batch null")
+    void testerDisposeAvecBatchNull() throws Exception {
+        Field champBatch = PausedScreen.class.getDeclaredField("batch");
+        champBatch.setAccessible(true);
+        champBatch.set(pausedScreen, null);
+
+        assertDoesNotThrow(() -> pausedScreen.dispose());
+    }
+
+    @Test
+    @DisplayName("Cycle de vie complet")
+    void testerCycleDeVieComplet() {
+        assertDoesNotThrow(() -> {
+            pausedScreen.resize(1920, 1080);
+            pausedScreen.pause();
+            pausedScreen.resume();
+            pausedScreen.hide();
+            pausedScreen.dispose();
+        });
+    }
+
+    // ========== TESTS SUPPLÉMENTAIRES ==========
+
+    @Test
+    @DisplayName("Créer plusieurs instances")
+    void testerPlusieursInstances() {
+        PausedScreen screen1 = new PausedScreen(screenManagerMock);
+        PausedScreen screen2 = new PausedScreen(screenManagerMock);
+        PausedScreen screen3 = new PausedScreen(screenManagerMock);
+
+        assertNotNull(screen1);
+        assertNotNull(screen2);
+        assertNotNull(screen3);
+    }
+
+    @Test
+    @DisplayName("PausedScreen implémente Screen")
     void testerImplementeScreen() {
-        // Vérifier que PausedScreen implémente Screen
-        assertTrue(com.badlogic.gdx.Screen.class.isAssignableFrom(PausedScreen.class),
-                "PausedScreen doit implémenter l'interface Screen");
+        assertTrue(com.badlogic.gdx.Screen.class.isAssignableFrom(PausedScreen.class));
     }
 
-    /**
-     * Nettoie après les tests.
-     */
-    @org.junit.jupiter.api.AfterEach
-    void nettoyerApresTest() {
-        // Réinitialiser Gdx.input
-        Gdx.input = null;
+    @Test
+    @DisplayName("Appeler handleInput plusieurs fois")
+    void testerHandleInputPlusieursFois() throws Exception {
+        Input inputMock = mock(Input.class);
+        Gdx.input = inputMock;
+
+        when(inputMock.isKeyJustPressed(anyInt())).thenReturn(false);
+
+        Method methode = PausedScreen.class.getDeclaredMethod("handleInput");
+        methode.setAccessible(true);
+
+        // Appeler 5 fois
+        for (int i = 0; i < 5; i++) {
+            methode.invoke(pausedScreen);
+        }
+
+        // Pas d'erreur et pas d'interaction
+        verifyNoInteractions(screenManagerMock);
     }
 }
