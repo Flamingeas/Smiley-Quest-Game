@@ -9,6 +9,13 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.utils.ScreenUtils;
 import settings.GameState;
 
+
+/**
+ * Represents the pause screen of the game.
+ * Responsibilities include rendering a semi-transparent overlay,
+ * displaying pause instructions, and handling input to either
+ * resume the game or return to the main menu.
+ */
 public class PausedScreen implements Screen {
 
     private final ScreenManager screenManager;
@@ -16,9 +23,17 @@ public class PausedScreen implements Screen {
     private BitmapFont fontTitle;
     private BitmapFont fontText;
 
+    /**
+     * The global screen manager used to switch between screens.
+     */
     public PausedScreen(ScreenManager screenManager) {
         this.screenManager = screenManager;
     }
+
+    /**
+     * Called when the pause screen becomes visible.
+     * Initializes the fonts and the sprite batch.
+     */
 
     @Override
     public void show() {
@@ -41,6 +56,12 @@ public class PausedScreen implements Screen {
         gen.dispose();
     }
 
+    /**
+     * Handles keyboard input for the pause screen.
+     * Pressing 'R' resumes the game.
+     * Pressing 'M' returns to the main menu.
+     * Logs all key presses for debugging purposes.
+     */
     private void handleInput() {
         for (int i = 0; i < 256; i++) {
             if (Gdx.input.isKeyJustPressed(i)) {
@@ -57,6 +78,13 @@ public class PausedScreen implements Screen {
         }
     }
 
+
+    /**
+     * Renders the pause screen overlay.
+     * Displays the title and instructions for resuming or returning to the menu.
+     *
+     * @param delta the time elapsed since the last frame in seconds
+     */
     @Override
     public void render(float delta) {
 

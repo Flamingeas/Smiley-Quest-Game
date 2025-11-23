@@ -1,3 +1,7 @@
+/**
+ * Represents a weak skeleton enemy in the game.
+ * Inherits generic stats from Enemy and targets the player.
+ */
 package entity.enemies;
 
 import entity.Entity;
@@ -6,8 +10,20 @@ import java.util.Random;
 
 public class SkeletonWeakEnemy extends Enemy {
 
+    /** Random generator used for slight movement variation. */
     private final Random rng;
 
+    /**
+     * Constructs a SkeletonWeakEnemy with generic stats.
+     * Sets texture and target player.
+     *
+     * @param tileX initial tile X position
+     * @param tileY initial tile Y position
+     * @param genHealth base health value
+     * @param genSpeed base speed
+     * @param genDamage base attack damage
+     * @param player target player
+     */
     public SkeletonWeakEnemy(float tileX, float tileY, int genHealth, float genSpeed, int genDamage, Player player) {
         super(tileX, tileY, genHealth, genSpeed, genDamage, player);
 
@@ -19,6 +35,9 @@ public class SkeletonWeakEnemy extends Enemy {
         scaleStats(1);
     }
 
+    /**
+     * Updates the enemy each frame: moves towards the player and attacks if in range.
+     */
     @Override
     public void update() {
         if (!isActive) return;
@@ -30,6 +49,13 @@ public class SkeletonWeakEnemy extends Enemy {
 
         tryAttack(targetPlayer);
     }
+    /**
+     * Moves the enemy towards the player with slight random variation.
+     * Attempts a fallback movement if blocked.
+     *
+     * @param player target player
+     * @param delta elapsed time
+     */
     @Override
     public void move(Player player, float delta) {
 
@@ -74,7 +100,11 @@ public class SkeletonWeakEnemy extends Enemy {
             if (gameScreen.canMoveGeneric(x, y + oy)) y += oy;
         }
     }
-
+    /**
+     * Handles interaction with another entity: attacks if the entity is a player.
+     *
+     * @param e entity encountered
+     */
     @Override
     public void interact(Entity e) {
         if (e instanceof Player player) {
@@ -82,6 +112,11 @@ public class SkeletonWeakEnemy extends Enemy {
         }
     }
 
+    /**
+     * Attacks the player if within attack range.
+     *
+     * @param player player to attack
+     */
     @Override
     public void attack(Player player) {
         tryAttack(player);

@@ -1,12 +1,11 @@
 package entity.enemies;
 
-import entity.Entity;
 import entity.Player;
 import java.util.Random;
 
 /**
- * Ennemi Larve : déplacement aléatoire + attaque seulement si proche,
- * avec un cooldown propre (hérité de Enemy).
+ * Represents a Larva-type enemy characterized by straight-line movement,
+ * bouncing behavior upon collisions, and overall weak but fast attributes.
  */
 public class LarvaEnemy extends Enemy {
 
@@ -14,6 +13,16 @@ public class LarvaEnemy extends Enemy {
     private float directionY;
     private final Random rng;
 
+    /**
+     * Constructs a Larva enemy using generic stats.
+     *
+     * @param x initial X position
+     * @param y initial Y position
+     * @param genHealth base health value
+     * @param genSpeed base movement speed
+     * @param genDamage base damage value
+     * @param player target player
+     */
     public LarvaEnemy(float x, float y, int genHealth, float genSpeed, int genDamage, Player player) {
         super(x, y, genHealth, genSpeed, genDamage, player);
 
@@ -34,6 +43,10 @@ public class LarvaEnemy extends Enemy {
         }
     }
 
+    /**
+     * Updates the Larva enemy by moving it and triggering an attack
+     * if the player is within proximity.
+     */
     @Override
     public void update() {
         if (!isActive) return;
@@ -46,6 +59,13 @@ public class LarvaEnemy extends Enemy {
         attack(targetPlayer);
     }
 
+    /**
+     * Handles Larva movement including bouncing off obstacles and
+     * recalculating a direction if movement becomes blocked.
+     *
+     * @param player unused for this enemy type
+     * @param delta  elapsed time
+     */
     @Override
     public void move(Player player, float delta) {
         if (gameScreen == null) return;

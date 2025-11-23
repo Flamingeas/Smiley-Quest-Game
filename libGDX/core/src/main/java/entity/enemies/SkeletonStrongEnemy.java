@@ -4,10 +4,25 @@ import entity.Entity;
 import entity.Player;
 import java.util.Random;
 
+/**
+ * Strong Skeleton enemy with higher stats, slight randomized movement,
+ * and close-range attack behavior. This enemy relentlessly follows the player
+ * while applying noise to its trajectory to make its movement less predictable.
+ */
 public class SkeletonStrongEnemy extends Enemy {
 
     private final Random rng = new Random();
 
+    /**
+     * Creates a strong skeleton enemy using generic stat values.
+     *
+     * @param tileX      spawn tile X coordinate
+     * @param tileY      spawn tile Y coordinate
+     * @param genHealth  base health value
+     * @param genSpeed   base movement speed
+     * @param genDamage  base attack damage
+     * @param player     reference to the targeted player
+     */
     public SkeletonStrongEnemy(float tileX, float tileY, int genHealth, float genSpeed, int genDamage, Player player) {
         super(tileX, tileY, genHealth, genSpeed, genDamage, player);
 
@@ -18,6 +33,13 @@ public class SkeletonStrongEnemy extends Enemy {
         scaleStats(1);
     }
 
+    /**
+     * Updates the enemy each frame:
+     * <ul>
+     *     <li>moves toward the player with added random deviation</li>
+     *     <li>attempts to attack if close enough</li>
+     * </ul>
+     */
     @Override
     public void update() {
         if (!isActive) return;
@@ -28,6 +50,13 @@ public class SkeletonStrongEnemy extends Enemy {
         attemptAttack(targetPlayer);
     }
 
+    /**
+     * Moves toward the player with a small randomized offset in direction.
+     * If movement is blocked, the skeleton attempts a short random displacement.
+     *
+     * @param player targeted player
+     * @param delta  elapsed time
+     */
     @Override
     public void move(Player player, float delta) {
 
@@ -72,6 +101,12 @@ public class SkeletonStrongEnemy extends Enemy {
         }
     }
 
+    /**
+     * Handles entity interaction. If the entity is a player,
+     * the skeleton attempts to attack.
+     *
+     * @param e encountered entity
+     */
     @Override
     public void interact(Entity e) {
         if (e instanceof Player player) {
@@ -92,6 +127,11 @@ public class SkeletonStrongEnemy extends Enemy {
         }
     }
 
+    /**
+     * Performs a melee attack if the player is within range.
+     *
+     * @param player player hit by the attack
+     */
     @Override
     public void attack(Player player) {
         attemptAttack(player);
