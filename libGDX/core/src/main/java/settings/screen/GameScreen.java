@@ -225,6 +225,8 @@ public class GameScreen implements Screen, Observer {
 
         player.setX(playerX);
         player.setY(playerY);
+        player.setCurrentWeapon(null);
+        player.getInventory().clear();
 
         Coord chestCoord = findChestTile();
         if (chestCoord != null) {
