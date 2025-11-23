@@ -39,15 +39,20 @@ public class GameWinnerScreen implements Screen {
     private float stateTime = 0f;
     /** Indique si le texte d'invite doit être affiché (pour le clignotement) */
     private boolean showPrompt = true;
-
+    private int finalScore;
     /**
      * Constructeur de l'écran de victoire.
      * @param screenManager Le gestionnaire d'écrans pour naviguer entre les vues du jeu.
      */
     public GameWinnerScreen(ScreenManager screenManager) {
         this.screenManager = screenManager;
-    }
 
+        if (screenManager.gameWorld != null) {
+            finalScore = screenManager.gameWorld.getScoreSystem().getScore();
+        } else {
+            finalScore = 0;
+        }
+    }
     /**
      * Appelé lorsque cet écran devient l'écran actuel du jeu.
      * Initialise les ressources graphiques (batch, renderer, polices).
@@ -141,9 +146,14 @@ public class GameWinnerScreen implements Screen {
         batch.begin();
 
         float centerX = Gdx.graphics.getWidth() / 2f;
-        float centerY = Gdx.graphics.getHeight() / 2f;
+        float centerY = Gdx.graphics.getHeight() /1.5f;
 
         String winnerText = "YOU WON!";
+        String scoreText = "Final Score : " + finalScore;
+        winnerFont.setColor(Color.BLACK);
+        drawCenteredText(winnerFont, scoreText, centerX + 3, centerY);
+        winnerFont.setColor(Color.WHITE);
+        drawCenteredText(winnerFont, scoreText, centerX, centerY + 3);
 
         winnerFont.setColor(Color.BLACK);
         drawCenteredText(winnerFont, winnerText, centerX + 3, centerY + 50 - 3);

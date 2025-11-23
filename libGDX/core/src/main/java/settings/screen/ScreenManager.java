@@ -31,7 +31,7 @@ public class ScreenManager {
     private GameOverScreen gameOverScreen;
 
     /** Current game world instance for gameplay */
-    private GameWorld gameWorld;
+    GameWorld gameWorld;
 
     /** Reference to the main game class */
     private SmileyQuestGame game;
