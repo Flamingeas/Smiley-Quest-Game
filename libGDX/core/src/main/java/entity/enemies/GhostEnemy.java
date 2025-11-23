@@ -4,6 +4,7 @@
  */
 package entity.enemies;
 
+import com.badlogic.gdx.graphics.Texture;
 import entity.Entity;
 import entity.Player;
 import java.util.Random;
@@ -15,36 +16,43 @@ import java.util.Random;
  */
 public class GhostEnemy extends Enemy {
 
-    private final Player targetPlayer;
-    private final Random rng;
+    private final Random rng = new Random();
     private float phase;
 
     /**
-     * Creates a new GhostEnemy using generic stats and initial coordinates.
-     * The ghost begins with a random oscillation phase.
+     * Creates a new GhostEnemy using tile-based coordinates and generated stats.
      *
-     * @param x         initial X coordinate (tile-based)
-     * @param y         initial Y coordinate (tile-based)
-     * @param genHealth base health value
-     * @param genSpeed  base movement speed
-     * @param genDamage base attack damage
-     * @param player    player the ghost will follow
+     * @param tileX      tile X coordinate
+     * @param tileY      tile Y coordinate
+     * @param genHealth  base health
+     * @param genSpeed   base speed
+     * @param genDamage  base damage
+     * @param player     target player
      */
-    public GhostEnemy(float x, float y, int genHealth, float genSpeed, int genDamage, Player player) {
-        super(x, y, genHealth, genSpeed, genDamage, player);
-        this.targetPlayer = player;
-        this.rng = new Random();
-        this.phase = rng.nextFloat() * 3.14f;
-        scaleStats(1);
+    public GhostEnemy(float tileX, float tileY,
+                      int genHealth, float genSpeed, int genDamage,
+                      Player player) {
 
+        super(tileX, tileY, genHealth, genSpeed, genDamage, player);
+
+        this.phase = rng.nextFloat() * (float)Math.PI;
         this.attackRange = 40f;
+
+        this.texture = new Texture("enemies/GhostEnemy.png");
+        this.targetPlayer = player;
+
+        scaleStats(1);
     }
 
     /**
-     * Updates the ghost's movement and triggers its attack logic.
+     * Update logic:
+     * - parent handles knockback / base timers
+     * - ghost-style movement
+     * - ghost attack via Enemy.baseAttack()
      */
     @Override
     public void update() {
+
         if (!isActive) return;
 
         super.update();
@@ -52,62 +60,64 @@ public class GhostEnemy extends Enemy {
         float delta = com.badlogic.gdx.Gdx.graphics.getDeltaTime();
 
         move(targetPlayer, delta);
-
         super.attack(targetPlayer);
     }
 
     /**
-     * Applies spectral drifting movement with sinusoidal oscillation
-     * while steadily moving toward the player.
-     *
-     * @param player player the ghost is targeting
-     * @param delta  time delta for movement scaling
+     * Spectral drifting movement:
+     * - always moving toward the player
+     * - with sinusoidal drift to simulate floating
      */
     @Override
     public void move(Player player, float delta) {
 
+        if (player == null || !isActive) return;
+
         float dx = player.getX() - x;
         float dy = player.getY() - y;
 
-        float dist = (float)Math.sqrt(dx*dx + dy*dy);
-        if (dist != 0) {
+        float dist = (float) Math.sqrt(dx*dx + dy*dy);
+        if (dist != 0f) {
             dx /= dist;
             dy /= dist;
         }
 
-        float oscX = (float)Math.sin(phase) * 0.4f;
-        float oscY = (float)Math.cos(phase) * 0.4f;
-        phase += 0.04f;
+        float oscX = (float) Math.sin(phase) * 0.40f;
+        float oscY = (float) Math.cos(phase) * 0.40f;
+        phase += 0.045f;
 
-        float finalSpeed = speed * delta * 28f;
+        float moveSpeed = speed * delta * 28f;
 
-        x += (dx + oscX) * finalSpeed;
-        y += (dy + oscY) * finalSpeed;
+        float newX = x + (dx + oscX) * moveSpeed;
+        float newY = y + (dy + oscY) * moveSpeed;
+
+        x = newX;
+        y = newY;
     }
 
     /**
-     * Ghost interaction logic: attacks the player on collision.
-     *
-     * @param e entity encountered
+     * Interaction via collision: ghost applies immediate damage.
      */
     @Override
     public void interact(Entity e) {
-        if (e instanceof Player) {
-            attack((Player) e);
+        if (e instanceof Player player) {
+            super.attack(player);
         }
     }
 
     /**
-     * Performs a melee attack when the ghost is close enough to the player.
-     *
-     * @param player player to damage
+     * Override of attack: ghost uses very short melee distance.
      */
     @Override
     public void attack(Player player) {
+
+        if (player == null || !isActive) return;
+
         float dx = player.getX() - x;
         float dy = player.getY() - y;
-        float dist = (float) Math.sqrt(dx * dx + dy * dy);
-        if (dist < 20f) {
+        float dist = (float) Math.sqrt(dx*dx + dy*dy);
+
+        if (dist < 18f) {
             player.takeDamage(attackDamage);
         }
     }

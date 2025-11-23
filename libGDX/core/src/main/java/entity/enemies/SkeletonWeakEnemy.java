@@ -1,43 +1,33 @@
-/**
- * Represents a weak skeleton enemy in the game.
- * Inherits generic stats from Enemy and targets the player.
- */
 package entity.enemies;
 
 import entity.Entity;
 import entity.Player;
 import java.util.Random;
 
+/**
+ * Represents a weak skeleton enemy in the game.
+ * Moves toward the player with slight random deviation,
+ * and attacks on close range.
+ */
 public class SkeletonWeakEnemy extends Enemy {
 
-    /** Random generator used for slight movement variation. */
     private final Random rng;
 
-    /**
-     * Constructs a SkeletonWeakEnemy with generic stats.
-     * Sets texture and target player.
-     *
-     * @param tileX initial tile X position
-     * @param tileY initial tile Y position
-     * @param genHealth base health value
-     * @param genSpeed base speed
-     * @param genDamage base attack damage
-     * @param player target player
-     */
-    public SkeletonWeakEnemy(float tileX, float tileY, int genHealth, float genSpeed, int genDamage, Player player) {
+    public SkeletonWeakEnemy(float tileX, float tileY,
+                             int genHealth, float genSpeed, int genDamage,
+                             Player player) {
+
         super(tileX, tileY, genHealth, genSpeed, genDamage, player);
 
         this.targetPlayer = player;
         this.rng = new Random();
 
         this.texture = new com.badlogic.gdx.graphics.Texture("enemies/SkeletonWeakEnemy.png");
+        this.attackRange = 22f;
 
         scaleStats(1);
     }
 
-    /**
-     * Updates the enemy each frame: moves towards the player and attacks if in range.
-     */
     @Override
     public void update() {
         if (!isActive) return;
@@ -45,17 +35,12 @@ public class SkeletonWeakEnemy extends Enemy {
         super.update();
 
         float delta = com.badlogic.gdx.Gdx.graphics.getDeltaTime();
+
         move(targetPlayer, delta);
 
         tryAttack(targetPlayer);
     }
-    /**
-     * Moves the enemy towards the player with slight random variation.
-     * Attempts a fallback movement if blocked.
-     *
-     * @param player target player
-     * @param delta elapsed time
-     */
+
     @Override
     public void move(Player player, float delta) {
 
@@ -72,9 +57,12 @@ public class SkeletonWeakEnemy extends Enemy {
 
         dx += (rng.nextFloat() - 0.5f) * 0.20f;
         dy += (rng.nextFloat() - 0.5f) * 0.20f;
+
         float len2 = (float)Math.sqrt(dx*dx + dy*dy);
-        dx /= len2;
-        dy /= len2;
+        if (len2 != 0) {
+            dx /= len2;
+            dy /= len2;
+        }
 
         float moveSpeed = speed * 32f * delta;
 
@@ -91,6 +79,7 @@ public class SkeletonWeakEnemy extends Enemy {
             y = newY;
             moved = true;
         }
+
         if (!moved) {
             float angle = rng.nextFloat() * (float)Math.PI * 2;
             float ox = (float)Math.cos(angle) * moveSpeed * 0.6f;
@@ -100,11 +89,7 @@ public class SkeletonWeakEnemy extends Enemy {
             if (gameScreen.canMoveGeneric(x, y + oy)) y += oy;
         }
     }
-    /**
-     * Handles interaction with another entity: attacks if the entity is a player.
-     *
-     * @param e entity encountered
-     */
+
     @Override
     public void interact(Entity e) {
         if (e instanceof Player player) {
@@ -112,23 +97,21 @@ public class SkeletonWeakEnemy extends Enemy {
         }
     }
 
-    /**
-     * Attacks the player if within attack range.
-     *
-     * @param player player to attack
-     */
     @Override
     public void attack(Player player) {
         tryAttack(player);
     }
 
+    /** Check distance then call super.attack() (with cooldown). */
     private void tryAttack(Player player) {
+        if (player == null) return;
+
         float dx = player.getX() - x;
         float dy = player.getY() - y;
 
         float dist = (float)Math.sqrt(dx*dx + dy*dy);
 
-        if (dist < 22f) {
+        if (dist < attackRange) {
             super.attack(player);
         }
     }

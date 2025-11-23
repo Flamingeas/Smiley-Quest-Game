@@ -81,6 +81,9 @@ public class GameScreen implements Screen, Observer {
 
     private EnemyRenderer enemyRenderer;
     private Texture heartIcon;
+    private boolean isAttacking = false;
+    private float attackTimer = 0f;
+    private final float attackDuration = 0.15f;
 
     public GameScreen(ScreenManager screenManager, GameWorld gameWorld) {
         this.screenManager = screenManager;
@@ -448,39 +451,77 @@ public class GameScreen implements Screen, Observer {
 
         return walkableTiles.contains(id);
     }
+    private void handlePlayerAttack() {
+        if (!isAttacking) return;
+        Weapon w = player.getCurrentWeapon();
+        if (w == null) return;
 
+        float px = player.getX();
+        float py = player.getY();
+
+        float attackDistance = 40f;
+        int damage = w.getDamage();
+
+        for (Enemy e : gameWorld.getEnemies()) {
+
+            if (!e.isActive()) continue;
+
+            float dx = e.getX() - px;
+            float dy = e.getY() - py;
+            float dist2 = dx*dx + dy*dy;
+
+            if (dist2 < attackDistance * attackDistance) {
+
+                e.takeDamage(damage);
+
+                float forceX = dx * 0.15f;
+                float forceY = dy * 0.15f;
+                e.applyKnockback(forceX, forceY);
+
+                System.out.println(">>> Enemy hit for " + damage);
+            }
+        }
+    }
     private void handleInput(float delta) {
 
+        if (screenManager.getState() != GameState.PLAYING) {
+            isAttacking = false;
+            return;
+        }
         float move = speed * delta;
         float newX = playerX;
         float newY = playerY;
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) ||
-                Gdx.input.isKeyPressed(Input.Keys.A))
-        {
+                Gdx.input.isKeyPressed(Input.Keys.A)) {
+
             newX -= move;
-            player.setDirection(Player.Direction.LEFT);   // ✔ correct
+            player.setDirection(Player.Direction.LEFT);
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) ||
-                Gdx.input.isKeyPressed(Input.Keys.D))
-        {
+                Gdx.input.isKeyPressed(Input.Keys.D)) {
+
             newX += move;
-            player.setDirection(Player.Direction.RIGHT);  // ✔ correct
+            player.setDirection(Player.Direction.RIGHT);
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.UP) ||
-                Gdx.input.isKeyPressed(Input.Keys.W))
-        {
+                Gdx.input.isKeyPressed(Input.Keys.W)) {
             newY += move;
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN) ||
-                Gdx.input.isKeyPressed(Input.Keys.S))
-        {
+                Gdx.input.isKeyPressed(Input.Keys.S)) {
             newY -= move;
         }
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            if (!isAttacking) {
+                isAttacking = true;
+                attackTimer = attackDuration;
+            }
+        }
         if (canMoveTo(newX, playerY)) playerX = newX;
         if (canMoveTo(playerX, newY)) playerY = newY;
 
@@ -526,26 +567,27 @@ public class GameScreen implements Screen, Observer {
         checkWeaponCollisions();
 
         ScreenUtils.clear(0, 0, 0, 1);
-
         camera.update();
 
         mapRenderer.getBatch().setTransformMatrix(
                 mapRenderer.getBatch().getTransformMatrix().idt()
                         .translate(mapOffsetX, mapOffsetY, 0)
         );
-
         mapRenderer.setView(camera);
         mapRenderer.render();
-
         mapRenderer.getBatch().setTransformMatrix(
                 mapRenderer.getBatch().getTransformMatrix().idt()
         );
 
-        batch.setProjectionMatrix(camera.combined);
-        if (heartHitFlashTimer > 0) {
-            heartHitFlashTimer -= delta;
+        if (isAttacking) {
+            attackTimer -= delta;
+            handlePlayerAttack();
+            if (attackTimer <= 0) isAttacking = false;
         }
 
+        batch.setProjectionMatrix(camera.combined);
+
+        if (heartHitFlashTimer > 0) heartHitFlashTimer -= delta;
         if (heartPopScale > 1f) {
             heartPopScale -= delta * 1.5f;
             if (heartPopScale < 1f) heartPopScale = 1f;
@@ -559,6 +601,7 @@ public class GameScreen implements Screen, Observer {
             shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             shapeRenderer.end();
         }
+
         batch.begin();
 
         if (!player.isBlinking()) {
@@ -566,26 +609,33 @@ public class GameScreen implements Screen, Observer {
         } else {
             batch.setColor(1, 1, 1, 0.3f);
             batch.draw(playerTexture, playerX, playerY, 32, 32);
-            batch.setColor(1, 1, 1, 1f);
+            batch.setColor(1, 1, 1, 1);
         }
+
         Weapon w = player.getCurrentWeapon();
         if (w != null && w.getHeldRegion() != null) {
 
             float weaponX;
             float weaponY = playerY - 1;
 
-            float rotation;
             float originX = 12;
             float originY = 12;
-            System.out.println(player.getDirection());
-            if (player.getDirection() == Player.Direction.RIGHT) {
-                weaponX = playerX + 13;
-                rotation = -35f;
-            } else {
-                // Position + rotation côté gauche
-                weaponX = playerX - 5;
-                rotation = 35f;
+
+            float baseRotation = (player.getDirection() == Player.Direction.RIGHT) ? -35f : 35f;
+
+            float attackBoost = 0f;
+            if (isAttacking) {
+                float t = 1f - (attackTimer / attackDuration);
+                attackBoost = (float) Math.sin(t * Math.PI) * 40f;
             }
+
+            float finalRotation = (player.getDirection() == Player.Direction.RIGHT)
+                    ? baseRotation - attackBoost
+                    : baseRotation + attackBoost;
+
+            weaponX = (player.getDirection() == Player.Direction.RIGHT)
+                    ? playerX + 13
+                    : playerX - 5;
 
             batch.draw(
                     w.getHeldRegion(),
@@ -593,15 +643,33 @@ public class GameScreen implements Screen, Observer {
                     originX, originY,
                     24, 24,
                     1f, 1f,
-                    rotation
+                    finalRotation
             );
+
+            if (isAttacking) {
+                float slashSize = 18;
+                float slashAlpha = (attackTimer / attackDuration);
+                batch.setColor(1f, 1f, 1f, slashAlpha * 0.7f);
+
+                batch.draw(
+                        w.getHeldRegion(),
+                        weaponX + (player.getDirection() == Player.Direction.RIGHT ? 20 : -10),
+                        weaponY + 5,
+                        originX, originY,
+                        slashSize, slashSize,
+                        1f, 1f,
+                        finalRotation + (player.getDirection() == Player.Direction.RIGHT ? 45f : -45f)
+                );
+
+                batch.setColor(1,1,1,1);
+            }
         }
+
         batch.end();
 
         drawHUD();
 
         Level lvl = gameWorld.getCurrentLevel();
-
         if (lvl.isCleared(playerX - mapOffsetX, playerY - mapOffsetY, tileSize)) {
             player.notifyEvent(new GameEvent("CHEST_FOUND", null));
         }

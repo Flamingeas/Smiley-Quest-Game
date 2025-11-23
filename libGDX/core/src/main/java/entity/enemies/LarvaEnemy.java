@@ -1,79 +1,81 @@
 package entity.enemies;
 
+import com.badlogic.gdx.graphics.Texture;
 import entity.Player;
 import java.util.Random;
 
 /**
  * Represents a Larva-type enemy characterized by straight-line movement,
- * bouncing behavior upon collisions, and overall weak but fast attributes.
+ * bouncing behavior upon collisions, and weak but fast attack behavior.
  */
 public class LarvaEnemy extends Enemy {
 
     private float directionX;
     private float directionY;
-    private final Random rng;
+    private final Random rng = new Random();
 
     /**
-     * Constructs a Larva enemy using generic stats.
-     *
-     * @param x initial X position
-     * @param y initial Y position
-     * @param genHealth base health value
-     * @param genSpeed base movement speed
-     * @param genDamage base damage value
-     * @param player target player
+     * Constructs a Larva enemy using tile-based positions and generated stats.
      */
-    public LarvaEnemy(float x, float y, int genHealth, float genSpeed, int genDamage, Player player) {
-        super(x, y, genHealth, genSpeed, genDamage, player);
+    public LarvaEnemy(float tileX, float tileY,
+                      int genHealth, float genSpeed, int genDamage,
+                      Player player) {
 
-        this.rng = new Random();
+        super(tileX, tileY, genHealth, genSpeed, genDamage, player);
+
+        this.texture = new Texture("enemies/LarvaEnemy.png");
+        this.attackRange = 40f;
+
         regenerateDirection();
         scaleStats(1);
-        this.attackRange = 40f;
     }
 
+    /**
+     * Generates a random normalized direction for the larva.
+     */
     private void regenerateDirection() {
-        directionX = rng.nextFloat() * 2 - 1;
-        directionY = rng.nextFloat() * 2 - 1;
+        directionX = rng.nextFloat() * 2f - 1f;
+        directionY = rng.nextFloat() * 2f - 1f;
 
-        float len = (float)Math.sqrt(directionX * directionX + directionY * directionY);
-        if (len != 0) {
+        float len = (float) Math.sqrt(directionX * directionX + directionY * directionY);
+        if (len != 0f) {
             directionX /= len;
             directionY /= len;
         }
     }
 
     /**
-     * Updates the Larva enemy by moving it and triggering an attack
-     * if the player is within proximity.
+     * Update sequence:
+     * - Knockback / cooldown via super.update()
+     * - Movement
+     * - Attack if close enough
      */
     @Override
     public void update() {
-        if (!isActive) return;
 
-        float delta = com.badlogic.gdx.Gdx.graphics.getDeltaTime();
+        if (!isActive) return;
 
         super.update();
 
+        float delta = com.badlogic.gdx.Gdx.graphics.getDeltaTime();
+
         move(targetPlayer, delta);
-        attack(targetPlayer);
+
+        super.attack(targetPlayer);
     }
 
     /**
-     * Handles Larva movement including bouncing off obstacles and
-     * recalculating a direction if movement becomes blocked.
-     *
-     * @param player unused for this enemy type
-     * @param delta  elapsed time
+     * Moves linearly and bounces on walls.
      */
     @Override
     public void move(Player player, float delta) {
+
         if (gameScreen == null) return;
 
-        float speedStep = speed * 40f * delta;
+        float step = speed * 40f * delta;
 
-        float newX = x + directionX * speedStep;
-        float newY = y + directionY * speedStep;
+        float newX = x + directionX * step;
+        float newY = y + directionY * step;
 
         boolean moved = false;
 
@@ -96,6 +98,9 @@ public class LarvaEnemy extends Enemy {
         }
     }
 
+    /**
+     * Attack on close proximity using parent's cooldown system.
+     */
     @Override
     public void attack(Player player) {
         if (player == null) return;
@@ -104,7 +109,7 @@ public class LarvaEnemy extends Enemy {
         float dy = player.getY() - y;
         float dist = (float)Math.sqrt(dx * dx + dy * dy);
 
-        if (dist < 40f) {
+        if (dist < 35f) {
             super.attack(player);
         }
     }

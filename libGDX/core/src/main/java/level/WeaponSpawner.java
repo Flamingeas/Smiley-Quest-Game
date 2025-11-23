@@ -60,7 +60,6 @@ public class WeaponSpawner {
 
             Weapon weapon = new Weapon(pos.getX(), pos.getY(), MAP1_WEAPON_DMG[i], MAP1_WEAPON_NAMES[i], icon);
 
-            // 🔥 heldRegion = same icon (simple)
             weapon.setHeldRegion(icon);
 
             result.add(new WeaponData(weapon, tileId, pos));
@@ -73,7 +72,6 @@ public class WeaponSpawner {
     private List<WeaponData> spawnFromTileset(TiledMap map, int max, settings.GameWorld gameWorld) {
         List<WeaponTile> declaredWeapons = new ArrayList<>();
 
-        // Scan tilesets for weapons
         for (TiledMapTileSet set : map.getTileSets()) {
             for (TiledMapTile tile : set) {
                 if (tile == null) continue;
@@ -93,7 +91,6 @@ public class WeaponSpawner {
         int w = layer.getWidth();
         int h = layer.getHeight();
 
-        // find walkable tiles
         List<Coord> walkable = new ArrayList<>();
         for (int y = 0; y < h; y++)
             for (int x = 0; x < w; x++)
@@ -116,7 +113,6 @@ public class WeaponSpawner {
 
             Weapon weapon = new Weapon(pos.getX(), pos.getY(), wt.damage, wt.name, icon);
 
-            // 🔥 Same icon used for held version
             weapon.setHeldRegion(icon);
 
             result.add(new WeaponData(weapon, wt.tileId, pos));
